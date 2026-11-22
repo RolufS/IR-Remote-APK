@@ -5,6 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -13,11 +14,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SignalSenderTest {
 
-    private class FakeTx(private val failWith: Throwable? = null) : IrTransmitter {
+    private class FakeTx(private val failWith: Throwable? = null, private val clock: () -> Long = { 0L }) : IrTransmitter {
         override val available = true
         val calls = mutableListOf<Pair<Int, List<Int>>>()
+        val timesMs = mutableListOf<Long>()
         override fun transmit(freq: Int, pattern: IntArray) {
             calls += freq to pattern.toList()
+            timesMs += clock()
             failWith?.let { throw it }
         }
     }
@@ -45,18 +48,43 @@ class SignalSenderTest {
         assertEquals(listOf(rc5.frame, rc5.frameAlt, rc5.frame), tx.calls.map { it.second })
     }
 
-    @Test fun holdRepeatsAfterDelayThenEveryPeriod() = runTest {
-        val tx = FakeTx()
+    private fun FakeTx.times() = calls.indices.map { timesMs[it] }
+
+    @Test fun holdWithRepeatBurstSendsRepeatsEveryPeriodRightAfterFrame() = runTest {
+        val tx = FakeTx(clock = { currentTime })
         val job = sender(tx).hold(nec)
         runCurrent()
-        advanceTimeBy(400 + 108 * 2 + 1)
+        advanceTimeBy(108 * 3 + 1)
         runCurrent()
-        assertEquals(listOf(nec.frame, nec.repeat, nec.repeat, nec.repeat), tx.calls.map { it.second })
         job.cancel()
+        assertEquals(listOf(nec.frame, nec.repeat, nec.repeat, nec.repeat), tx.calls.map { it.second })
+        assertEquals(listOf(0L, 108L, 216L, 324L), tx.times())
         val n = tx.calls.size
         advanceTimeBy(1000)
         runCurrent()
         assertEquals(n, tx.calls.size)
+    }
+
+    @Test fun holdWithoutRepeatBurstWaitsHoldDelayThenEveryPeriod() = runTest {
+        val tx = FakeTx(clock = { currentTime })
+        val job = sender(tx).hold(rc5)
+        runCurrent()
+        advanceTimeBy(400 + 114 * 2 + 1)
+        runCurrent()
+        job.cancel()
+        assertEquals(listOf(0L, 400L, 514L, 628L), tx.times())
+    }
+
+    @Test fun holdCancelledBeforeStartStillSendsFirstFrame() = runTest {
+        val tx = FakeTx()
+        val s = sender(tx)
+        s.press(nec) // belegt die serielle Warteschlange
+        val job = s.hold(rc5)
+        job.cancel() // kurzer Tipp: Loslassen, bevor der Hold-Job lief
+        runCurrent()
+        advanceTimeBy(1000)
+        runCurrent()
+        assertEquals(listOf(nec.frame, rc5.frame), tx.calls.map { it.second })
     }
 
     @Test fun holdRepeatsKeepToggle() = runTest {
