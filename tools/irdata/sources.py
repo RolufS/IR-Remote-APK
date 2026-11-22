@@ -12,6 +12,7 @@ from .signal import Signal
 
 _TV_DIR = re.compile(r"(?i)\btv\b|television")
 _POWER_SLOTS = {"POWER", "POWER_ON", "POWER_OFF"}
+MALFORMED = "<malformed>"  # Schluessel in RemoteFile.unsupported fuer kaputte Eintraege
 
 
 @dataclass
@@ -30,10 +31,14 @@ class _Builder:
         self.file = RemoteFile(source, brand, str(path))
         self._slots: set[str] = set()
 
-    def add(self, raw_name: str, make, protocol: str | None) -> None:
-        """`make` builds the Signal; `protocol` names it for the unsupported statistics."""
+    def add(self, raw_name: str | None, make, protocol: str | None) -> None:
+        """`make` builds the Signal; `protocol` names it for the unsupported statistics.
+        Entries with missing or unparseable fields are counted under MALFORMED and skipped."""
         f = self.file
         f.entries += 1
+        if not raw_name:
+            self._count(MALFORMED)
+            return
         key = canonical_key(raw_name)
         if key is None:
             return
@@ -43,10 +48,15 @@ class _Builder:
         try:
             signal = make()
         except UnsupportedProtocol:
-            name = protocol or "raw"
-            f.unsupported[name] = f.unsupported.get(name, 0) + 1
+            self._count(protocol or "raw")
+            return
+        except (KeyError, ValueError, TypeError):
+            self._count(MALFORMED)
             return
         f.keys.setdefault(key, signal)
+
+    def _count(self, name: str) -> None:
+        self.file.unsupported[name] = self.file.unsupported.get(name, 0) + 1
 
     def done(self) -> RemoteFile:
         self.file.basic_named = len(self._slots)
@@ -55,6 +65,14 @@ class _Builder:
 
 def _le(text: str) -> int:
     return int.from_bytes(bytes(int(b, 16) for b in text.split()), "little")
+
+
+def _raw_signal(e: dict[str, str]) -> Signal:
+    freq = int(e["frequency"])
+    data = [int(x) for x in e["data"].split()]
+    if freq <= 0 or not data or min(data) <= 0:
+        raise ValueError("bad raw signal")
+    return from_raw(freq, data)
 
 
 def _flipper_entries(text: str) -> Iterator[dict[str, str]]:
@@ -89,18 +107,17 @@ def _read_flipper(path: Path, brand: str) -> RemoteFile:
                 e.get("protocol"),
             )
         elif kind == "raw":
-            b.add(
-                e["name"],
-                lambda e=e: from_raw(int(e["frequency"]), [int(x) for x in e["data"].split()]),
-                None,
-            )
+            b.add(e["name"], lambda e=e: _raw_signal(e), None)
     return b.done()
 
 
 def iter_flipper(root: Path) -> Iterator[RemoteFile]:
     tvs = Path(root) / "TVs"
     for path in sorted(tvs.rglob("*.ir")):
-        brand = path.relative_to(tvs).parts[0]
+        parts = path.relative_to(tvs).parts
+        if len(parts) < 2:  # Datei direkt unter TVs/: keine Marke bekannt
+            continue
+        brand = parts[0]
         yield _read_flipper(path, canonical_brand(brand))
 
 
@@ -109,11 +126,11 @@ def _read_irdb(path: Path, brand: str) -> RemoteFile:
     with path.open(encoding="utf-8", errors="replace", newline="") as fh:
         for row in csv.DictReader(fh):
             b.add(
-                row["functionname"],
+                row.get("functionname"),
                 lambda row=row: encode_irdb(
                     row["protocol"], int(row["device"]), int(row["subdevice"]), int(row["function"])
                 ),
-                row["protocol"],
+                row.get("protocol"),
             )
     return b.done()
 

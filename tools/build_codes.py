@@ -14,14 +14,18 @@ from irdata.sources import iter_flipper, iter_irdb  # noqa: E402
 
 
 def git_commit(directory: Path) -> str:
+    """HEAD of `directory`, but only if it is itself the top level of a git checkout."""
     try:
         r = subprocess.run(
-            ["git", "-C", str(directory), "rev-parse", "HEAD"],
+            ["git", "-C", str(directory), "rev-parse", "--show-toplevel", "HEAD"],
             capture_output=True, text=True, check=True,
         )
-        return r.stdout.strip() or "unknown"
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
+        top, head = r.stdout.splitlines()[-2:]
+        if Path(top).resolve() == Path(directory).resolve():
+            return head
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        pass
+    return "unknown"
 
 
 def main(argv: list[str] | None = None) -> int:
