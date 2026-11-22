@@ -42,6 +42,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.hotelremote.R
+import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.RemoteColors
 
@@ -82,7 +83,7 @@ fun LanguageScreen(
                         .semantics { contentDescription = backDesc },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("←", color = RemoteColors.KeyText, fontSize = 20.sp)
+                    Text(backArrow(), color = RemoteColors.KeyText, fontSize = 20.sp)
                 }
             } else {
                 Spacer(Modifier.width(4.dp))

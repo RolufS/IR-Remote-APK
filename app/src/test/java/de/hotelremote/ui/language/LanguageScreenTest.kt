@@ -2,8 +2,10 @@ package de.hotelremote.ui.language
 
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -83,5 +85,19 @@ class LanguageScreenTest {
         rule.onNodeWithContentDescription("Zurück").performClick()
         assertEquals(1, backs)
         assertEquals(emptyList<String>(), chosen)
+    }
+
+    @Test fun backArrowPointsLeftInGerman() {
+        show("de", withBack = true)
+        rule.onNodeWithTag("language_back", useUnmergedTree = true).onChild().assertTextEquals("←")
+    }
+
+    /** Arabisch (RTL): Zurück steht rechts und zeigt nach rechts. */
+    @Test
+    @Config(sdk = [35], qualifiers = "ar")
+    fun backArrowPointsRightInArabic() {
+        show("ar", withBack = true)
+        rule.onNodeWithTag("language_back", useUnmergedTree = true).onChild().assertTextEquals("→")
+        rule.onNodeWithText("اختيار اللغة").assertExists()
     }
 }

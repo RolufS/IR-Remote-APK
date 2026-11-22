@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.theme.RemoteColors
 
 /** Alle `X:`-Tasten der Fernbedienung als große Zeilen-Buttons, alphabetisch. */
@@ -58,7 +59,7 @@ fun ExtraKeysScreen(remote: SavedRemote, handler: KeyHandler, onBack: () -> Unit
                     .semantics { contentDescription = backDesc },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("←", color = RemoteColors.KeyText, fontSize = 20.sp)
+                Text(backArrow(), color = RemoteColors.KeyText, fontSize = 20.sp)
             }
             Text(
                 stringResource(R.string.menu_extra),

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.hotelremote.R
+import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.theme.RemoteColors
 
 /** Über-Seite: Kurztext, Datenschutz-Hinweis und Herkunft der Code-Daten aus der `meta`-Tabelle. */
@@ -53,7 +54,7 @@ fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit)
                     .semantics { contentDescription = backDesc },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("←", color = RemoteColors.KeyText, fontSize = 20.sp)
+                Text(backArrow(), color = RemoteColors.KeyText, fontSize = 20.sp)
             }
             Text(
                 stringResource(R.string.menu_about),

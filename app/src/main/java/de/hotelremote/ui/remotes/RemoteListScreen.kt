@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.RemoteColors
 
@@ -82,7 +83,7 @@ fun RemoteListScreen(
                     .semantics { contentDescription = backDesc },
                 contentAlignment = Alignment.Center,
             ) {
-                Text("←", color = RemoteColors.KeyText, fontSize = 20.sp)
+                Text(backArrow(), color = RemoteColors.KeyText, fontSize = 20.sp)
             }
             Text(
                 stringResource(R.string.list_title),
