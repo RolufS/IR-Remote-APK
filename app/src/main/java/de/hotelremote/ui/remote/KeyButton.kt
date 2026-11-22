@@ -23,8 +23,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import de.hotelremote.Keys
@@ -81,6 +83,7 @@ private fun PressableKey(
     Box(
         modifier = surface
             .semantics(mergeDescendants = true) {
+                role = Role.Button
                 if (enabled) onClick {
                     tap()
                     true
@@ -129,6 +132,7 @@ fun KeyButton(
     modifier: Modifier = Modifier,
     shape: Shape = KeyShape,
     brush: Brush? = KeyBrush,
+    sendOnPress: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val currentHandler by rememberUpdatedState(handler)
@@ -141,14 +145,20 @@ fun KeyButton(
         brush = brush,
         onTap = { currentHandler.press(key) },
         onLongPress = null,
-        onPressStart = {
-            if (repeating) {
-                val job = currentHandler.hold(key)
-                ({ job?.cancel(); Unit })
-            } else {
-                currentHandler.press(key)
-                null
+        onPressStart = when {
+            repeating -> {
+                {
+                    val job = currentHandler.hold(key)
+                    ({ job?.cancel(); Unit })
+                }
             }
+            sendOnPress -> {
+                {
+                    currentHandler.press(key)
+                    null
+                }
+            }
+            else -> null
         },
         content = content,
     )

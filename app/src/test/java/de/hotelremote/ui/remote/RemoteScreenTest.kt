@@ -3,7 +3,11 @@ package de.hotelremote.ui.remote
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.down
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.up
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.ui.theme.HotelRemoteTheme
@@ -22,7 +26,13 @@ private class FakeHandler : KeyHandler {
         pressed += key
     }
 
-    override fun hold(key: String): Job? = null
+    val held = mutableListOf<String>()
+    var holdJob: Job? = null
+
+    override fun hold(key: String): Job? {
+        held += key
+        return holdJob
+    }
 }
 
 private val SIGNAL = IrSignal(freq = 38000, frame = listOf(9000, 4500, 560), periodMs = 108)
@@ -99,5 +109,34 @@ class RemoteScreenTest {
     fun noIrBannerHiddenWhenAvailable() {
         show(remote("MUTE"), irAvailable = true)
         rule.onNodeWithTag("no_ir_banner").assertDoesNotExist()
+    }
+
+    @Test
+    fun repeatingKeyHoldsAndCancelsOnRelease() {
+        val handler = FakeHandler()
+        val job = Job()
+        handler.holdJob = job
+        show(remote("VOL_UP"), handler = handler)
+        rule.onNodeWithTag("key_VOL_UP").performTouchInput { down(center) }
+        assertEquals(listOf("VOL_UP"), handler.held)
+        assertEquals(emptyList<String>(), handler.pressed)
+        assertEquals(false, job.isCancelled)
+        rule.onNodeWithTag("key_VOL_UP").performTouchInput { up() }
+        assertEquals(true, job.isCancelled)
+    }
+
+    @Test
+    fun extraKeysSwipeSendsNothingTapSendsOnce() {
+        val handler = FakeHandler()
+        val keys = (1..30).map { "X:Key%02d".format(it) }
+        rule.setContent {
+            HotelRemoteTheme {
+                ExtraKeysScreen(remote(*keys.toTypedArray()), handler, onBack = {})
+            }
+        }
+        rule.onNodeWithTag("key_X:Key01").performClick()
+        assertEquals(listOf("X:Key01"), handler.pressed)
+        rule.onNodeWithTag("key_X:Key02").performTouchInput { swipeUp() }
+        assertEquals(listOf("X:Key01"), handler.pressed)
     }
 }

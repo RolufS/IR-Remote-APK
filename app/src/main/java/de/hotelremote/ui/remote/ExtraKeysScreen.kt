@@ -79,7 +79,7 @@ fun ExtraKeysScreen(remote: SavedRemote, handler: KeyHandler, onBack: () -> Unit
                 modifier = Modifier.fillMaxSize(),
             ) {
                 items(extras, key = { it }) { key ->
-                    KeyButton(key, true, handler, Modifier.fillMaxWidth().height(64.dp)) {
+                    KeyButton(key, true, handler, Modifier.fillMaxWidth().height(64.dp), sendOnPress = false) {
                         Text(
                             Keys.extraLabel(key),
                             color = RemoteColors.KeyText,
