@@ -77,6 +77,11 @@ Mockup: `docs/superpowers/specs/mockups/wizard.html`
 
 **Suchlauf bei unbekannter Marke:** Die App sendet nacheinander das Ausschalt-Signal aller Code-Sätze, die häufigsten zuerst, und zeigt dabei „127 von 410 · Philips“. Der Nutzer tippt auf „Stopp – hat reagiert!“, sobald der Fernseher ausgeht. Danach testet die App die letzten Codes vor dem Stopp einzeln mit ihm (MUTE, sobald der Fernseher wieder an ist) und macht mit Schritt 3 weiter.
 
+Ein paar Regeln dazu (von Claude festgelegt):
+- Gesendet wird POWER_OFF, wenn der Code-Satz eines hat, sonst der POWER-Umschalter.
+- Jedes Signal geht nur einmal raus, auch wenn es zu mehreren Marken gehört. So kann ein späterer Code den Fernseher nicht mit demselben Signal wieder einschalten.
+- Vor dem Start sagt der Bildschirm: „Der Fernseher muss eingeschaltet sein.“
+
 ## Von Claude festgelegt (Vorschläge, korrigierbar)
 
 ### Code-Daten
@@ -87,12 +92,23 @@ Mockup: `docs/superpowers/specs/mockups/wizard.html`
   - Beide Quellen werden auf einen festen Commit gepinnt.
   - LIRC bleibt außen vor (uneinheitliches Format, viele Doppelungen).
 - **Aufbereitung am PC:** Ein Python-Skript (`tools/build_codes.py`) liest beide Quellen und vereinheitlicht die Tastennamen auf eine feste Liste. Diese Liste umfasst POWER, POWER_ON, POWER_OFF, MUTE, VOL_UP, VOL_DOWN, CH_UP, CH_DOWN, 0–9, SOURCE, HDMI1–HDMI4, MENU, HOME, OK, UP/DOWN/LEFT/RIGHT, BACK, EXIT, INFO, LIST, PRE_CH, RED/GREEN/YELLOW/BLUE und Extras. Das Skript fasst gleiche Code-Sätze zusammen und schreibt eine SQLite-Datei nach `app/src/main/assets/`.
+- **Jede Taste trägt ihr eigenes Signal** (Protokoll, Adresse, Befehl bzw. Rohzeiten). Eine Fernbedienung darf also Tasten mit verschiedenen Adressen oder Protokollen enthalten, wie es bei echten Geräten vorkommt.
 - **Code-Satz = „eine Fernbedienung“ in der App:**
-  - Dazu gehören Marke, Protokoll mit Geräte-Adresse und die Tasten.
-  - Zwei Quelldateien gelten als derselbe Code-Satz, wenn Protokoll, Adresse sowie die Befehle für POWER und MUTE gleich sind. Ihre übrigen Tasten werden vereinigt.
+  - Ein Code-Satz ist eine Menge von Tasten. Zwei Quelldateien gelten als derselbe Code-Satz, wenn ihre Signale für POWER und MUTE gleich sind. Fehlt MUTE in beiden, entscheiden POWER und VOL_UP. Die übrigen Tasten werden vereinigt.
   - Widersprechen sich zwei Quellen bei einer Taste, gewinnt die Mehrheit. Bei Gleichstand gewinnt Flipper-IRDB.
-- **Reihenfolge:** Innerhalb einer Marke werden die Code-Sätze nach der Zahl der Quelldateien sortiert, die sie stützen (häufigste zuerst). Für den Suchlauf gilt dieselbe Reihenfolge über alle Marken hinweg.
-- **Direkte Eingänge:** Ein Code-Satz hat „direkte Eingänge“, wenn er mindestens HDMI1 und HDMI2 enthält. Erkannt wird das an Tastennamen wie `HDMI1`, `HDMI_1`, `HDMI 1`, `Input_HDMI1` u. Ä. Flipper-IRDB hat dafür eigene `*_Discrete.ir`-Dateien (z. B. bei Samsung). Es werden **nur Codes aus den öffentlichen Daten** übernommen, nichts geraten oder erfunden.
+  - Dateien mit weniger als drei der Grundtasten (POWER, MUTE, VOL_UP, VOL_DOWN, CH_UP, CH_DOWN) werden nicht zu eigenen Code-Sätzen. Ausnahme: reine Eingangs-Dateien, siehe unten.
+  - Rohdaten-Dateien versucht das Skript beim Aufbereiten in ein bekanntes Protokoll zurückzuübersetzen. Gelingt das nicht, bleiben sie als Rohdaten erhalten.
+- **Code-Sätze gelten markenübergreifend:**
+  - Gleiche Code-Sätze verschiedener Marken (z. B. Hisense, TCL, Vestel-Familie) werden zu **einem** Code-Satz. Marken und Code-Sätze sind also viele-zu-viele verknüpft.
+  - In der Markenliste zählt „Code 3 von 48“ die Code-Sätze, die mit dieser Marke verknüpft sind. Sortiert wird nach der Zahl der Quelldateien **dieser Marke**, die den Code-Satz stützen.
+  - Der Suchlauf schickt jedes Ausschalt-Signal nur einmal. Er sortiert nach der Gesamtzahl der stützenden Dateien und zeigt die Marke mit den meisten Dateien an.
+  - Nach dem Suchlauf wird diese Marke vorgeschlagen, der Nutzer kann sie ändern.
+- **Direkte Eingänge:**
+  - Erkannt werden sie an Tastennamen wie `HDMI1`, `HDMI_1`, `HDMI 1`, `Input_HDMI1` u. Ä. Flipper-IRDB hat dafür eigene `*_Discrete.ir`-Dateien (z. B. bei Samsung), die oft nur HDMI- und Ein/Aus-Codes enthalten.
+  - Solche reinen Eingangs-Dateien werden nicht zu eigenen Code-Sätzen. Sie werden als **Eingangs-Varianten** an die Marke gehängt.
+  - Teilt eine solche Datei mindestens ein Signal mit einem Code-Satz (z. B. POWER), wird sie diesem Code-Satz zugeordnet und dort zuerst angeboten.
+  - Es werden **nur Codes aus den öffentlichen Daten** übernommen, nichts geraten oder erfunden.
+- **Wizard-Schritt 3 mit Eingangs-Varianten:** Die App sendet zuerst HDMI 1 aus dem gefundenen Code-Satz, falls vorhanden. Danach probiert sie die Eingangs-Varianten der Marke durch („Nein → nächste Variante“). Die bestätigte Variante wird mit der Fernbedienung gespeichert. Erst wenn alle Varianten durch sind, gilt „keine direkten Eingänge“.
 - **Marken-Zuordnung:** Einige Hotelmarken werden vom selben Hersteller gebaut und nutzen dessen Codes. Ein Beispiel ist Vestel mit Telefunken, Finlux, JVC (Europa) und Hitachi (Europa). Es gibt eine kleine handgepflegte Tabelle, damit unter „Telefunken“ auch die Vestel-Codes auftauchen. Diese Code-Sätze stehen hinter den markeneigenen.
 - **„Häufig in Hotels“** ist eine handgepflegte Liste: Samsung, LG, Philips, Sony, Panasonic, Hisense, TCL, Telefunken, Grundig, Toshiba, Sharp, Thomson, Loewe, Medion, Vestel.
 - **Quellenangabe:** Unter ⋮ → „Über“ stehen beide Datenbanken mit ihren Lizenzen.
@@ -114,7 +130,8 @@ Mockup: `docs/superpowers/specs/mockups/wizard.html`
 
 ### Gespeicherte Fernbedienungen
 
-- Gespeichert werden Name, Marke, Code-Satz-ID und „direkte Eingänge bestätigt“ (ja/nein), lokal auf dem Gerät.
+- Gespeichert werden Name, Marke, Code-Satz und die bestätigte Eingangs-Variante (oder „keine“), lokal auf dem Gerät.
+- Gespeichert wird jeweils eine **Kopie der Signale**, nicht nur ein Verweis. So bleibt eine Fernbedienung gültig, auch wenn ein späteres App-Update die Datenbank neu aufbaut und sich IDs ändern.
 - Beim Start öffnet die App die zuletzt benutzte Fernbedienung. Gibt es noch keine, startet der Wizard.
 - Umbenennen und Löschen gehen über ☰. Ein Wizard-Neustart ist jederzeit möglich.
 
@@ -124,7 +141,8 @@ Mockup: `docs/superpowers/specs/mockups/wizard.html`
 - Tasten, die der Code-Satz nicht kennt, werden ausgegraut angezeigt. Der Aufbau bleibt gleich, damit die Tasten nicht „springen“.
 - Zusatztasten aus den Daten, die nicht im Layout vorkommen (z. B. Netflix, Untertitel, Sleep), liegen unter ⋮ → „Weitere Tasten“ als Liste.
 - Hat das Handy keinen IR-Sender, erscheint ein deutlicher Hinweis. Die App bleibt bedienbar (zum Anschauen), sendet aber nichts.
-- minSdk 21 (Android 5), damit auch ältere Handys mit IR-Sender laufen (Galaxy S4–S6, LG G3–G5, HTC One, ältere Xiaomi).
+- minSdk 23 (Android 6). Aktuelle Compose- und AndroidX-Versionen verlangen das. Fast alle älteren Handys mit IR-Sender laufen damit trotzdem (Galaxy S5/S6, LG G3–G5, HTC One M8/M9, ältere Xiaomi). Nur Geräte, die bei Android 5 stehen geblieben sind (z. B. Galaxy S4), fallen weg.
+- **Ein/Aus-Taste:** Sie sendet POWER (Umschalter). Gibt es nur getrennte POWER_ON/POWER_OFF, sendet ein kurzer Druck POWER_ON und ein langer Druck POWER_OFF.
 
 ## Dem Bauenden überlassen
 
