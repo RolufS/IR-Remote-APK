@@ -73,3 +73,15 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 6. Die App neu starten öffnet die letzte Fernbedienung.
 7. Der Suchlauf schaltet den TV aus, der Stopp mit Kandidatenprüfung schaltet ihn wieder an.
 8. Flugmodus an: Alles funktioniert unverändert.
+
+## Datenschutz
+
+Die App erhebt keine Daten und hat keinen Internetzugang, siehe
+[PRIVACY.md](PRIVACY.md). Diese Datei ist auch die Datenschutzerklärung für die
+Play Console: https://github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md
+
+## Lizenz
+
+Der Code steht unter der MIT-Lizenz, siehe [LICENSE](LICENSE).
+Die Code-Daten in `app/src/main/assets/codes.db` stammen aus der
+[Flipper-IRDB](https://github.com/Lucaslhm/Flipper-IRDB) (CC0-1.0).

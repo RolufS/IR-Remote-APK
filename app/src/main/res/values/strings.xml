@@ -75,4 +75,5 @@
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), Stand %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>
     <string name="about_counts">%1$s Code-Sätze, %2$s Marken</string>
+    <string name="about_privacy">Datenschutz: keine Daten, kein Internet. Details: github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md</string>
 </resources>

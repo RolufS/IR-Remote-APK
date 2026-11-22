@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.R
 import de.hotelremote.ui.theme.RemoteColors
 
-/** Über-Seite: Kurztext und Herkunft der Code-Daten aus der `meta`-Tabelle. */
+/** Über-Seite: Kurztext, Datenschutz-Hinweis und Herkunft der Code-Daten aus der `meta`-Tabelle. */
 @Composable
 fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit) {
     val backDesc = stringResource(R.string.cd_back)
@@ -67,6 +67,7 @@ fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit)
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Body(stringResource(R.string.about_text))
+            Body(stringResource(R.string.about_privacy), Modifier.testTag("about_privacy"))
             Text(
                 stringResource(R.string.about_codes),
                 color = RemoteColors.KeyText,

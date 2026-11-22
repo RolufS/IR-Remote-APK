@@ -75,6 +75,13 @@ class WizardScreenTest {
         rule.onNodeWithTag("db_error").assertExists()
     }
 
+    @Test fun aboutShowsPrivacyNote() {
+        rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = false, onBack = {}) } }
+        rule.onNodeWithTag("about_privacy")
+            .assertTextContains("Datenschutz: keine Daten, kein Internet.", substring = true)
+            .assertTextContains("github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md", substring = true)
+    }
+
     private fun sig() = IrSignal(38000, listOf(1), periodMs = 100)
 
     @Test fun saveListsAlreadySavedRemotes() {
