@@ -76,4 +76,7 @@
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>
     <string name="about_counts">Наборов кодов: %1$s, марок: %2$s</string>
     <string name="about_privacy">Конфиденциальность: никаких данных, без интернета. Подробнее: github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md</string>
+    <string name="menu_language">Язык</string>
+    <string name="lang_title">Выберите язык</string>
+    <string name="lang_continue">Продолжить</string>
 </resources>

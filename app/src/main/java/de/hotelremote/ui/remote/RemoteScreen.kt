@@ -52,7 +52,7 @@ import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ui.theme.RemoteColors
 
-enum class RemoteMenu { EXTRA_KEYS, WIZARD, ABOUT }
+enum class RemoteMenu { EXTRA_KEYS, WIZARD, LANGUAGE, ABOUT }
 
 private val SideMargin = 12.dp
 private val Gap = 8.dp
@@ -331,6 +331,7 @@ private fun Header(
                 listOf(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
                     R.string.menu_wizard to RemoteMenu.WIZARD,
+                    R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,
                 ).forEach { (label, menu) ->
                     DropdownMenuItem(

@@ -87,7 +87,7 @@ class StoreScreenshots {
     private fun Wizard(state: WizardState) = WizardScreen(
         state = state, brands = brands, irAvailable = true, savedRemotes = emptyList(),
         onPickBrand = {}, onStartScan = {}, onTest = {}, onAnswer = {}, onTvOff = {},
-        onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onBack = {},
+        onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onBack = {}, onLanguage = {},
     )
 
     private fun shoot(name: String, content: @Composable () -> Unit) {

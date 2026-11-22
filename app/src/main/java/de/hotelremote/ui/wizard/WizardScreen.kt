@@ -63,6 +63,7 @@ import de.hotelremote.wizard.WizardState
 private val YesBrush = Brush.verticalGradient(listOf(RemoteColors.YesTop, RemoteColors.YesBottom))
 private val FieldColor = Color(0xFF3A3C41)
 private val RowColor = Color(0xFF36383D)
+private val LinkColor = Color(0xFF7FA6E8)
 
 @Composable
 fun WizardScreen(
@@ -79,6 +80,8 @@ fun WizardScreen(
     onResumeScan: (Int) -> Unit,
     onSave: (name: String?, brandName: String) -> Unit,
     onBack: () -> Unit,
+    /** Link „Sprache“ auf der Markenwahl; ohne Angabe kein Link. */
+    onLanguage: (() -> Unit)? = null,
 ) {
     // Hinweis vor dem Suchlauf: lokaler Zwischenschritt, kein Zustand des Automaten.
     var intro by rememberSaveable { mutableStateOf(false) }
@@ -106,7 +109,7 @@ fun WizardScreen(
                 })
             } else {
                 when (state) {
-                    WizardState.PickBrand -> PickBrand(brands, onPickBrand, onUnknown = {
+                    WizardState.PickBrand -> PickBrand(brands, onPickBrand, onLanguage, onUnknown = {
                         introResumeAt = null
                         intro = true
                     })
@@ -260,7 +263,7 @@ private fun isPower(key: String) = key == Keys.POWER || key == Keys.POWER_ON
 // ---- Bildschirme ----
 
 @Composable
-private fun PickBrand(brands: List<Brand>, onPick: (Long) -> Unit, onUnknown: () -> Unit) {
+private fun PickBrand(brands: List<Brand>, onPick: (Long) -> Unit, onLanguage: (() -> Unit)?, onUnknown: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     val filtered = brands.filter { it.name.contains(query.trim(), ignoreCase = true) }
     val hotel = filtered.filter { it.hotelRank != null }.sortedBy { it.hotelRank }
@@ -288,6 +291,17 @@ private fun PickBrand(brands: List<Brand>, onPick: (Long) -> Unit, onUnknown: ()
             }
         }
         WizardButton(stringResource(R.string.wiz_unknown_brand), onUnknown, Modifier.fillMaxWidth(), brush = SourceBrush)
+        if (onLanguage != null) {
+            Text(
+                stringResource(R.string.menu_language),
+                color = LinkColor, fontSize = 14.sp, textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("wizard_language")
+                    .clickable(role = Role.Button, onClick = onLanguage)
+                    .padding(vertical = 4.dp),
+            )
+        }
     }
 }
 
@@ -339,7 +353,7 @@ private fun TestCode(
         if (!isPower(s.testKey)) {
             Text(
                 stringResource(R.string.wiz_tv_off_link),
-                color = Color(0xFF7FA6E8), fontSize = 14.sp, textAlign = TextAlign.Center,
+                color = LinkColor, fontSize = 14.sp, textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().clickable(onClick = onTvOff).padding(vertical = 8.dp),
             )
         }

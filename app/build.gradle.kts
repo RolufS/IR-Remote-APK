@@ -17,6 +17,15 @@ android {
         versionName = "1.0"
     }
 
+    androidResources {
+        // res/xml/locales_config.xml wird von Hand gepflegt (Tags zh-CN und id bewusst gewählt);
+        // die automatische Variante würde aus den Ordnernamen ableiten.
+        generateLocaleConfig = false
+        // Nur die 11 App-Sprachen ins APK; AppCompat und Material bringen sonst ~90 Sprachen mit,
+        // die der Play Store als „unterstützt“ anzeigen würde.
+        localeFilters += listOf("de", "en", "zh-rCN", "hi", "es", "fr", "ar", "bn", "pt", "ru", "in")
+    }
+
     val storeFile = providers.gradleProperty("HOTELREMOTE_STORE_FILE").orNull
     val storePassword = providers.gradleProperty("HOTELREMOTE_STORE_PASSWORD").orNull
     val keyAlias = providers.gradleProperty("HOTELREMOTE_KEY_ALIAS").orNull
@@ -77,6 +86,7 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

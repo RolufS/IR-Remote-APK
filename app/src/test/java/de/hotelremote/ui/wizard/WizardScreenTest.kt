@@ -32,6 +32,7 @@ class WizardScreenTest {
 
     private val resumed = mutableListOf<Int>()
     private var started = 0
+    private var languageOpened = 0
 
     private fun show(state: WizardState, irAvailable: Boolean = true, saved: List<SavedRemote> = emptyList()) {
         rule.setContent {
@@ -43,6 +44,7 @@ class WizardScreenTest {
                     savedRemotes = saved,
                     onPickBrand = {}, onStartScan = { started++ }, onTest = {}, onAnswer = {}, onTvOff = {},
                     onStopScan = {}, onResumeScan = { resumed += it }, onSave = { _, _ -> }, onBack = {},
+                    onLanguage = { languageOpened++ },
                 )
             }
         }
@@ -125,5 +127,11 @@ class WizardScreenTest {
     @Test fun scanVerifyShowsPowerIcon() {
         show(WizardState.ScanVerify(emptyList(), 0, Keys.POWER))
         rule.onNodeWithTag("big_test_button").assertContentDescriptionEquals("Ein/Aus")
+    }
+
+    @Test fun brandPickerLinksToLanguage() {
+        show(WizardState.PickBrand)
+        rule.onNodeWithTag("wizard_language").assertTextContains("Sprache").performClick()
+        assertEquals(1, languageOpened)
     }
 }

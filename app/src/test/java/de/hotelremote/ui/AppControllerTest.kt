@@ -66,11 +66,11 @@ private class FakeCatalog : CodeCatalog {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppControllerTest {
-    private val messages = AppMessages(saveFailed = "Speichern fehlgeschlagen", loadFailed = "Laden fehlgeschlagen")
     private val sent = mutableListOf<IrSignal>()
 
     private fun TestScope.controller(
         store: RemoteStorage,
+        languageChosen: Boolean = true,
         catalog: () -> CodeCatalog = { FakeCatalog() },
     ): AppController {
         val d = StandardTestDispatcher(testScheduler)
@@ -80,9 +80,9 @@ class AppControllerTest {
             send = { sent += it },
             scope = backgroundScope,
             io = d,
-            messages = messages,
             irAvailable = true,
             clock = { 1000L },
+            languageChosen = languageChosen,
         ).also { runCurrent() }
     }
 
@@ -124,7 +124,7 @@ class AppControllerTest {
 
     @Test fun storeLoadFailureShowsMessageAndOpensWizard() = runTest {
         val c = controller(FakeStorage().apply { failLoad = true })
-        assertEquals(messages.loadFailed, c.state.value.message)
+        assertEquals(UiMessage.LOAD_FAILED, c.state.value.message)
         assertEquals(Screen.Wizard, c.state.value.screen)
         assertFalse(c.state.value.dbError)
     }
@@ -134,7 +134,7 @@ class AppControllerTest {
         val c = controller(store)
         store.failWrite = true
         c.rename("a", "Zimmer 1")
-        assertEquals(messages.saveFailed, c.state.value.message)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
         assertNull(c.state.value.current?.name)
     }
 
@@ -143,7 +143,7 @@ class AppControllerTest {
         val c = controller(store)
         store.failWrite = true
         c.delete("a")
-        assertEquals(messages.saveFailed, c.state.value.message)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
         assertEquals(listOf("a"), c.state.value.remotes.map { it.id })
         assertEquals(Screen.Remote, c.state.value.screen)
     }
@@ -155,7 +155,7 @@ class AppControllerTest {
         c.switchTo("a")
         assertEquals("a", c.state.value.current?.id)
         assertEquals(Screen.Remote, c.state.value.screen)
-        assertEquals(messages.saveFailed, c.state.value.message)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
     }
 
     private fun AppController.findAndSave(name: String?) {
@@ -179,7 +179,7 @@ class AppControllerTest {
         val store = FakeStorage().apply { failWrite = true }
         val c = controller(store)
         c.findAndSave(null)
-        assertEquals(messages.saveFailed, c.state.value.message)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
         assertEquals(Screen.Remote, c.state.value.screen)
         assertEquals(listOf(c.state.value.current), c.state.value.remotes)
         assertTrue(store.list.isEmpty())
@@ -213,5 +213,81 @@ class AppControllerTest {
         val c = controller(FakeStorage())
         c.onAppStopped()
         assertEquals(WizardState.PickBrand, c.state.value.wizard)
+    }
+
+    // ---- Sprache ----
+
+    @Test fun firstStartShowsLanguageBeforeRemote() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))), languageChosen = false)
+        assertEquals(Screen.Language, c.state.value.screen)
+        assertTrue(c.state.value.languageFirstStart)
+        c.languageChosen()
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertFalse(c.state.value.languageFirstStart)
+    }
+
+    @Test fun firstStartShowsLanguageBeforeWizard() = runTest {
+        val c = controller(FakeStorage(), languageChosen = false)
+        assertEquals(Screen.Language, c.state.value.screen)
+        c.languageChosen()
+        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertEquals(WizardState.PickBrand, c.state.value.wizard)
+    }
+
+    @Test fun languageChosenWhileLoadingStillRoutesAfterLoad() = runTest {
+        val d = StandardTestDispatcher(testScheduler)
+        val c = AppController(
+            store = FakeStorage(listOf(remote("a", 1))), openCatalog = { FakeCatalog() }, send = {},
+            scope = backgroundScope, io = d, irAvailable = true, languageChosen = false,
+        )
+        assertEquals(Screen.Language, c.state.value.screen)
+        assertTrue(c.state.value.loading)
+        c.languageChosen()
+        runCurrent()
+        assertFalse(c.state.value.loading)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertEquals("a", c.state.value.current?.id)
+    }
+
+    @Test fun noLanguageScreenWhenAlreadyChosen() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertFalse(c.state.value.languageFirstStart)
+    }
+
+    @Test fun languageFromRemoteMenuReturnsToRemote() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.openLanguage()
+        assertEquals(Screen.Language, c.state.value.screen)
+        assertFalse(c.state.value.languageFirstStart)
+        c.closeLanguage()
+        assertEquals(Screen.Remote, c.state.value.screen)
+        c.openLanguage()
+        c.languageChosen()
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertEquals(1, c.state.value.remotes.size)
+    }
+
+    @Test fun languageFromWizardKeepsWizardState() = runTest {
+        val c = controller(FakeStorage())
+        c.pickBrand(1)
+        val wizard = c.state.value.wizard
+        c.openLanguage()
+        c.closeLanguage()
+        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertEquals(wizard, c.state.value.wizard)
+    }
+
+    @Test fun openingLanguageStopsRunningScan() = runTest {
+        val c = controller(FakeStorage())
+        c.startScan(0)
+        runCurrent()
+        assertTrue(c.state.value.wizard is WizardState.Scanning)
+        c.openLanguage()
+        val sentBefore = sent.size
+        advanceTimeBy(5000)
+        runCurrent()
+        assertEquals(sentBefore, sent.size)
+        assertFalse(c.state.value.wizard is WizardState.Scanning)
     }
 }

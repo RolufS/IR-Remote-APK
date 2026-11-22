@@ -26,7 +26,11 @@ sealed interface Screen {
     data object Wizard : Screen
     data object ExtraKeys : Screen
     data object About : Screen
+    data object Language : Screen
 }
+
+/** Snackbar-Meldungen; App.kt setzt sie in Texte der aktuellen Sprache um. */
+enum class UiMessage { SAVE_FAILED, LOAD_FAILED, SEND_FAILED }
 
 data class AppUiState(
     val loading: Boolean = true,
@@ -39,11 +43,10 @@ data class AppUiState(
     val dbError: Boolean = false,
     val brands: List<Brand> = emptyList(),
     val meta: Map<String, String> = emptyMap(),
-    val message: String? = null,
+    val message: UiMessage? = null,
+    /** Erststart: „Sprache wählen“ kommt vor allem anderen und hat kein Zurück. */
+    val languageFirstStart: Boolean = false,
 )
-
-/** Snackbar-Texte (aus strings.xml), damit der Controller ohne Android-Ressourcen auskommt. */
-class AppMessages(val saveFailed: String, val loadFailed: String)
 
 /**
  * Navigation und Zustand der App ohne Android-Abhängigkeiten: lädt gespeicherte Fernbedienungen und
@@ -55,16 +58,25 @@ class AppController(
     private val send: (IrSignal) -> Unit,
     private val scope: CoroutineScope,
     private val io: CoroutineDispatcher,
-    private val messages: AppMessages,
     irAvailable: Boolean,
     private val clock: () -> Long = System::currentTimeMillis,
+    languageChosen: Boolean = true,
 ) {
-    private val _state = MutableStateFlow(AppUiState(irAvailable = irAvailable))
+    private val _state = MutableStateFlow(
+        AppUiState(
+            irAvailable = irAvailable,
+            screen = if (languageChosen) Screen.Remote else Screen.Language,
+            languageFirstStart = !languageChosen,
+        ),
+    )
     val state: StateFlow<AppUiState> = _state.asStateFlow()
 
     private var catalog: CodeCatalog? = null
     private var machine: WizardMachine? = null
     private var scanRunner: ScanRunner? = null
+
+    /** Bildschirm, zu dem „Sprache wählen“ zurückkehrt. */
+    private var languageReturn: Screen = Screen.Remote
 
     init {
         scope.launch {
@@ -93,7 +105,7 @@ class AppController(
                     brands = loaded?.second.orEmpty(),
                     meta = loaded?.third.orEmpty(),
                     dbError = loaded == null,
-                    message = if (remotes == null) messages.loadFailed else it.message,
+                    message = if (remotes == null) UiMessage.LOAD_FAILED else it.message,
                 )
             }
             val last = remotes?.firstOrNull()
@@ -101,6 +113,11 @@ class AppController(
                 _state.update { it.copy(current = last, screen = Screen.Remote) }
             } else {
                 openWizard()
+            }
+            // Erststart noch ohne Sprachwahl: der Startbildschirm wartet hinter „Sprache wählen“.
+            if (_state.value.languageFirstStart) {
+                languageReturn = _state.value.screen
+                _state.update { it.copy(screen = Screen.Language) }
             }
         }
     }
@@ -111,8 +128,8 @@ class AppController(
         _state.update { it.copy(screen = screen) }
     }
 
-    fun showMessage(text: String) {
-        _state.update { it.copy(message = text) }
+    fun showMessage(message: UiMessage) {
+        _state.update { it.copy(message = message) }
     }
 
     fun clearMessage() {
@@ -155,9 +172,28 @@ class AppController(
         try {
             action()
         } catch (e: IOException) {
-            showMessage(messages.saveFailed)
+            showMessage(UiMessage.SAVE_FAILED)
             null
         }
+
+    // ---- Sprache ----
+
+    /** Öffnet „Sprache wählen“ über dem aktuellen Bildschirm; ein laufender Suchlauf hält an. */
+    fun openLanguage() {
+        if (scanRunner?.running?.value == true) stopScan()
+        languageReturn = _state.value.screen
+        _state.update { it.copy(screen = Screen.Language) }
+    }
+
+    /** Zurück ohne Änderung. */
+    fun closeLanguage() {
+        _state.update { it.copy(screen = languageReturn) }
+    }
+
+    /** Sprache gewählt (das Setzen der Locale übernimmt das ViewModel): weiter zum vorigen bzw. Startbildschirm. */
+    fun languageChosen() {
+        _state.update { it.copy(screen = languageReturn, languageFirstStart = false) }
+    }
 
     // ---- Assistent ----
 
