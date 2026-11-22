@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: Power
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 02 00 00 00
+#
+name: HDMI1
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: E9 00 00 00
+#
+name: HDMI2
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: BE 00 00 00
+#
+name: HDMI3
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: C2 00 00 00
+#
+name: HDMI4
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: C5 00 00 00
