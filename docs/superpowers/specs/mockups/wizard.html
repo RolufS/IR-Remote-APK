@@ -1,0 +1,125 @@
+<style>
+  .flow { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:14px; }
+  .step { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .step h3 { margin:4px 0 0; font-size:14px; }
+  .step p { margin:0; max-width:230px; font-size:12px; opacity:.8; text-align:center; }
+  .phone { width:230px; height:500px; border-radius:32px; padding:7px; background:#0b0b0c; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .screen { width:100%; height:100%; border-radius:26px; overflow:hidden; display:flex; flex-direction:column;
+            background:linear-gradient(#2e3035,#1d1e21); color:#dcdee1; font-family:system-ui,sans-serif; padding:14px 12px 12px; box-sizing:border-box; gap:9px; }
+  .hdr { font:600 10px system-ui; opacity:.6; display:flex; justify-content:space-between; }
+  .ttl { font:650 16px system-ui; line-height:1.25; }
+  .sub { font-size:11px; opacity:.7; line-height:1.35; }
+  .search { background:#3a3c41; border-radius:12px; padding:9px 11px; font-size:11px; opacity:.85; }
+  .lbl { font:600 9px system-ui; letter-spacing:1px; opacity:.5; margin-top:2px; }
+  .list { display:flex; flex-direction:column; gap:5px; }
+  .item { background:#36383d; border-radius:10px; padding:8px 11px; font-size:12px; display:flex; justify-content:space-between; }
+  .item i { font-style:normal; opacity:.45; font-size:10px; }
+  .btn { border-radius:14px; display:flex; align-items:center; justify-content:center; font:650 13px system-ui;
+         background:linear-gradient(#484b51,#383a3f); box-shadow:0 2px 0 #141517, inset 0 1px 0 rgba(255,255,255,.09); }
+  .btn.blue { background:linear-gradient(#3a67b8,#2c5199); color:#fff; }
+  .btn.green { background:linear-gradient(#2f9e44,#25803a); color:#fff; }
+  .btn.ghost { background:transparent; box-shadow:none; border:1px solid #4a4d53; font-weight:500; font-size:11px; }
+  .big { flex:1; display:flex; align-items:center; justify-content:center; }
+  .bigkey { width:120px; height:120px; border-radius:50%; font-size:13px; flex-direction:column; gap:4px; }
+  .bigkey b { font-size:30px; }
+  .prog { height:5px; border-radius:3px; background:#3a3c41; overflow:hidden; }
+  .prog div { height:100%; background:#3a67b8; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; height:48px; }
+  .check { display:flex; flex-direction:column; gap:6px; }
+  .check div { font-size:11px; display:flex; gap:7px; align-items:center; }
+  .ok { color:#5fd37a; } .no { color:#e0675f; }
+  .input { background:#3a3c41; border-radius:10px; padding:9px 11px; font-size:11px; }
+  .scan { width:140px; height:140px; border-radius:50%; border:4px solid #3a67b8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+  .scan b { font-size:26px; }
+</style>
+
+<h2>Wizard: Fernbedienung finden</h2>
+<p class="subtitle">Ablauf von links nach rechts. Du testest nur MUTE und HDMI, also Tasten, die nichts kaputt machen und sofort zu sehen sind. Unten eine Alternative für den Fall, dass die Marke unbekannt ist.</p>
+
+<div class="flow">
+
+  <div class="step">
+    <div class="phone"><div class="screen">
+      <div class="hdr"><span>✕</span><span>Schritt 1 von 3</span><span></span></div>
+      <div class="ttl">Welche Marke steht auf dem Fernseher?</div>
+      <div class="search">🔍 Marke suchen …</div>
+      <div class="lbl">HÄUFIG IN HOTELS</div>
+      <div class="list">
+        <div class="item">Samsung <i>48 Codes</i></div>
+        <div class="item">LG <i>31 Codes</i></div>
+        <div class="item">Philips <i>27 Codes</i></div>
+        <div class="item">Hisense <i>12 Codes</i></div>
+        <div class="item">Telefunken <i>19 Codes</i></div>
+        <div class="item">Grundig <i>15 Codes</i></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="btn ghost" style="height:38px">Marke unbekannt → Suchlauf</div>
+    </div></div>
+    <h3>1 · Marke</h3>
+    <p>Hotelmarken stehen oben, alle anderen findest du über die Suche. Die Liste funktioniert offline.</p>
+  </div>
+
+  <div class="step">
+    <div class="phone"><div class="screen">
+      <div class="hdr"><span>‹</span><span>Samsung · Code 3 von 48</span><span></span></div>
+      <div class="prog"><div style="width:6%"></div></div>
+      <div class="ttl">Richte das Handy auf den Fernseher und tippe auf MUTE.</div>
+      <div class="big"><div class="btn bigkey"><b>🔇</b>MUTE</div></div>
+      <div class="sub" style="text-align:center">Wurde der Ton stumm geschaltet?</div>
+      <div class="pair"><div class="btn">Nein, nächster</div><div class="btn green">Ja</div></div>
+      <div class="btn ghost" style="height:30px">Fernseher ist aus → mit ⏻ testen</div>
+    </div></div>
+    <h3>2 · Code testen</h3>
+    <p>Die häufigsten Codes kommen zuerst. Meist reichen wenige Versuche. Bei „Ja“ folgt zur Sicherheit noch ein Test mit VOL +.</p>
+  </div>
+
+  <div class="step">
+    <div class="phone"><div class="screen">
+      <div class="hdr"><span>‹</span><span>Schritt 3 von 3</span><span></span></div>
+      <div class="ttl">Eingang direkt wählen?</div>
+      <div class="sub">Tippe auf HDMI 1. Wechselt der Fernseher direkt auf diesen Eingang?</div>
+      <div class="big"><div class="btn bigkey blue"><b>1</b>HDMI</div></div>
+      <div class="pair"><div class="btn">Nein</div><div class="btn green">Ja</div></div>
+      <div class="sub" style="text-align:center;font-size:10px">Bei „Nein“ bleibt nur SOURCE, die HDMI-Reihe wird ausgeblendet.</div>
+    </div></div>
+    <h3>3 · Eingänge prüfen</h3>
+    <p>Hier entscheidet sich, ob deine Fernbedienung die HDMI-1–4-Reihe bekommt. Hat der Code keine direkten Eingänge, wird der Schritt übersprungen.</p>
+  </div>
+
+  <div class="step">
+    <div class="phone"><div class="screen">
+      <div class="hdr"><span></span><span>Fertig</span><span></span></div>
+      <div class="ttl">Gefunden: Samsung, Code 3</div>
+      <div class="check">
+        <div><span class="ok">✔</span> Ton, Lautstärke</div>
+        <div><span class="ok">✔</span> HDMI direkt</div>
+      </div>
+      <div class="lbl">NAME (OPTIONAL)</div>
+      <div class="input">Hotel Adlon, Zi. 412</div>
+      <div class="lbl">GESPEICHERT</div>
+      <div class="list">
+        <div class="item">Ibis Hamburg <i>LG · 7</i></div>
+        <div class="item">Ferienwohnung Sylt <i>Philips · 2</i></div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="btn blue" style="height:46px">Zur Fernbedienung</div>
+    </div></div>
+    <h3>4 · Speichern</h3>
+    <p>Gefundene Fernbedienungen werden gespeichert. Oben in der Fernbedienung („Samsung · Code 3 ▾“) wechselst du zwischen ihnen.</p>
+  </div>
+
+</div>
+
+<h3 style="margin-top:28px;text-align:center">Alternative bei unbekannter Marke: automatischer Suchlauf</h3>
+<div class="flow">
+  <div class="step">
+    <div class="phone"><div class="screen">
+      <div class="hdr"><span>‹</span><span>Suchlauf · alle Marken</span><span></span></div>
+      <div class="ttl">Halte das Handy auf den Fernseher gerichtet.</div>
+      <div class="sub">Die App sendet nacheinander „Ausschalten“ für jede Marke. Tippe auf <b>Stopp</b>, sobald der Fernseher ausgeht.</div>
+      <div class="big"><div class="scan"><b>127</b><span style="font-size:10px;opacity:.7">von 410 · Philips</span></div></div>
+      <div class="btn green" style="height:56px;font-size:16px">Stopp – hat reagiert!</div>
+    </div></div>
+    <p>Danach prüft die App die letzten Codes vor dem Stopp einzeln mit dir und macht dann mit Schritt 3 weiter.</p>
+  </div>
+</div>
