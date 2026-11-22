@@ -17,9 +17,31 @@ android {
         versionName = "1.0"
     }
 
+    val storeFile = providers.gradleProperty("HOTELREMOTE_STORE_FILE").orNull
+    val storePassword = providers.gradleProperty("HOTELREMOTE_STORE_PASSWORD").orNull
+    val keyAlias = providers.gradleProperty("HOTELREMOTE_KEY_ALIAS").orNull
+    val keyPassword = providers.gradleProperty("HOTELREMOTE_KEY_PASSWORD").orNull
+    val canSign = storeFile != null && storePassword != null && keyAlias != null && keyPassword != null
+
+    signingConfigs {
+        if (canSign) {
+            create("release") {
+                this.storeFile = file(storeFile!!)
+                this.storePassword = storePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (canSign) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                logger.warn("WARNUNG: HOTELREMOTE_* Properties fehlen, Release wird unsigniert gebaut.")
+            }
         }
     }
 
