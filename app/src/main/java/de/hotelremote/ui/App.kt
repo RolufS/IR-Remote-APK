@@ -54,6 +54,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 state = state.wizard,
                 brands = state.brands,
                 irAvailable = state.irAvailable,
+                savedRemotes = state.remotes,
                 onPickBrand = c::pickBrand,
                 onStartScan = { c.startScan(0) },
                 onTest = c::testSignal,

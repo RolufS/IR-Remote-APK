@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.Brand
+import de.hotelremote.data.SavedRemote
 import de.hotelremote.ui.remote.KeyBrush
 import de.hotelremote.ui.remote.NoIrBanner
 import de.hotelremote.ui.remote.SourceBrush
@@ -64,6 +66,7 @@ fun WizardScreen(
     state: WizardState,
     brands: List<Brand>,
     irAvailable: Boolean,
+    savedRemotes: List<SavedRemote>,
     onPickBrand: (Long) -> Unit,
     onStartScan: () -> Unit,
     onTest: () -> Unit,
@@ -76,6 +79,8 @@ fun WizardScreen(
 ) {
     // Hinweis vor dem Suchlauf: lokaler Zwischenschritt, kein Zustand des Automaten.
     var intro by rememberSaveable { mutableStateOf(false) }
+    // Position, an der nach dem Hinweis fortgesetzt wird (null: von vorn).
+    var introResumeAt by rememberSaveable { mutableStateOf<Int?>(null) }
     val showIntro = intro && (state is WizardState.PickBrand || state is WizardState.NoMatch)
     BackHandler {
         if (showIntro) intro = false else onBack()
@@ -93,11 +98,15 @@ fun WizardScreen(
             if (showIntro) {
                 ScanIntro(onStart = {
                     intro = false
-                    onStartScan()
+                    val at = introResumeAt
+                    if (at != null) onResumeScan(at) else onStartScan()
                 })
             } else {
                 when (state) {
-                    WizardState.PickBrand -> PickBrand(brands, onPickBrand, onUnknown = { intro = true })
+                    WizardState.PickBrand -> PickBrand(brands, onPickBrand, onUnknown = {
+                        introResumeAt = null
+                        intro = true
+                    })
                     is WizardState.TestCode -> TestCode(
                         state,
                         brandName = brands.firstOrNull { it.id == state.brandId }?.name.orEmpty(),
@@ -107,12 +116,18 @@ fun WizardScreen(
                     is WizardState.Scanning -> Scanning(state, onStopScan)
                     is WizardState.ScanVerify -> ScanVerify(state, onTest, onAnswer)
                     is WizardState.TestInputs -> TestInputs(state, onTest, onAnswer)
-                    is WizardState.Save -> Save(state, onSave)
+                    is WizardState.Save -> Save(state, savedRemotes, onSave)
                     is WizardState.NoMatch -> NoMatch(
                         state,
                         onOtherBrand = onBack,
-                        onStartScan = { intro = true },
-                        onResume = onResumeScan,
+                        onStartScan = {
+                            introResumeAt = null
+                            intro = true
+                        },
+                        onResume = { at ->
+                            introResumeAt = at
+                            intro = true
+                        },
                     )
                 }
             }
@@ -375,7 +390,7 @@ private fun TestInputs(s: WizardState.TestInputs, onTest: () -> Unit, onAnswer: 
 }
 
 @Composable
-private fun Save(s: WizardState.Save, onSave: (String?, String) -> Unit) {
+private fun Save(s: WizardState.Save, savedRemotes: List<SavedRemote>, onSave: (String?, String) -> Unit) {
     var brand by rememberSaveable(s.brandName) { mutableStateOf(s.brandName) }
     var name by rememberSaveable { mutableStateOf("") }
     Column(
@@ -383,8 +398,8 @@ private fun Save(s: WizardState.Save, onSave: (String?, String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Title(stringResource(R.string.wiz_save_title, s.brandName, s.codeLabel))
-        CheckLine(stringResource(R.string.wiz_save_sound), true)
-        CheckLine(stringResource(R.string.wiz_save_hdmi), s.hasInputs)
+        CheckLine(stringResource(R.string.wiz_save_sound), hasSoundKeys(s.keys), Modifier.testTag("check_sound"))
+        CheckLine(stringResource(R.string.wiz_save_hdmi), s.hasInputs, Modifier.testTag("check_hdmi"))
         Label(stringResource(R.string.wiz_field_brand))
         OutlinedTextField(brand, { brand = it }, singleLine = true, modifier = Modifier.fillMaxWidth())
         Label(stringResource(R.string.wiz_field_name))
@@ -393,6 +408,20 @@ private fun Save(s: WizardState.Save, onSave: (String?, String) -> Unit) {
             placeholder = { Text(stringResource(R.string.wiz_name_hint)) },
             singleLine = true, modifier = Modifier.fillMaxWidth(),
         )
+        if (savedRemotes.isNotEmpty()) {
+            Label(stringResource(R.string.wiz_saved_remotes))
+            savedRemotes.forEach { r ->
+                Text(
+                    r.title,
+                    color = RemoteColors.KeyText.copy(alpha = 0.8f), fontSize = 15.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(RowColor)
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                )
+            }
+        }
         Spacer(Modifier.height(4.dp))
         WizardButton(
             stringResource(R.string.wiz_to_remote),
@@ -402,9 +431,15 @@ private fun Save(s: WizardState.Save, onSave: (String?, String) -> Unit) {
     }
 }
 
+private fun hasSoundKeys(keys: Map<String, *>) = listOf(Keys.MUTE, Keys.VOL_UP, Keys.VOL_DOWN).any { it in keys }
+
 @Composable
-private fun CheckLine(text: String, ok: Boolean) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun CheckLine(text: String, ok: Boolean, modifier: Modifier = Modifier) {
+    Row(
+        modifier.semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Text(
             if (ok) "✔" else "✕",
             color = if (ok) Color(0xFF5FD37A) else Color(0xFFE0675F),
@@ -439,6 +474,7 @@ private fun WizardPreview() {
             state = WizardState.TestCode(1, 0, 12, 10, Keys.MUTE),
             brands = listOf(Brand(1, "Samsung", 1, 12), Brand(2, "Acme", null, 3)),
             irAvailable = true,
+            savedRemotes = emptyList(),
             onPickBrand = {}, onStartScan = {}, onTest = {}, onAnswer = {}, onTvOff = {},
             onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onBack = {},
         )

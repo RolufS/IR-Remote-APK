@@ -57,6 +57,7 @@
     <string name="wiz_field_name">NAME (OPTIONAL)</string>
     <string name="wiz_name_hint">z. B. Hotel Adlon, Zi. 412</string>
     <string name="wiz_to_remote">Zur Fernbedienung</string>
+    <string name="wiz_saved_remotes">BEREITS GESPEICHERT</string>
     <string name="wiz_nomatch_title">Kein passender Code gefunden.</string>
     <string name="wiz_other_brand">Andere Marke wählen</string>
     <string name="wiz_scan_resume">Suchlauf fortsetzen</string>
