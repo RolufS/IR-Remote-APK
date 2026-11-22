@@ -8,6 +8,7 @@ import de.hotelremote.ir.IrSignal
 import de.hotelremote.wizard.ScanRunner
 import de.hotelremote.wizard.WizardMachine
 import de.hotelremote.wizard.WizardState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,6 +79,8 @@ class AppController(
                 try {
                     val c = openCatalog()
                     Triple(c, c.brands(), c.meta())
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     null
                 }
