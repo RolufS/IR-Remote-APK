@@ -1,6 +1,8 @@
 import pytest
 
-from irdata.protocols import UnsupportedProtocol, encode_flipper, encode_irdb
+import math
+
+from irdata.protocols import UnsupportedProtocol, encode_flipper, encode_irdb, from_raw
 
 
 def bits_from_spaces(sig, nbits, offset=2):   # Pause > 1000 us = 1
@@ -63,3 +65,61 @@ def test_nec42_structure():
 def test_nec42ext_structure():
     s = encode_flipper("NEC42ext", 0x1234567, 0xABCD)
     assert len(s.frame) == 2 + 2 * 42 + 1 and s.frame[:2] == (9024, 4512)
+
+
+def test_rc5_philips_power_exact():
+    s = encode_flipper("RC5", 0x00, 0x0C)
+    u = [1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1]
+    assert s.frame == tuple(x * 889 for x in u) and s.freq == 36000
+    assert s.frame_alt is not None and s.frame_alt != s.frame
+
+
+def test_rc6_header_and_toggle():
+    s = encode_flipper("RC6", 0x00, 0x0C)
+    assert s.frame[:2] == (2664, 888) and s.frame != s.frame_alt
+
+
+@pytest.mark.parametrize("fl, ir", [
+    (("RC6", 0x00, 0x0C), ("RC6", 0, -1, 12)),
+    (("RC5", 0x00, 0x0C), ("RC5", 0, -1, 12)),
+    (("SIRC", 0x01, 0x15), ("Sony12", 1, -1, 21)),
+    (("SIRC20", 0x0E5A, 0x19), ("Sony20", 0x1A, 0x72, 0x19)),
+    (("Kaseikyo", 0x00200280, 0x3D0), ("Panasonic", 128, 0, 61)),
+    (("Kaseikyo", 0x02200289, 0x2B0), ("Panasonic", 128, 9, 171)),
+    (("RCA", 0xA, 0x55), ("RCA", 0xA, -1, 0x55)),
+])
+def test_flipper_and_irdb_agree(fl, ir):
+    assert encode_flipper(*fl) == encode_irdb(*ir)
+
+
+def test_sony_sends_three_copies():
+    s = encode_flipper("SIRC", 0x01, 0x15)
+    assert s.frame.count(2400) == 3 and s.repeat.count(2400) == 1 and s.period_ms == 45
+
+
+def test_panasonic_bytes():
+    s = encode_irdb("Panasonic", 128, 0, 61)
+    assert s.freq == 37000 and bits_from_spaces(s, 48) == lsb_bits(0x02, 0x20, 0x80, 0x00, 0x3D, 0x80 ^ 0x3D)
+
+
+def test_sharp_frame_and_period():
+    s = encode_irdb("Sharp", 1, -1, 0x10)
+    assert s.freq == 38000 and s.frame[:2] == (264, 1848)
+    assert s.period_ms == math.ceil((sum(s.frame) + 43560) / 1000)
+
+
+def test_rca_frame_and_period():
+    s = encode_irdb("RCA", 0xA, -1, 0x55)
+    assert s.freq == 58000 and s.frame[:3] == (3680, 3680, 460) and s.frame[3] == 4 * 460
+    assert s.period_ms == math.ceil((sum(s.frame) + 7360) / 1000)
+
+
+def test_raw_nec_is_canonicalized():
+    ref = encode_flipper("NEC", 4, 8)
+    jitter = [int(d * (1.1 if i % 3 else 0.92)) for i, d in enumerate(ref.frame)]
+    assert from_raw(38000, jitter) == ref
+
+
+def test_raw_unknown_stays_raw():
+    s = from_raw(38000, [3000, 1000, 500, 500, 500])
+    assert s.frame == (3000, 1000, 500, 500, 500) and s.repeat is None and s.period_ms == 6 + 40
