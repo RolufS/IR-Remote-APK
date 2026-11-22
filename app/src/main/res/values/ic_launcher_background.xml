@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hintergrund des adaptiven Icons (RemoteColors.SourceTop), passend zu tools/make_graphics.py. -->
+    <color name="ic_launcher_background">#3A67B8</color>
+</resources>
