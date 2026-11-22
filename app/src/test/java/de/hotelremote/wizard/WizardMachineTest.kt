@@ -57,8 +57,12 @@ private class FakeWizardData : WizardData {
 
     override fun codeSetsForBrand(brandId: Long) = brandCodeSets[brandId] ?: emptyList()
     override fun keys(codeSetId: Long) = codeSets[codeSetId] ?: emptyMap()
-    override fun inputVariants(codeSetId: Long, brandId: Long) = variants[codeSetId to brandId] ?: emptyList()
-    override fun scanEntries() = scan
+    override fun inputVariants(codeSetId: Long, brandId: Long) =
+        (variants[codeSetId to brandId] ?: emptyList()).also { inputVariantsCalls++ }
+    var scanEntriesCalls = 0
+    var inputVariantsCalls = 0
+
+    override fun scanEntries() = scan.also { scanEntriesCalls++ }
     override fun brandName(brandId: Long) = brands.getValue(brandId)
 }
 
@@ -249,6 +253,42 @@ class WizardMachineTest {
         assertEquals(WizardState.NoMatch(null, canResumeScanAt = 4), m.state)
         m.startScan(4)
         assertEquals(WizardState.Scanning(4, 7, "Gamma"), m.state)
+    }
+
+    @Test
+    fun scanVerifyAllNoAfterStopAtLastPositionOffersNoResume() {
+        m.startScan()
+        repeat(6) { m.scanAdvance() }
+        m.stopScan()
+        // Kandidaten 6, 5, 4, 3, 2; Position 5 wird übersprungen.
+        repeat(4) { m.answer(false) }
+        assertEquals(WizardState.NoMatch(null, canResumeScanAt = null), m.state)
+    }
+
+    @Test
+    fun scanEntriesAreLoadedOnlyOnce() {
+        m.startScan()
+        repeat(5) {
+            m.currentScanSignal()
+            m.testSignal()
+            m.scanAdvance()
+        }
+        m.stopScan()
+        m.answer(false)
+        m.startScan(3)
+        assertTrue(data.scanEntriesCalls <= 1)
+    }
+
+    @Test
+    fun inputVariantsAreLoadedOncePerInputTest() {
+        m.pickBrand(1)
+        m.answer(true)
+        m.answer(true)
+        m.testSignal()
+        m.answer(false)
+        m.testSignal()
+        m.answer(true)
+        assertEquals(1, data.inputVariantsCalls)
     }
 
     @Test

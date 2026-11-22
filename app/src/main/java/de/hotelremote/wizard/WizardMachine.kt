@@ -20,6 +20,12 @@ class WizardMachine(private val data: WizardData) {
     var state: WizardState = WizardState.PickBrand
         private set
 
+    /** Suchlauf-Liste, einmal pro Assistent geladen (die echte Quelle liest die ganze Tabelle). */
+    private val scan: List<ScanEntry> by lazy { data.scanEntries() }
+
+    /** Eingangs-Varianten des gefundenen Code-Satzes, einmal beim Eintritt in den Eingangstest geladen. */
+    private var variants: List<Map<String, IrSignal>> = emptyList()
+
     /** TV-aus-Modus: gilt für die restliche Code-Folge der gewählten Marke. */
     private var tvOffMode = false
 
@@ -62,9 +68,8 @@ class WizardMachine(private val data: WizardData) {
     }
 
     fun startScan(fromPosition: Int = 0) {
-        val entries = data.scanEntries()
-        state = if (fromPosition in entries.indices) {
-            WizardState.Scanning(fromPosition, entries.size, entries[fromPosition].brandName)
+        state = if (fromPosition in scan.indices) {
+            WizardState.Scanning(fromPosition, scan.size, scan[fromPosition].brandName)
         } else {
             WizardState.NoMatch(null, null)
         }
@@ -72,7 +77,7 @@ class WizardMachine(private val data: WizardData) {
 
     fun currentScanSignal(): IrSignal? {
         val s = state as? WizardState.Scanning ?: return null
-        return data.scanEntries().getOrNull(s.position)?.signal
+        return scan.getOrNull(s.position)?.signal
     }
 
     fun scanAdvance() {
@@ -82,9 +87,8 @@ class WizardMachine(private val data: WizardData) {
 
     fun stopScan() {
         val s = state as? WizardState.Scanning ?: return
-        val entries = data.scanEntries()
         scanStopPosition = s.position
-        val candidates = (s.position downTo maxOf(0, s.position - 4)).map { entries[it] }
+        val candidates = (s.position downTo maxOf(0, s.position - 4)).map { scan[it] }
         state = verifyFrom(candidates, 0)
     }
 
@@ -92,7 +96,7 @@ class WizardMachine(private val data: WizardData) {
         is WizardState.TestCode -> data.keys(s.codeSetId)[s.testKey]
         is WizardState.Confirm -> data.keys(s.codeSetId)[s.confirmKey]
         is WizardState.ScanVerify -> data.keys(s.candidates[s.index].codeSetId)[s.testKey]
-        is WizardState.TestInputs -> data.inputVariants(s.codeSetId, s.brandId)[s.variantIndex][Keys.HDMI1]
+        is WizardState.TestInputs -> variants[s.variantIndex][Keys.HDMI1]
         is WizardState.Scanning -> currentScanSignal()
         else -> null
     }
@@ -134,7 +138,8 @@ class WizardMachine(private val data: WizardData) {
             val testKey = listOf(Keys.POWER_ON, Keys.POWER).firstOrNull { it in keys }
             if (testKey != null) return WizardState.ScanVerify(candidates, i, testKey)
         }
-        return WizardState.NoMatch(null, scanStopPosition + 1)
+        val resumeAt = scanStopPosition + 1
+        return WizardState.NoMatch(null, if (resumeAt < scan.size) resumeAt else null)
     }
 
     private fun found(from: WizardState) {
@@ -172,7 +177,7 @@ class WizardMachine(private val data: WizardData) {
     }
 
     private fun enterInputs(brandId: Long, codeSetId: Long) {
-        val variants = data.inputVariants(codeSetId, brandId)
+        variants = data.inputVariants(codeSetId, brandId)
         if (variants.isEmpty()) {
             state = save(null)
         } else {
@@ -189,7 +194,7 @@ class WizardMachine(private val data: WizardData) {
         val from = origin
         val (brandId, codeSetId) = foundCodeSet(from)
         var keys = data.keys(codeSetId)
-        if (variantIndex != null) keys = keys + data.inputVariants(codeSetId, brandId)[variantIndex]
+        if (variantIndex != null) keys = keys + variants[variantIndex]
         val (brandName, codeLabel) = when (from) {
             is WizardState.TestCode -> data.brandName(brandId) to "Code ${from.index + 1}"
             is WizardState.ScanVerify -> {
