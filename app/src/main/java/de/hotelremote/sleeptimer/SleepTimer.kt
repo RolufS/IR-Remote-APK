@@ -93,14 +93,30 @@ class SleepTimerScheduler(
         notifier.showRunning(restored)
     }
 
-    /** Ungenau geplant, inzwischen aber erlaubt: als genauen Alarm neu planen. */
+    /**
+     * App-Start bzw. Rückkehr in die App: Der Alarm kann fehlen (z. B. „Beenden erzwingen“, Wischen aus den
+     * zuletzt verwendeten Apps auf HyperOS, entzogene Erlaubnis „Wecker und Erinnerungen“). Ein offener Timer
+     * wird neu geplant (gleicher PendingIntent ersetzt den alten; genau, wenn erlaubt), ein bis zu
+     * [OVERDUE_GRACE_MS] überfälliger löst sofort aus, ein älterer wird verworfen.
+     */
     @Synchronized
-    fun upgradeToExact() {
-        val timer = store.load() ?: return
-        if (timer.exact || timer.endAt <= clock() || !alarms.canScheduleExact()) return
-        val upgraded = timer.copy(exact = schedule(timer.endAt))
-        store.save(upgraded)
-        _state.value = upgraded
+    fun rearm() {
+        val timer = store.load()
+        val now = clock()
+        when {
+            timer == null -> _state.value = null
+            timer.endAt > now -> {
+                val rearmed = timer.copy(exact = schedule(timer.endAt))
+                store.save(rearmed)
+                _state.value = rearmed
+                notifier.showRunning(rearmed)
+            }
+            now - timer.endAt <= OVERDUE_GRACE_MS -> {
+                schedule(now)
+                _state.value = timer
+            }
+            else -> cancel()
+        }
     }
 
     /** Alarm ausgelöst: liefert den Timer genau einmal und löscht ihn (null, wenn er abgebrochen wurde). */
@@ -135,5 +151,8 @@ class SleepTimerScheduler(
         const val MIN_MINUTES = 1
         const val MAX_MINUTES = 480
         val PRESETS = listOf(15, 30, 45, 60, 90, 120)
+
+        /** Bis zu so lange überfällig: beim Neuplanen sofort auslösen statt verwerfen. */
+        const val OVERDUE_GRACE_MS = 15 * 60_000L
     }
 }

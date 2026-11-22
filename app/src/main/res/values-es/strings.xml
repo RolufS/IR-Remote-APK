@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">Se eliminó el mando.</string>
     <string name="timer_fail_action">La acción ya no existe o falta la tecla.</string>
     <string name="timer_fail_incomplete">La automatización tardó demasiado y se detuvo.</string>
+    <string name="timer_keys_skipped">Teclas omitidas (faltan en este mando): %1$d</string>
 </resources>

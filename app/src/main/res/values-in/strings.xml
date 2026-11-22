@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">Remote telah dihapus.</string>
     <string name="timer_fail_action">Tindakan sudah tidak ada atau tombolnya tidak ada.</string>
     <string name="timer_fail_incomplete">Otomatisasi berjalan terlalu lama dan dihentikan.</string>
+    <string name="timer_keys_skipped">Tombol dilewati (tidak ada di remote ini): %1$d</string>
 </resources>

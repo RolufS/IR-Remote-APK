@@ -11,7 +11,18 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import java.io.IOException
 
-enum class FireResult { DONE, NO_TIMER, REMOTE_MISSING, ACTION_MISSING, SEND_FAILED, INCOMPLETE }
+/** Ergebnis eines ausgelösten Timers (für die Ergebnis-Benachrichtigung). */
+sealed interface FireResult {
+    data object DONE : FireResult
+    data object NO_TIMER : FireResult
+    data object REMOTE_MISSING : FireResult
+    data object ACTION_MISSING : FireResult
+    data object SEND_FAILED : FireResult
+    data object INCOMPLETE : FireResult
+
+    /** Automation ausgeführt, aber [count] Tasten fehlen dieser Fernbedienung (übersprungen). */
+    data class KeysSkipped(val count: Int) : FireResult
+}
 
 /**
  * Längste Wartezeit einer Automation für den Sleep-Timer. Der Alarm-Receiver läuft mit `goAsync()` und muss
@@ -28,6 +39,9 @@ class SleepTimerFirer(
     private val remotes: RemoteStorage,
     private val tx: IrTransmitter,
 ) {
+    /** Toggle-Zustand (RC5/RC6: frame/frameAlt) pro Signal, wie im [de.hotelremote.ir.SignalSender]. */
+    private val nextIsAlt = HashMap<List<Int>, Boolean>()
+
     suspend fun fire(): FireResult {
         val timer = scheduler.takeDue() ?: return FireResult.NO_TIMER
         val remote = try {
@@ -47,8 +61,8 @@ class SleepTimerFirer(
                         ?: return FireResult.ACTION_MISSING
                     if (automation.steps.none { it.key in remote.keys }) return FireResult.ACTION_MISSING
                     // Sicherheitsgrenze, falls die Folge nach dem Planen verlängert wurde.
-                    withTimeout(MAX_TIMER_AUTOMATION_MS + 500) { runSteps(remote.keys, automation.steps, ::send) }
-                    FireResult.DONE
+                    val missing = withTimeout(MAX_TIMER_AUTOMATION_MS + 500) { runSteps(remote.keys, automation.steps, ::send) }
+                    if (missing.isEmpty()) FireResult.DONE else FireResult.KeysSkipped(missing.size)
                 }
             }
         } catch (e: TimeoutCancellationException) {
@@ -60,5 +74,10 @@ class SleepTimerFirer(
         }
     }
 
-    private fun send(signal: IrSignal) = tx.transmit(signal.freq, signal.frame.toIntArray())
+    private fun send(signal: IrSignal) {
+        val alt = signal.frameAlt
+        val useAlt = alt != null && nextIsAlt[signal.frame] == true
+        if (alt != null) nextIsAlt[signal.frame] = !useAlt
+        tx.transmit(signal.freq, (if (useAlt) alt!! else signal.frame).toIntArray())
+    }
 }

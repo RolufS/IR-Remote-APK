@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">La télécommande a été supprimée.</string>
     <string name="timer_fail_action">L’action n’existe plus ou la touche manque.</string>
     <string name="timer_fail_incomplete">L’automatisation a duré trop longtemps et a été arrêtée.</string>
+    <string name="timer_keys_skipped">Touches ignorées (absentes de cette télécommande) : %1$d</string>
 </resources>

@@ -50,9 +50,12 @@ class AutomationRunner(
     val progress: StateFlow<AutomationProgress?> = _progress.asStateFlow()
     private var job: Job? = null
 
-    /** Startet die Folge; false, wenn schon eine läuft oder sie leer ist. */
+    /**
+     * Startet die Folge; false, wenn schon eine läuft oder sie leer ist. Ein abgebrochener, aber noch nicht
+     * beendeter Lauf zählt noch als laufend, damit sein Abschluss nicht den Fortschritt des neuen löscht.
+     */
     fun start(name: String, keys: Map<String, IrSignal>, steps: List<AutomationStep>): Boolean {
-        if (job?.isActive == true || steps.isEmpty()) return false
+        if (job?.isCompleted == false || steps.isEmpty()) return false
         _progress.value = AutomationProgress(name, 1, steps.size)
         var missing: List<String>? = null
         val started = scope.launch {

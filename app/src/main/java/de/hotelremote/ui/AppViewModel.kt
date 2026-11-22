@@ -67,11 +67,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
 
     fun cancelSleepTimer() = timerScheduler.cancel()
 
-    /** Timer neu lesen (z. B. inzwischen ausgelöst) und, falls inzwischen erlaubt, genau planen. */
-    fun refreshSleepTimer() {
-        timerScheduler.reload()
-        timerScheduler.upgradeToExact()
-    }
+    /** Rückkehr in die App: Alarm neu setzen (kann verloren gegangen sein), ggf. jetzt genau. */
+    fun rearmSleepTimer() = timerScheduler.rearm()
+
+    /** Nur neu lesen (z. B. ob der Receiver den Timer inzwischen ausgeführt hat). */
+    fun reloadSleepTimer() = timerScheduler.reload()
 
     /** Vorauswahl für „Sprache wählen“ aus gewählter App-Sprache und Systemsprachen. */
     fun preselectedLanguage(): AppLanguage = AppLanguages.preselect(

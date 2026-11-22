@@ -3,6 +3,7 @@ package de.hotelremote.ui.automation
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -82,6 +83,22 @@ class AutomationUiTest {
         rule.onNodeWithTag("auto_save").assertIsEnabled().performClick()
         assertEquals("Einschlafen", saved?.name)
         assertEquals(listOf(AutomationStep("X:Sleep", 2000), AutomationStep(Keys.MENU)), saved?.steps)
+    }
+
+    @Test fun editorInputSurvivesRecreation() {
+        val restore = StateRestorationTester(rule)
+        restore.setContent {
+            HotelRemoteTheme {
+                AutomationEditorScreen(null, keys, null, { _, _ -> }, {}, { saved = it }, {})
+            }
+        }
+        rule.onNodeWithTag("auto_name").performTextInput("Abend")
+        addStep(Keys.MENU)
+        rule.onNodeWithTag("step_wait_plus_0").performClick()
+        restore.emulateSavedInstanceStateRestore()
+        rule.onNodeWithTag("auto_save").performClick()
+        assertEquals("Abend", saved?.name)
+        assertEquals(listOf(AutomationStep(Keys.MENU, 2000)), saved?.steps)
     }
 
     @Test fun editorKeepsIdOfExistingAutomation() {

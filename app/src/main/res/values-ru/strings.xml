@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">Пульт был удалён.</string>
     <string name="timer_fail_action">Действие больше не существует или нет кнопки.</string>
     <string name="timer_fail_incomplete">Автоматизация шла слишком долго и была остановлена.</string>
+    <string name="timer_keys_skipped">Пропущено кнопок (нет на этом пульте): %1$d</string>
 </resources>

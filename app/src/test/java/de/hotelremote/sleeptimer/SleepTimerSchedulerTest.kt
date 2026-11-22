@@ -112,17 +112,53 @@ class SleepTimerSchedulerTest {
         assertNull(notifier.running)
     }
 
-    @Test fun upgradeToExactWhenPermissionGrantedLater() {
+    @Test fun rearmUpgradesToExactWhenPermissionGrantedLater() {
         alarms.exactAllowed = false
         val s = scheduler()
         val t = s.start(30, "r1", SleepAction.PowerOff)
         alarms.exactAllowed = true
-        s.upgradeToExact()
+        s.rearm()
         assertEquals("exact@${t.endAt}", alarms.calls.last())
         assertTrue(s.state.value!!.exact)
         assertTrue(store.saved!!.exact)
-        s.upgradeToExact()
-        assertEquals(2, alarms.calls.size)
+    }
+
+    @Test fun rearmRestoresLostAlarmAndFallsBackWhenExactRevoked() {
+        val s = scheduler()
+        val t = s.start(30, "r1", SleepAction.PowerOff)
+        notifier.running = null // z. B. nach Beenden erzwingen
+        alarms.exactAllowed = false
+        now += 60_000L
+        s.rearm()
+        assertEquals("inexact@${t.endAt}", alarms.calls.last())
+        assertFalse(store.saved!!.exact)
+        assertFalse(s.state.value!!.exact)
+        assertEquals(store.saved, notifier.running)
+    }
+
+    @Test fun rearmFiresSlightlyOverdueTimerNow() {
+        val s = scheduler()
+        val t = s.start(30, "r1", SleepAction.PowerOff)
+        now = t.endAt + 10 * 60_000L
+        s.rearm()
+        assertEquals("exact@$now", alarms.calls.last())
+        assertEquals(t, store.saved)
+    }
+
+    @Test fun rearmDiscardsLongOverdueTimer() {
+        val s = scheduler()
+        val t = s.start(30, "r1", SleepAction.PowerOff)
+        now = t.endAt + 16 * 60_000L
+        s.rearm()
+        assertEquals("cancel", alarms.calls.last())
+        assertNull(store.saved)
+        assertNull(s.state.value)
+        assertNull(notifier.running)
+    }
+
+    @Test fun rearmWithoutTimerDoesNothing() {
+        scheduler().rearm()
+        assertEquals(emptyList<String>(), alarms.calls)
     }
 
     @Test fun takeDueClearsTimerOnce() {

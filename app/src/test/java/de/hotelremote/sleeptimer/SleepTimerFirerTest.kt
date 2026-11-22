@@ -104,4 +104,20 @@ class SleepTimerFirerTest {
         assertEquals(FireResult.INCOMPLETE, firer(timerRemote(Keys.OK to 6, automations = listOf(a))).fire())
         assertEquals(3, tx.sent.size)
     }
+
+    @Test fun toggleFrameAlternatesWithinOneFire() = runTest {
+        val rc5 = IrSignal(freq = 36000, frame = listOf(11, 1, 1), frameAlt = listOf(12, 1, 1), periodMs = 114)
+        val a = Automation("a1", "Runter", List(3) { AutomationStep(Keys.DOWN, 500) })
+        val remote = timerRemote(automations = listOf(a)).copy(keys = mapOf(Keys.DOWN to rc5))
+        scheduler.start(15, "r1", SleepAction.RunAutomation("a1"))
+        assertEquals(FireResult.DONE, firer(remote).fire())
+        assertEquals(listOf(11, 12, 11), tx.sent)
+    }
+
+    @Test fun partlyMissingKeysAreReported() = runTest {
+        val a = Automation("a1", "Aus", listOf(AutomationStep(Keys.MENU, 500), AutomationStep("X:Sleep", 500), AutomationStep(Keys.OK)))
+        scheduler.start(15, "r1", SleepAction.RunAutomation("a1"))
+        assertEquals(FireResult.KeysSkipped(1), firer(timerRemote(Keys.MENU to 5, Keys.OK to 6, automations = listOf(a))).fire())
+        assertEquals(listOf(5, 6), tx.sent)
+    }
 }

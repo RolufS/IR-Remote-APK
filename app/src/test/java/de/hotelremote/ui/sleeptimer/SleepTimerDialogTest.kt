@@ -81,6 +81,14 @@ class SleepTimerDialogTest {
         assertEquals(TimerRequest(30, SleepAction.RunAutomation("short")), started)
     }
 
+    @Test fun timerRequestSaverRoundTrips() {
+        val scope = androidx.compose.runtime.saveable.SaverScope { true }
+        for (r in listOf(TimerRequest(45, SleepAction.PowerOff), TimerRequest(480, SleepAction.RunAutomation("a|b")))) {
+            val saved = with(TimerRequestSaver) { scope.save(r) }!!
+            assertEquals(r, TimerRequestSaver.restore(saved))
+        }
+    }
+
     @Test fun remainingMinutesRoundsUp() {
         assertEquals(42, remainingMinutes(42 * 60_000L - 1, 0))
         assertEquals(1, remainingMinutes(1, 0))

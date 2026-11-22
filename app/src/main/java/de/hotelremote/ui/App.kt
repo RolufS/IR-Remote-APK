@@ -41,6 +41,7 @@ import de.hotelremote.ui.remotes.RemoteListScreen
 import de.hotelremote.ui.sleeptimer.SleepTimerDialog
 import de.hotelremote.ui.sleeptimer.SleepTimerStartFlow
 import de.hotelremote.ui.sleeptimer.TimerRequest
+import de.hotelremote.ui.sleeptimer.TimerRequestSaver
 import de.hotelremote.ui.theme.RemoteColors
 import de.hotelremote.ui.wizard.WizardDbError
 import de.hotelremote.ui.wizard.WizardScreen
@@ -55,7 +56,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val sleepTimer by vm.sleepTimer.collectAsStateWithLifecycle()
     var quickOpen by rememberSaveable { mutableStateOf(false) }
     var timerDialog by rememberSaveable { mutableStateOf(false) }
-    var timerRequest by remember { mutableStateOf<TimerRequest?>(null) }
+    var timerRequest by rememberSaveable(stateSaver = TimerRequestSaver) { mutableStateOf<TimerRequest?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
     LaunchedEffect(state.message) {
@@ -181,7 +182,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                         quickOpen = false
                         c.show(Screen.Automations)
                     },
-                    onTimerExpired = vm::refreshSleepTimer,
+                    onTimerExpired = vm::reloadSleepTimer,
                     onDismiss = { quickOpen = false },
                 )
             } else {

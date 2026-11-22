@@ -115,15 +115,17 @@ class AndroidSleepTimerNotifier(private val context: Context) : SleepTimerNotifi
     fun showResult(result: FireResult) {
         val text = when (result) {
             FireResult.DONE, FireResult.NO_TIMER -> null
-            FireResult.REMOTE_MISSING -> R.string.timer_fail_remote
-            FireResult.ACTION_MISSING -> R.string.timer_fail_action
-            FireResult.SEND_FAILED -> R.string.send_failed
-            FireResult.INCOMPLETE -> R.string.timer_fail_incomplete
+            FireResult.REMOTE_MISSING -> context.getString(R.string.timer_fail_remote)
+            FireResult.ACTION_MISSING -> context.getString(R.string.timer_fail_action)
+            FireResult.SEND_FAILED -> context.getString(R.string.send_failed)
+            FireResult.INCOMPLETE -> context.getString(R.string.timer_fail_incomplete)
+            is FireResult.KeysSkipped -> context.getString(R.string.timer_keys_skipped, result.count)
         }
-        val title = if (result == FireResult.DONE) R.string.timer_notif_done else R.string.timer_notif_failed
+        val done = result == FireResult.DONE || result is FireResult.KeysSkipped
+        val title = if (done) R.string.timer_notif_done else R.string.timer_notif_failed
         val n = builder()
             .setContentTitle(context.getString(title))
-            .apply { if (text != null) setContentText(context.getString(text)) }
+            .apply { if (text != null) setContentText(text) }
             .setAutoCancel(true)
             .setTimeoutAfter(RESULT_TIMEOUT_MS)
             .build()

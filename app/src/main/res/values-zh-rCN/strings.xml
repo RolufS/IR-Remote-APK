@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">该遥控器已被删除。</string>
     <string name="timer_fail_action">该操作已不存在或缺少按键。</string>
     <string name="timer_fail_incomplete">自动化耗时过长，已停止。</string>
+    <string name="timer_keys_skipped">已跳过的按键（此遥控器没有）：%1$d</string>
 </resources>

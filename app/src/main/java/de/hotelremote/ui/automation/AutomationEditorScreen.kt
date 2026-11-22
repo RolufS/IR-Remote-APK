@@ -24,6 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +50,16 @@ import de.hotelremote.ui.theme.RemoteColors
 import java.text.NumberFormat
 import java.util.UUID
 
+/** Schrittliste als flache Liste [Taste, Wartezeit, Taste, Wartezeit, …]. */
+private val StepsSaver = listSaver<SnapshotStateList<AutomationStep>, Any>(
+    save = { list -> list.flatMap { listOf(it.key, it.delayAfterMs) } },
+    restore = { flat ->
+        mutableStateListOf<AutomationStep>().apply {
+            flat.chunked(2).forEach { (key, delay) -> add(AutomationStep(key as String, delay as Long)) }
+        }
+    },
+)
+
 /** Wartezeit eine Stufe (0,5 s) länger bzw. kürzer, begrenzt auf 0,5–10 s. */
 internal fun changeDelay(ms: Long, up: Boolean): Long =
     (ms + if (up) AutomationStep.DELAY_STEP_MS else -AutomationStep.DELAY_STEP_MS)
@@ -69,9 +82,12 @@ fun AutomationEditorScreen(
     val res = LocalContext.current.resources
     val locale = LocalConfiguration.current.locales[0]
     val seconds = remember(locale) { NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 } }
-    var name by remember(initial?.id) { mutableStateOf(initial?.name.orEmpty()) }
-    val steps = remember(initial?.id) { mutableStateListOf<AutomationStep>().apply { addAll(initial?.steps.orEmpty()) } }
-    var picking by remember { mutableStateOf(false) }
+    // Saveable: Eingaben überstehen das Neuerzeugen der Activity (z. B. Sprachwechsel, Prozess-Ende im Hintergrund).
+    var name by rememberSaveable(initial?.id) { mutableStateOf(initial?.name.orEmpty()) }
+    val steps = rememberSaveable(initial?.id, saver = StepsSaver) {
+        mutableStateListOf<AutomationStep>().apply { addAll(initial?.steps.orEmpty()) }
+    }
+    var picking by rememberSaveable { mutableStateOf(false) }
     val canSave = name.isNotBlank() && steps.isNotEmpty()
 
     Column(

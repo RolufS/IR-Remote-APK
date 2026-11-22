@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">O controle foi excluído.</string>
     <string name="timer_fail_action">A ação não existe mais ou falta a tecla.</string>
     <string name="timer_fail_incomplete">A automação demorou demais e foi interrompida.</string>
+    <string name="timer_keys_skipped">Teclas ignoradas (ausentes neste controle): %1$d</string>
 </resources>

@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">تم حذف جهاز التحكم.</string>
     <string name="timer_fail_action">الإجراء لم يعد موجودًا أو الزر غير موجود.</string>
     <string name="timer_fail_incomplete">استغرقت الأتمتة وقتًا طويلًا وتم إيقافها.</string>
+    <string name="timer_keys_skipped">أزرار تم تخطيها (غير موجودة في جهاز التحكم هذا): %1$d</string>
 </resources>

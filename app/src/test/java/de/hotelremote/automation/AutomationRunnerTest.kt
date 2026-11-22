@@ -89,6 +89,20 @@ class AutomationRunnerTest {
         assertEquals(listOf(1, 3, 2), sent.map { it.first })
     }
 
+    @Test fun cancelledButUnfinishedRunBlocksNewStart() = runTest {
+        val r = runner()
+        r.start("A", keys, listOf(AutomationStep("MENU", 1000), AutomationStep("OK", 1000)))
+        r.cancel()
+        assertFalse(r.start("B", keys, listOf(AutomationStep("DOWN", 0), AutomationStep("OK", 0))))
+        runCurrent()
+        assertNull(r.progress.value)
+        assertTrue(r.start("B", keys, listOf(AutomationStep("DOWN", 1000), AutomationStep("OK", 0))))
+        runCurrent()
+        assertEquals(AutomationProgress("B", 1, 2), r.progress.value)
+        advanceUntilIdle()
+        assertEquals(listOf(2, 3), sent.map { it.first })
+    }
+
     @Test fun durationIgnoresLastDelay() {
         assertEquals(1500L, automationDurationMs(listOf(AutomationStep("A", 1000), AutomationStep("B", 500), AutomationStep("C", 9000))))
         assertEquals(0L, automationDurationMs(emptyList()))

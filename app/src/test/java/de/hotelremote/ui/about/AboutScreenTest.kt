@@ -22,6 +22,5 @@ class AboutScreenTest {
     @Test fun showsVersionFromBuild() {
         rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = false, onBack = {}) } }
         rule.onNodeWithText("Fernbedienung ${BuildConfig.VERSION_NAME} – werbefrei, ohne Internet.").assertExists()
-        rule.onNodeWithText("Fernbedienung 1.2 – werbefrei, ohne Internet.").assertExists()
     }
 }

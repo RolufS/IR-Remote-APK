@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">The remote was deleted.</string>
     <string name="timer_fail_action">The action no longer exists or the key is missing.</string>
     <string name="timer_fail_incomplete">The automation took too long and was stopped.</string>
+    <string name="timer_keys_skipped">Skipped keys (missing on this remote): %1$d</string>
 </resources>

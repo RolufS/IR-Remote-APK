@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +49,15 @@ private val ChipSelected = RemoteColors.SourceTop
 
 /** Ein Timer-Wunsch aus dem Dialog. */
 data class TimerRequest(val minutes: Int, val action: SleepAction)
+
+/** Speichert einen offenen Timer-Wunsch als „Minuten|Automation-id“ (leer = Ausschalten). */
+val TimerRequestSaver: Saver<TimerRequest?, String> = Saver(
+    save = { r -> r?.let { "${it.minutes}|${(it.action as? SleepAction.RunAutomation)?.automationId.orEmpty()}" } },
+    restore = { text ->
+        val (minutes, id) = text.split("|", limit = 2)
+        TimerRequest(minutes.toInt(), if (id.isEmpty()) SleepAction.PowerOff else SleepAction.RunAutomation(id))
+    },
+)
 
 /** Eigener Wert in Minuten (1–480); null bei ungültiger Eingabe. */
 internal fun parseMinutes(text: String): Int? =

@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,8 +57,8 @@ fun SleepTimerStartFlow(request: TimerRequest, host: SleepTimerHost, onDone: (no
             }
         }
     }
-    var step by remember(request) { mutableStateOf(next(null)) }
-    var notificationsDenied by remember(request) { mutableStateOf(false) }
+    var step by rememberSaveable(request) { mutableStateOf(next(null)) }
+    var notificationsDenied by rememberSaveable(request) { mutableStateOf(false) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         notificationsDenied = !granted
         step = Step.START

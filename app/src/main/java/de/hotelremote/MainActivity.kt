@@ -23,10 +23,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Zurück aus den Einstellungen: Sleep-Timer ggf. genau planen. */
+    /** Start und Rückkehr (z. B. aus den Einstellungen): Sleep-Timer-Alarm neu setzen, ggf. genau. */
     override fun onResume() {
         super.onResume()
-        vm.refreshSleepTimer()
+        vm.rearmSleepTimer()
     }
 
     /**

@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">রিমোটটি মুছে ফেলা হয়েছে।</string>
     <string name="timer_fail_action">কাজটি আর নেই বা বোতাম নেই।</string>
     <string name="timer_fail_incomplete">অটোমেশন খুব বেশি সময় নিয়েছে, তাই থামানো হয়েছে।</string>
+    <string name="timer_keys_skipped">বাদ দেওয়া বোতাম (এই রিমোটে নেই): %1$d</string>
 </resources>

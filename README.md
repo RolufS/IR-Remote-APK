@@ -115,6 +115,10 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 13. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
 14. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 11 wiederholen.
 
+Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
+Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt
+dort nur für die Bildschirme der App).
+
 ## Datenschutz
 
 Die App erhebt keine Daten und hat keinen Internetzugang, siehe

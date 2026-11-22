@@ -153,4 +153,5 @@
     <string name="timer_fail_remote">Die Fernbedienung wurde gelöscht.</string>
     <string name="timer_fail_action">Die Aktion gibt es nicht mehr oder die Taste fehlt.</string>
     <string name="timer_fail_incomplete">Die Automation dauerte zu lange und wurde abgebrochen.</string>
+    <string name="timer_keys_skipped">Übersprungene Tasten (fehlen dieser Fernbedienung): %1$d</string>
 </resources>
