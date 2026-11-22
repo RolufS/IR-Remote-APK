@@ -2,10 +2,14 @@ package de.hotelremote.ui.wizard
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import de.hotelremote.Keys
 import de.hotelremote.data.Brand
+import de.hotelremote.ui.about.AboutScreen
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import de.hotelremote.wizard.WizardState
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,5 +53,18 @@ class WizardScreenTest {
     @Test fun noBannerWithIr() {
         show(WizardState.PickBrand, irAvailable = true)
         rule.onNodeWithTag("no_ir_banner").assertDoesNotExist()
+    }
+
+    @Test fun dbErrorScreenShowsHintAndGoesBack() {
+        var back = 0
+        rule.setContent { HotelRemoteTheme { WizardDbError(onBack = { back++ }) } }
+        rule.onNodeWithTag("db_error").assertExists()
+        rule.onNodeWithText("Zurück").performClick()
+        assertEquals(1, back)
+    }
+
+    @Test fun aboutShowsDbError() {
+        rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = true, onBack = {}) } }
+        rule.onNodeWithTag("db_error").assertExists()
     }
 }

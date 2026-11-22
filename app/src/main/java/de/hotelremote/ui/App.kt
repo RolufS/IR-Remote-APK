@@ -23,20 +23,23 @@ import de.hotelremote.ui.remote.RemoteMenu
 import de.hotelremote.ui.remote.RemoteScreen
 import de.hotelremote.ui.remotes.RemoteListScreen
 import de.hotelremote.ui.theme.RemoteColors
+import de.hotelremote.ui.wizard.WizardDbError
 import de.hotelremote.ui.wizard.WizardScreen
 
-/** Wählt den Bildschirm nach dem Zustand des ViewModels; Fehlermeldungen als Snackbar. */
+/** Wählt den Bildschirm nach dem Zustand des ViewModels; Fehlermeldungen als Snackbar. [onExit] verlässt die App. */
 @Composable
-fun App(vm: AppViewModel) {
-    val state by vm.state.collectAsStateWithLifecycle()
+fun App(vm: AppViewModel, onExit: () -> Unit) {
+    val c = vm.controller
+    val state by c.state.collectAsStateWithLifecycle()
+    val wizardBack = { if (!c.wizardBack()) onExit() }
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(state.message) {
         val msg = state.message ?: return@LaunchedEffect
         snackbar.showSnackbar(msg)
-        vm.clearMessage()
+        c.clearMessage()
     }
     BackHandler(enabled = !state.loading && state.screen in setOf(Screen.RemoteList, Screen.ExtraKeys, Screen.About)) {
-        vm.show(Screen.Remote)
+        c.show(Screen.Remote)
     }
     Box(Modifier.fillMaxSize().background(RemoteColors.BackgroundBottom)) {
         val current = state.current
@@ -46,44 +49,45 @@ fun App(vm: AppViewModel) {
                     .fillMaxSize()
                     .background(Brush.verticalGradient(listOf(RemoteColors.BackgroundTop, RemoteColors.BackgroundBottom))),
             )
+            state.screen == Screen.Wizard && state.dbError -> WizardDbError(onBack = wizardBack)
             state.screen == Screen.Wizard -> WizardScreen(
                 state = state.wizard,
                 brands = state.brands,
                 irAvailable = state.irAvailable,
-                onPickBrand = vm::pickBrand,
-                onStartScan = { vm.startScan(0) },
-                onTest = vm::testSignal,
-                onAnswer = vm::answer,
-                onTvOff = vm::useTvOffMode,
-                onStopScan = vm::stopScan,
-                onResumeScan = vm::startScan,
-                onSave = vm::saveWizard,
-                onBack = vm::wizardBack,
+                onPickBrand = c::pickBrand,
+                onStartScan = { c.startScan(0) },
+                onTest = c::testSignal,
+                onAnswer = c::answer,
+                onTvOff = c::useTvOffMode,
+                onStopScan = c::stopScan,
+                onResumeScan = c::startScan,
+                onSave = c::saveWizard,
+                onBack = wizardBack,
             )
             state.screen == Screen.RemoteList -> RemoteListScreen(
                 remotes = state.remotes,
                 currentId = current?.id,
-                onSwitch = vm::switchTo,
-                onRename = vm::rename,
-                onDelete = vm::delete,
-                onNew = vm::openWizard,
-                onBack = { vm.show(Screen.Remote) },
+                onSwitch = c::switchTo,
+                onRename = c::rename,
+                onDelete = c::delete,
+                onNew = c::openWizard,
+                onBack = { c.show(Screen.Remote) },
             )
-            state.screen == Screen.About -> AboutScreen(meta = state.meta, onBack = { vm.show(Screen.Remote) })
+            state.screen == Screen.About -> AboutScreen(meta = state.meta, dbError = state.dbError, onBack = { c.show(Screen.Remote) })
             current == null -> Unit
-            state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { vm.show(Screen.Remote) })
+            state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { c.show(Screen.Remote) })
             else -> RemoteScreen(
                 remote = current,
                 remotes = state.remotes,
                 irAvailable = state.irAvailable,
                 handler = vm,
-                onSwitch = vm::switchTo,
-                onOpenList = { vm.show(Screen.RemoteList) },
+                onSwitch = c::switchTo,
+                onOpenList = { c.show(Screen.RemoteList) },
                 onMenu = { menu ->
                     when (menu) {
-                        RemoteMenu.EXTRA_KEYS -> vm.show(Screen.ExtraKeys)
-                        RemoteMenu.WIZARD -> vm.openWizard()
-                        RemoteMenu.ABOUT -> vm.show(Screen.About)
+                        RemoteMenu.EXTRA_KEYS -> c.show(Screen.ExtraKeys)
+                        RemoteMenu.WIZARD -> c.openWizard()
+                        RemoteMenu.ABOUT -> c.show(Screen.About)
                     }
                 },
             )

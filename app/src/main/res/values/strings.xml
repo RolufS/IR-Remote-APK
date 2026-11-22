@@ -3,6 +3,9 @@
     <string name="app_name">Fernbedienung</string>
     <string name="no_ir">Dieses Handy hat keinen Infrarot-Sender. Die App kann nichts senden.</string>
     <string name="send_failed">Senden fehlgeschlagen</string>
+    <string name="save_failed">Speichern fehlgeschlagen</string>
+    <string name="load_failed">Gespeicherte Fernbedienungen konnten nicht geladen werden.</string>
+    <string name="db_error">Die Code-Datenbank konnte nicht geladen werden. Bitte Speicherplatz prüfen und die App neu starten.</string>
     <string name="menu_extra">Weitere Tasten</string>
     <string name="menu_wizard">Fernbedienung suchen</string>
     <string name="menu_about">Über</string>

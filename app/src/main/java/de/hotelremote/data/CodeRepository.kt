@@ -16,9 +16,15 @@ data class ScanEntry(
     val signal: IrSignal,
 )
 
-class CodeRepository(private val db: SQLiteDatabase) : WizardData {
+/** Code-Daten für App und Assistent. */
+interface CodeCatalog : WizardData {
+    fun brands(): List<Brand>
+    fun meta(): Map<String, String>
+}
 
-    fun brands(): List<Brand> {
+class CodeRepository(private val db: SQLiteDatabase) : CodeCatalog {
+
+    override fun brands(): List<Brand> {
         val all = db.rawQuery(
             """SELECT b.id, b.name, b.hotel_rank, COUNT(*) FROM brand b
                JOIN code_set_brand c ON c.brand_id = b.id GROUP BY b.id""",
@@ -34,7 +40,7 @@ class CodeRepository(private val db: SQLiteDatabase) : WizardData {
         return hotel.sortedBy { it.hotelRank } + rest.sortedBy { it.name.lowercase() }
     }
 
-    fun meta(): Map<String, String> =
+    override fun meta(): Map<String, String> =
         db.rawQuery("SELECT k, v FROM meta", null).use { c ->
             buildMap { while (c.moveToNext()) put(c.getString(0), c.getString(1)) }
         }

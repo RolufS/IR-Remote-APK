@@ -19,30 +19,39 @@ data class SavedRemote(
     val title get() = name?.takeIf { it.isNotBlank() } ?: "$brand · $codeLabel"
 }
 
+/** Ablage der gespeicherten Fernbedienungen; Schreibfehler als [java.io.IOException]. */
+interface RemoteStorage {
+    fun all(): List<SavedRemote>
+    fun add(r: SavedRemote)
+    fun rename(id: String, name: String?)
+    fun delete(id: String)
+    fun markUsed(id: String, now: Long)
+}
+
 /** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
-class RemoteStore(private val file: File) {
+class RemoteStore(private val file: File) : RemoteStorage {
     private val json = Json { ignoreUnknownKeys = true }
     private val serializer = ListSerializer(SavedRemote.serializer())
 
     @Synchronized
-    fun all(): List<SavedRemote> = load().sortedByDescending { it.lastUsed }
+    override fun all(): List<SavedRemote> = load().sortedByDescending { it.lastUsed }
 
     @Synchronized
-    fun add(r: SavedRemote) {
+    override fun add(r: SavedRemote) {
         save(load().filterNot { it.id == r.id } + r)
     }
 
     @Synchronized
-    fun rename(id: String, name: String?) = update(id) { it.copy(name = name) }
+    override fun rename(id: String, name: String?) = update(id) { it.copy(name = name) }
 
     @Synchronized
-    fun delete(id: String) {
+    override fun delete(id: String) {
         val list = load()
         if (list.any { it.id == id }) save(list.filterNot { it.id == id })
     }
 
     @Synchronized
-    fun markUsed(id: String, now: Long) = update(id) { it.copy(lastUsed = now) }
+    override fun markUsed(id: String, now: Long) = update(id) { it.copy(lastUsed = now) }
 
     @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()

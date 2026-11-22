@@ -34,7 +34,7 @@ import de.hotelremote.ui.theme.RemoteColors
 
 /** Über-Seite: Kurztext und Herkunft der Code-Daten aus der `meta`-Tabelle. */
 @Composable
-fun AboutScreen(meta: Map<String, String>, onBack: () -> Unit) {
+fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit) {
     val backDesc = stringResource(R.string.cd_back)
     Column(
         Modifier
@@ -73,11 +73,15 @@ fun AboutScreen(meta: Map<String, String>, onBack: () -> Unit) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
             )
-            Body(stringResource(R.string.about_flipper, meta["flipper_commit"].orEmpty().take(7)))
-            if (!meta["irdb_commit"].isNullOrEmpty()) {
-                Body(stringResource(R.string.about_irdb), Modifier.testTag("about_irdb"))
+            if (dbError) {
+                Body(stringResource(R.string.db_error), Modifier.testTag("db_error"))
+            } else {
+                Body(stringResource(R.string.about_flipper, meta["flipper_commit"].orEmpty().take(7)))
+                if (!meta["irdb_commit"].isNullOrEmpty()) {
+                    Body(stringResource(R.string.about_irdb), Modifier.testTag("about_irdb"))
+                }
+                Body(stringResource(R.string.about_counts, meta["code_sets"].orEmpty(), meta["brands"].orEmpty()))
             }
-            Body(stringResource(R.string.about_counts, meta["code_sets"].orEmpty(), meta["brands"].orEmpty()))
         }
     }
 }
