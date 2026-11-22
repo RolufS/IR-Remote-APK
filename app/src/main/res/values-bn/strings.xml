@@ -21,7 +21,7 @@
     <string name="wiz_search_hint">ব্র্যান্ড খুঁজুন…</string>
     <string name="wiz_section_hotel">হোটেলে প্রচলিত</string>
     <string name="wiz_section_all">সব ব্র্যান্ড</string>
-    <string name="wiz_codes_count">%1$dটি কোড</string>
+    <string name="wiz_codes_count">কোড: %1$d</string>
     <string name="wiz_unknown_brand">ব্র্যান্ড অজানা → স্ক্যান</string>
     <string name="wiz_test_header">%1$s · কোড %2$d/%3$d</string>
     <string name="wiz_test_title">ফোনটি টিভির দিকে তাক করে %1$s চাপুন।</string>
@@ -70,7 +70,7 @@
     <string name="list_name_hint">নাম</string>
     <string name="list_save">সংরক্ষণ করুন</string>
     <string name="list_cancel">বাতিল</string>
-    <string name="about_text">টিভি রিমোট 1.1 – বিজ্ঞাপন নেই, ইন্টারনেট নেই।</string>
+    <string name="about_text">টিভি রিমোট %1$s – বিজ্ঞাপন নেই, ইন্টারনেট নেই।</string>
     <string name="about_codes">কোড ডেটা</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), সংস্করণ %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

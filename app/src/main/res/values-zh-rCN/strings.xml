@@ -21,7 +21,7 @@
     <string name="wiz_search_hint">搜索品牌…</string>
     <string name="wiz_section_hotel">酒店常见</string>
     <string name="wiz_section_all">全部品牌</string>
-    <string name="wiz_codes_count">%1$d 个代码</string>
+    <string name="wiz_codes_count">代码：%1$d</string>
     <string name="wiz_unknown_brand">品牌未知 → 自动搜索</string>
     <string name="wiz_test_header">%1$s · 代码 %2$d/%3$d</string>
     <string name="wiz_test_title">将手机对准电视，然后点按 %1$s。</string>
@@ -70,7 +70,7 @@
     <string name="list_name_hint">名称</string>
     <string name="list_save">保存</string>
     <string name="list_cancel">取消</string>
-    <string name="about_text">电视遥控器 1.1 – 无广告，无需联网。</string>
+    <string name="about_text">电视遥控器 %1$s – 无广告，无需联网。</string>
     <string name="about_codes">代码数据</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0)，版本 %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

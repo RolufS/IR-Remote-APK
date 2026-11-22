@@ -21,7 +21,7 @@
     <string name="wiz_search_hint">Cari merek…</string>
     <string name="wiz_section_hotel">UMUM DI HOTEL</string>
     <string name="wiz_section_all">SEMUA MEREK</string>
-    <string name="wiz_codes_count">%1$d kode</string>
+    <string name="wiz_codes_count">Kode: %1$d</string>
     <string name="wiz_unknown_brand">Merek tidak diketahui → pindai</string>
     <string name="wiz_test_header">%1$s · Kode %2$d dari %3$d</string>
     <string name="wiz_test_title">Arahkan ponsel ke TV, lalu ketuk %1$s.</string>
@@ -70,7 +70,7 @@
     <string name="list_name_hint">Nama</string>
     <string name="list_save">Simpan</string>
     <string name="list_cancel">Batal</string>
-    <string name="about_text">Remote TV 1.1 – tanpa iklan, tanpa internet.</string>
+    <string name="about_text">Remote TV %1$s – tanpa iklan, tanpa internet.</string>
     <string name="about_codes">Data kode</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), versi %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

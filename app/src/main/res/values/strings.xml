@@ -21,7 +21,7 @@
     <string name="wiz_search_hint">Marke suchen …</string>
     <string name="wiz_section_hotel">HÄUFIG IN HOTELS</string>
     <string name="wiz_section_all">ALLE MARKEN</string>
-    <string name="wiz_codes_count">%1$d Codes</string>
+    <string name="wiz_codes_count">Codes: %1$d</string>
     <string name="wiz_unknown_brand">Marke unbekannt → Suchlauf</string>
     <string name="wiz_test_header">%1$s · Code %2$d von %3$d</string>
     <string name="wiz_test_title">Richte das Handy auf den Fernseher und tippe auf %1$s.</string>
@@ -70,7 +70,7 @@
     <string name="list_name_hint">Name</string>
     <string name="list_save">Speichern</string>
     <string name="list_cancel">Abbrechen</string>
-    <string name="about_text">Fernbedienung 1.1 – werbefrei, ohne Internet.</string>
+    <string name="about_text">Fernbedienung %1$s – werbefrei, ohne Internet.</string>
     <string name="about_codes">Code-Daten</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), Stand %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

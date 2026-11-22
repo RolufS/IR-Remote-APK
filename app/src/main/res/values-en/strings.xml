@@ -21,7 +21,7 @@
     <string name="wiz_search_hint">Search brand…</string>
     <string name="wiz_section_hotel">COMMON IN HOTELS</string>
     <string name="wiz_section_all">ALL BRANDS</string>
-    <string name="wiz_codes_count">%1$d codes</string>
+    <string name="wiz_codes_count">Codes: %1$d</string>
     <string name="wiz_unknown_brand">Brand unknown → scan</string>
     <string name="wiz_test_header">%1$s · Code %2$d of %3$d</string>
     <string name="wiz_test_title">Point the phone at the TV and tap %1$s.</string>
@@ -70,7 +70,7 @@
     <string name="list_name_hint">Name</string>
     <string name="list_save">Save</string>
     <string name="list_cancel">Cancel</string>
-    <string name="about_text">TV Remote 1.1 – ad-free, no internet.</string>
+    <string name="about_text">TV Remote %1$s – ad-free, no internet.</string>
     <string name="about_codes">Code data</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), version %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.hotelremote.BuildConfig
 import de.hotelremote.R
 import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.theme.RemoteColors
@@ -67,7 +68,7 @@ fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit)
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Body(stringResource(R.string.about_text))
+            Body(stringResource(R.string.about_text, BuildConfig.VERSION_NAME))
             Body(stringResource(R.string.about_privacy), Modifier.testTag("about_privacy"))
             Text(
                 stringResource(R.string.about_codes),
