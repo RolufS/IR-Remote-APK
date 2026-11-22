@@ -15,7 +15,10 @@ class AndroidIrTransmitter(context: Context) : IrTransmitter {
     override val available: Boolean
         get() = consumerIrManager?.hasIrEmitter() == true
 
+    /** Ohne IR-Sender wirft es, damit der Aufrufer "Senden fehlgeschlagen" melden kann. */
     override fun transmit(freq: Int, pattern: IntArray) {
-        consumerIrManager?.transmit(freq, pattern)
+        val manager = consumerIrManager?.takeIf { it.hasIrEmitter() }
+            ?: throw UnsupportedOperationException("Kein Infrarot-Sender")
+        manager.transmit(freq, pattern)
     }
 }

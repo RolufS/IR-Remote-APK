@@ -48,6 +48,7 @@ import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.Brand
 import de.hotelremote.ui.remote.KeyBrush
+import de.hotelremote.ui.remote.NoIrBanner
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import de.hotelremote.ui.theme.RemoteColors
@@ -61,6 +62,7 @@ private val RowColor = Color(0xFF36383D)
 fun WizardScreen(
     state: WizardState,
     brands: List<Brand>,
+    irAvailable: Boolean,
     onPickBrand: (Long) -> Unit,
     onStartScan: () -> Unit,
     onTest: () -> Unit,
@@ -77,37 +79,41 @@ fun WizardScreen(
     BackHandler {
         if (showIntro) intro = false else onBack()
     }
-    Box(
+    Column(
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(RemoteColors.BackgroundTop, RemoteColors.BackgroundBottom)))
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (showIntro) {
-            ScanIntro(onStart = {
-                intro = false
-                onStartScan()
-            })
-        } else {
-            when (state) {
-                WizardState.PickBrand -> PickBrand(brands, onPickBrand, onUnknown = { intro = true })
-                is WizardState.TestCode -> TestCode(
-                    state,
-                    brandName = brands.firstOrNull { it.id == state.brandId }?.name.orEmpty(),
-                    onTest = onTest, onAnswer = onAnswer, onTvOff = onTvOff,
-                )
-                is WizardState.Confirm -> Confirm(state, onTest, onAnswer)
-                is WizardState.Scanning -> Scanning(state, onStopScan)
-                is WizardState.ScanVerify -> ScanVerify(state, onTest, onAnswer)
-                is WizardState.TestInputs -> TestInputs(state, onTest, onAnswer)
-                is WizardState.Save -> Save(state, onSave)
-                is WizardState.NoMatch -> NoMatch(
-                    state,
-                    onOtherBrand = onBack,
-                    onStartScan = { intro = true },
-                    onResume = onResumeScan,
-                )
+        if (!irAvailable) NoIrBanner()
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            if (showIntro) {
+                ScanIntro(onStart = {
+                    intro = false
+                    onStartScan()
+                })
+            } else {
+                when (state) {
+                    WizardState.PickBrand -> PickBrand(brands, onPickBrand, onUnknown = { intro = true })
+                    is WizardState.TestCode -> TestCode(
+                        state,
+                        brandName = brands.firstOrNull { it.id == state.brandId }?.name.orEmpty(),
+                        onTest = onTest, onAnswer = onAnswer, onTvOff = onTvOff,
+                    )
+                    is WizardState.Confirm -> Confirm(state, onTest, onAnswer)
+                    is WizardState.Scanning -> Scanning(state, onStopScan)
+                    is WizardState.ScanVerify -> ScanVerify(state, onTest, onAnswer)
+                    is WizardState.TestInputs -> TestInputs(state, onTest, onAnswer)
+                    is WizardState.Save -> Save(state, onSave)
+                    is WizardState.NoMatch -> NoMatch(
+                        state,
+                        onOtherBrand = onBack,
+                        onStartScan = { intro = true },
+                        onResume = onResumeScan,
+                    )
+                }
             }
         }
     }
@@ -414,6 +420,7 @@ private fun WizardPreview() {
         WizardScreen(
             state = WizardState.TestCode(1, 0, 12, 10, Keys.MUTE),
             brands = listOf(Brand(1, "Samsung", 1, 12), Brand(2, "Acme", null, 3)),
+            irAvailable = true,
             onPickBrand = {}, onStartScan = {}, onTest = {}, onAnswer = {}, onTvOff = {},
             onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onBack = {},
         )

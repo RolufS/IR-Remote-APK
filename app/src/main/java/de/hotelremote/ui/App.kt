@@ -49,6 +49,7 @@ fun App(vm: AppViewModel) {
             state.screen == Screen.Wizard -> WizardScreen(
                 state = state.wizard,
                 brands = state.brands,
+                irAvailable = state.irAvailable,
                 onPickBrand = vm::pickBrand,
                 onStartScan = { vm.startScan(0) },
                 onTest = vm::testSignal,

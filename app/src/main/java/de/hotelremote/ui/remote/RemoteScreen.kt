@@ -259,8 +259,9 @@ private fun DPad(keys: Set<String>, handler: KeyHandler) {
     }
 }
 
+/** Deutlicher Hinweis bei Handys ohne IR-Sender (Fernbedienung und Assistent). */
 @Composable
-private fun NoIrBanner() {
+internal fun NoIrBanner() {
     Text(
         stringResource(R.string.no_ir),
         color = Color.White,
