@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Fernbedienung</string>
+    <string name="no_ir">Dieses Handy hat keinen Infrarot-Sender. Die App kann nichts senden.</string>
+    <string name="send_failed">Senden fehlgeschlagen</string>
+    <string name="menu_extra">Weitere Tasten</string>
+    <string name="menu_wizard">Fernbedienung suchen</string>
+    <string name="menu_about">Über</string>
+    <string name="cd_open_list">Fernbedienungen verwalten</string>
+    <string name="cd_more_menu">Menü</string>
+    <string name="cd_back">Zurück</string>
+    <string name="cd_color_red">Rot</string>
+    <string name="cd_color_green">Grün</string>
+    <string name="cd_color_yellow">Gelb</string>
+    <string name="cd_color_blue">Blau</string>
+    <string name="extra_keys_empty">Diese Fernbedienung hat keine weiteren Tasten.</string>
 </resources>
