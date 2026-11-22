@@ -16,13 +16,16 @@ private fun keySet(codeSetId: Long, vararg keys: String): Map<String, IrSignal> 
     keys.associateWith { sig(codeSetId, it) }
 
 private class FakeWizardData : WizardData {
-    val brands = mapOf(1L to "Alpha", 2L to "Beta", 3L to "Delta", 4L to "Leer", 5L to "Gamma", 6L to "Epsilon")
+    val brands = mapOf(
+        1L to "Alpha", 2L to "Beta", 3L to "Delta", 4L to "Leer", 5L to "Gamma", 6L to "Epsilon", 7L to "Zeta",
+    )
     val brandCodeSets = mapOf(
         1L to listOf(10L, 11L),
         2L to listOf(20L),
         3L to listOf(30L, 31L),
         4L to emptyList(),
         6L to listOf(60L, 61L),
+        7L to listOf(107L, 108L),
     )
     val codeSets = mapOf(
         10L to keySet(10, Keys.MUTE, Keys.VOL_UP, Keys.VOL_DOWN, Keys.POWER),
@@ -35,10 +38,16 @@ private class FakeWizardData : WizardData {
         100L to keySet(100, Keys.POWER_ON),
         102L to keySet(102, Keys.POWER_ON, Keys.POWER),
         103L to keySet(103, Keys.POWER_ON),
-        104L to keySet(104, Keys.POWER),
+        104L to keySet(104, Keys.POWER, Keys.MUTE),
         105L to keySet(105, Keys.VOL_UP),
         106L to keySet(106, Keys.POWER_ON),
+        // Gleicher POWER-Code wie 10 bzw. 104, daher nicht im Suchlauf.
+        107L to keySet(107, Keys.MUTE, Keys.POWER),
+        108L to keySet(108, Keys.POWER),
+        109L to keySet(109, Keys.VOL_UP, Keys.POWER),
     )
+    val siblings = mapOf(10L to listOf(107L, 109L), 104L to listOf(108L))
+    val topBrands = mapOf(107L to 7L, 108L to 7L, 109L to 7L)
     val variants = mapOf(
         (10L to 1L) to listOf(
             mapOf(Keys.HDMI1 to sig(10, "V0-HDMI1"), Keys.HDMI2 to sig(10, "V0-HDMI2")),
@@ -64,6 +73,8 @@ private class FakeWizardData : WizardData {
 
     override fun scanEntries() = scan.also { scanEntriesCalls++ }
     override fun brandName(brandId: Long) = brands.getValue(brandId)
+    override fun powerSiblings(codeSetId: Long) = siblings[codeSetId] ?: emptyList()
+    override fun topBrand(codeSetId: Long) = topBrands[codeSetId]
 }
 
 class WizardMachineTest {
@@ -315,7 +326,8 @@ class WizardMachineTest {
         m.scanAdvance()
         m.stopScan()
         m.answer(true)
-        m.answer(false)
+        // Code-Satz 10 und seine beiden Geschwister abgelehnt.
+        repeat(3) { m.answer(false) }
         val verify = m.state as WizardState.ScanVerify
         assertEquals(1, verify.index)
         assertEquals(sig(100, Keys.POWER_ON), m.testSignal())
@@ -388,5 +400,79 @@ class WizardMachineTest {
         assertTrue(m.back())
         assertEquals(0, (m.state as WizardState.ScanVerify).index)
         assertEquals(listOf(1, 0), candidatePositions())
+    }
+
+    private fun verifyAlphaCandidate() {
+        m.startScan()
+        m.scanAdvance()
+        m.stopScan()
+        assertEquals(10L, (m.state as WizardState.ScanVerify).let { it.candidates[it.index].codeSetId })
+    }
+
+    @Test
+    fun scanConfirmNoOffersPowerSiblingsBeforeNextCandidate() {
+        verifyAlphaCandidate()
+        m.answer(true)
+        assertEquals(WizardState.Confirm(1, 10, Keys.MUTE, fromScan = true), m.state)
+        m.answer(false)
+        assertEquals(WizardState.Confirm(7, 107, Keys.MUTE, fromScan = true), m.state)
+        assertEquals(sig(107, Keys.MUTE), m.testSignal())
+        m.answer(false)
+        assertEquals(WizardState.Confirm(7, 109, Keys.VOL_UP, fromScan = true), m.state)
+        assertEquals(sig(109, Keys.VOL_UP), m.testSignal())
+        m.answer(false)
+        val verify = m.state as WizardState.ScanVerify
+        assertEquals(1, verify.index)
+        assertEquals(100L, verify.candidates[verify.index].codeSetId)
+    }
+
+    @Test
+    fun confirmedSiblingIsSavedWithItsKeysAndBrand() {
+        verifyAlphaCandidate()
+        m.answer(true)
+        m.answer(false)
+        m.answer(true)
+        assertEquals(WizardState.Save("Zeta", "Code 1", data.keys(107), hasInputs = false), m.state)
+    }
+
+    @Test
+    fun siblingOutsideBrandListIsLabelledSuchlauf() {
+        verifyAlphaCandidate()
+        m.answer(true)
+        m.answer(false)
+        m.answer(false)
+        m.answer(true)
+        assertEquals(WizardState.Save("Zeta", "Suchlauf", data.keys(109), hasInputs = false), m.state)
+    }
+
+    @Test
+    fun siblingWithoutConfirmKeyIsAccepted() {
+        m.startScan()
+        repeat(4) { m.scanAdvance() }
+        m.stopScan()
+        assertEquals(104L, (m.state as WizardState.ScanVerify).let { it.candidates[it.index].codeSetId })
+        m.answer(true)
+        assertEquals(WizardState.Confirm(5, 104, Keys.MUTE, fromScan = true), m.state)
+        m.answer(false)
+        assertEquals(WizardState.Save("Zeta", "Code 2", data.keys(108), hasInputs = false), m.state)
+    }
+
+    @Test
+    fun backFromSiblingConfirmReturnsToVerifyAndRestartsWithRepresentative() {
+        verifyAlphaCandidate()
+        m.answer(true)
+        m.answer(false)
+        assertTrue(m.back())
+        assertEquals(0, (m.state as WizardState.ScanVerify).index)
+        m.answer(true)
+        assertEquals(WizardState.Confirm(1, 10, Keys.MUTE, fromScan = true), m.state)
+    }
+
+    @Test
+    fun brandFlowConfirmNoIgnoresSiblings() {
+        m.pickBrand(1)
+        m.answer(true)
+        m.answer(false)
+        assertEquals(WizardState.TestCode(1, 1, 2, 11, Keys.VOL_DOWN), m.state)
     }
 }

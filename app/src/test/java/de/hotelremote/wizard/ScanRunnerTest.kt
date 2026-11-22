@@ -22,6 +22,8 @@ private class ScanData : WizardData {
     override fun inputVariants(codeSetId: Long, brandId: Long) = emptyList<Map<String, IrSignal>>()
     override fun scanEntries() = scan
     override fun brandName(brandId: Long) = "Marke"
+    override fun powerSiblings(codeSetId: Long) = emptyList<Long>()
+    override fun topBrand(codeSetId: Long): Long? = null
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

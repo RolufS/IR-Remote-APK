@@ -35,6 +35,13 @@ class WizardMachine(private val data: WizardData) {
     /** Test-Zustand (TestCode oder ScanVerify), aus dem der gefundene Code-Satz stammt. */
     private var origin: WizardState? = null
     private var confirmed: WizardState.Confirm? = null
+
+    /** Gefundener Code-Satz (Marke, Code-Satz), der gespeichert wird. */
+    private var found: Pair<Long, Long>? = null
+
+    /** Suchlauf-Treffer: Kandidat plus Code-Sätze mit gleichem POWER-Code, nacheinander bestätigt. */
+    private var scanGroup: List<Long> = emptyList()
+    private var scanGroupIndex = 0
     private var lastInputs: WizardState.TestInputs? = null
 
     fun pickBrand(brandId: Long) {
@@ -50,8 +57,8 @@ class WizardMachine(private val data: WizardData) {
 
     fun answer(yes: Boolean) {
         when (val s = state) {
-            is WizardState.TestCode -> if (yes) found(s) else state = testCodeFrom(s.brandId, s.index + 1, step = 1)
-            is WizardState.ScanVerify -> if (yes) found(s) else state = verifyFrom(s.candidates, s.index + 1)
+            is WizardState.TestCode -> if (yes) onFound(s) else state = testCodeFrom(s.brandId, s.index + 1, step = 1)
+            is WizardState.ScanVerify -> if (yes) onFound(s) else state = verifyFrom(s.candidates, s.index + 1)
             is WizardState.Confirm -> if (yes) {
                 confirmed = s
                 enterInputs(s.brandId, s.codeSetId)
@@ -142,30 +149,52 @@ class WizardMachine(private val data: WizardData) {
         return WizardState.NoMatch(null, if (resumeAt < scan.size) resumeAt else null)
     }
 
-    private fun found(from: WizardState) {
+    private fun onFound(from: WizardState) {
         origin = from
         confirmed = null
         lastInputs = null
-        val (brandId, codeSetId) = foundCodeSet(from)
-        val confirmKeys = if (from is WizardState.ScanVerify) listOf(Keys.MUTE, Keys.VOL_UP) else listOf(Keys.VOL_UP)
+        when (from) {
+            is WizardState.TestCode -> offer(from.brandId, from.codeSetId, fromScan = false)
+            is WizardState.ScanVerify -> {
+                val entry = from.candidates[from.index]
+                scanGroup = listOf(entry.codeSetId) + data.powerSiblings(entry.codeSetId).filter { it != entry.codeSetId }
+                offerScanGroup(0)
+            }
+            else -> error("Kein Test-Zustand: $from")
+        }
+    }
+
+    /** Bietet das [index]-te Mitglied der Suchlauf-Gruppe zur Bestätigung an (Geschwister unter ihrer Hauptmarke). */
+    private fun offerScanGroup(index: Int) {
+        val entry = (origin as WizardState.ScanVerify).let { it.candidates[it.index] }
+        scanGroupIndex = index
+        val codeSetId = scanGroup[index]
+        val brandId = if (index == 0) entry.brandId else data.topBrand(codeSetId) ?: entry.brandId
+        offer(brandId, codeSetId, fromScan = true)
+    }
+
+    /** Bestätigungsschritt, falls der Code-Satz eine Bestätigungstaste hat; sonst gilt er als angenommen. */
+    private fun offer(brandId: Long, codeSetId: Long, fromScan: Boolean) {
+        val confirmKeys = if (fromScan) listOf(Keys.MUTE, Keys.VOL_UP) else listOf(Keys.VOL_UP)
         val keys = data.keys(codeSetId)
         val confirmKey = confirmKeys.firstOrNull { it in keys }
         if (confirmKey != null) {
-            state = WizardState.Confirm(brandId, codeSetId, confirmKey, fromScan = from is WizardState.ScanVerify)
+            state = WizardState.Confirm(brandId, codeSetId, confirmKey, fromScan)
         } else {
             enterInputs(brandId, codeSetId)
         }
     }
 
-    private fun foundCodeSet(from: WizardState?): Pair<Long, Long> = when (from) {
-        is WizardState.TestCode -> from.brandId to from.codeSetId
-        is WizardState.ScanVerify -> from.candidates[from.index].let { it.brandId to it.codeSetId }
-        else -> error("Kein Test-Zustand: $from")
-    }
-
-    /** "Nein" im Bestätigungsschritt wirkt wie "Nein" im Test-Zustand davor. */
+    /**
+     * "Nein" im Bestätigungsschritt: beim Suchlauf zuerst die Geschwister mit gleichem POWER-Code,
+     * danach wie "Nein" im Test-Zustand davor.
+     */
     private fun rejectOrigin() {
         val from = origin
+        if (from is WizardState.ScanVerify && scanGroupIndex + 1 < scanGroup.size) {
+            offerScanGroup(scanGroupIndex + 1)
+            return
+        }
         state = from ?: WizardState.PickBrand
         if (from != null) answer(false)
     }
@@ -177,6 +206,7 @@ class WizardMachine(private val data: WizardData) {
     }
 
     private fun enterInputs(brandId: Long, codeSetId: Long) {
+        found = brandId to codeSetId
         variants = data.inputVariants(codeSetId, brandId)
         if (variants.isEmpty()) {
             state = save(null)
@@ -191,16 +221,16 @@ class WizardMachine(private val data: WizardData) {
     }
 
     private fun save(variantIndex: Int?): WizardState.Save {
-        val from = origin
-        val (brandId, codeSetId) = foundCodeSet(from)
+        val (brandId, codeSetId) = found ?: error("Kein Code-Satz gefunden")
         var keys = data.keys(codeSetId)
         if (variantIndex != null) keys = keys + variants[variantIndex]
-        val (brandName, codeLabel) = when (from) {
+        val (brandName, codeLabel) = when (val from = origin) {
             is WizardState.TestCode -> data.brandName(brandId) to "Code ${from.index + 1}"
             is WizardState.ScanVerify -> {
                 val entry = from.candidates[from.index]
-                val pos = data.codeSetsForBrand(entry.brandId).indexOf(entry.codeSetId)
-                entry.brandName to (if (pos >= 0) "Code ${pos + 1}" else "Suchlauf")
+                val name = if (codeSetId == entry.codeSetId) entry.brandName else data.brandName(brandId)
+                val pos = data.codeSetsForBrand(brandId).indexOf(codeSetId)
+                name to (if (pos >= 0) "Code ${pos + 1}" else "Suchlauf")
             }
             else -> error("Kein Test-Zustand: $from")
         }

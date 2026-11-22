@@ -75,4 +75,22 @@ class CodeRepositoryTest {
             repo.scanEntries().map { it.brandName },
         )
     }
+
+    @Test fun powerSiblingsEmptyWhenScanSignalUnique() {
+        assertEquals(emptyList<Long>(), repo.powerSiblings(1L))
+    }
+
+    @Test fun powerSiblingsShareScanSignalOrderedBySupport() {
+        db.close()
+        db = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE)
+        // Scan-Signal von Code-Satz 1 ist signal 5.
+        db.execSQL("INSERT INTO code_set(id, support) VALUES (7, 5), (8, 9), (9, 50), (10, 9)")
+        db.execSQL("INSERT INTO code_set_key VALUES (7, 'POWER', 5), (8, 'POWER_OFF', 5), (9, 'POWER_ON', 5), (10, 'POWER', 11)")
+        db.execSQL("INSERT INTO code_set_brand VALUES (7, 2, 5, 1), (7, 3, 0, 0)")
+        repo = CodeRepository(db)
+        assertEquals(listOf(8L, 7L), repo.powerSiblings(1L))
+        assertEquals(listOf(10L), repo.powerSiblings(2L))
+        assertEquals(3L, repo.topBrand(7L))
+        assertEquals(null, repo.topBrand(8L))
+    }
 }

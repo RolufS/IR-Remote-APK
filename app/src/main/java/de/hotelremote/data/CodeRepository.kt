@@ -80,6 +80,23 @@ class CodeRepository(private val db: SQLiteDatabase) : WizardData {
             if (c.moveToFirst()) c.getString(0) else error("Unbekannte Marke $brandId")
         }
 
+    override fun powerSiblings(codeSetId: Long): List<Long> =
+        db.rawQuery(
+            """SELECT k.code_set_id FROM code_set_key k JOIN code_set cs ON cs.id = k.code_set_id
+               WHERE k.key IN ('POWER', 'POWER_OFF')
+                 AND k.signal_id IN (SELECT signal_id FROM scan WHERE code_set_id = ?)
+                 AND k.code_set_id <> ?
+               GROUP BY k.code_set_id
+               ORDER BY MAX(cs.support) DESC, k.code_set_id""",
+            arrayOf(codeSetId.toString(), codeSetId.toString()),
+        ).use { c -> buildList { while (c.moveToNext()) add(c.getLong(0)) } }
+
+    override fun topBrand(codeSetId: Long): Long? =
+        db.rawQuery(
+            "SELECT brand_id FROM code_set_brand WHERE code_set_id = ? ORDER BY via_family, ord, brand_id LIMIT 1",
+            arrayOf(codeSetId.toString()),
+        ).use { c -> if (c.moveToFirst()) c.getLong(0) else null }
+
     private fun signalAt(c: android.database.Cursor) = IrSignal(
         freq = c.getInt(0),
         frame = decode(c.getBlob(1)),
