@@ -25,6 +25,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +36,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,61 +81,64 @@ fun RemoteScreen(
     ) {
         if (!irAvailable) NoIrBanner()
         Header(remote, remotes, onSwitch, onOpenList, onMenu)
-        KeyRow(1.25f) {
-            TextKey(Keys.SOURCE, "SOURCE", keys, handler, brush = SourceBrush)
-            Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
-                PowerButton(keys, handler, Modifier.fillMaxHeight().aspectRatio(1f)) {
-                    Icon(PowerIcon, stringResource(R.string.wiz_key_power), Modifier.size(26.dp), tint = Color.White)
+        // Tastenfeld immer LTR, auch bei Arabisch: links/rechts, Wippen und Steuerkreuz bleiben an ihrem Platz.
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            KeyRow(1.25f) {
+                TextKey(Keys.SOURCE, "SOURCE", keys, handler, brush = SourceBrush)
+                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+                    PowerButton(keys, handler, Modifier.fillMaxHeight().aspectRatio(1f)) {
+                        Icon(PowerIcon, stringResource(R.string.wiz_key_power), Modifier.size(26.dp), tint = Color.White)
+                    }
                 }
+                TextKey(Keys.MUTE, "MUTE", keys, handler)
             }
-            TextKey(Keys.MUTE, "MUTE", keys, handler)
-        }
-        if (inputRow) {
-            KeyRow(1.05f) {
-                Keys.HDMI.forEachIndexed { i, key ->
-                    KeyButton(key, key in keys, handler, Modifier.weight(1f).fillMaxHeight()) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Label("HDMI", 10.sp)
-                            Label("${i + 1}", 15.sp)
+            if (inputRow) {
+                KeyRow(1.05f) {
+                    Keys.HDMI.forEachIndexed { i, key ->
+                        KeyButton(key, key in keys, handler, Modifier.weight(1f).fillMaxHeight()) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Label("HDMI", 10.sp)
+                                Label("${i + 1}", 15.sp)
+                            }
                         }
                     }
                 }
             }
-        }
-        listOf("123", "456", "789").forEach { digits ->
+            listOf("123", "456", "789").forEach { digits ->
+                KeyRow(numberWeight) {
+                    digits.forEach { d -> TextKey("DIGIT_$d", "$d", keys, handler, fontSize = 18.sp) }
+                }
+            }
             KeyRow(numberWeight) {
-                digits.forEach { d -> TextKey("DIGIT_$d", "$d", keys, handler, fontSize = 18.sp) }
+                TextKey(Keys.LIST, "LIST", keys, handler, fontSize = 11.sp)
+                TextKey(Keys.DIGIT_0, "0", keys, handler, fontSize = 18.sp)
+                TextKey(Keys.PRE_CH, "PRE-CH", keys, handler, fontSize = 11.sp)
             }
-        }
-        KeyRow(numberWeight) {
-            TextKey(Keys.LIST, "LIST", keys, handler, fontSize = 11.sp)
-            TextKey(Keys.DIGIT_0, "0", keys, handler, fontSize = 18.sp)
-            TextKey(Keys.PRE_CH, "PRE-CH", keys, handler, fontSize = 11.sp)
-        }
-        KeyRow(2.2f) {
-            Rocker("VOL", "+", "−", Keys.VOL_UP, Keys.VOL_DOWN, keys, handler, Modifier.weight(1f))
-            Column(Modifier.weight(1.35f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(Gap)) {
-                MenuKey(Keys.MENU, "MENU", keys, handler, Modifier.weight(1f))
-                MenuKey(Keys.HOME, "HOME", keys, handler, Modifier.weight(1f))
+            KeyRow(2.2f) {
+                Rocker("VOL", "+", "−", Keys.VOL_UP, Keys.VOL_DOWN, keys, handler, Modifier.weight(1f))
+                Column(Modifier.weight(1.35f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(Gap)) {
+                    MenuKey(Keys.MENU, "MENU", keys, handler, Modifier.weight(1f))
+                    MenuKey(Keys.HOME, "HOME", keys, handler, Modifier.weight(1f))
+                }
+                Rocker("CH", "▲", "▼", Keys.CH_UP, Keys.CH_DOWN, keys, handler, Modifier.weight(1f))
             }
-            Rocker("CH", "▲", "▼", Keys.CH_UP, Keys.CH_DOWN, keys, handler, Modifier.weight(1f))
-        }
-        Box(
-            Modifier.fillMaxWidth().weight(if (inputRow) 3f else 3.4f),
-            contentAlignment = Alignment.Center,
-        ) {
-            DPad(keys, handler)
-        }
-        KeyRow(0.9f) {
-            TextKey(Keys.BACK, "BACK", keys, handler)
-            TextKey(Keys.INFO, "INFO", keys, handler)
-            TextKey(Keys.EXIT, "EXIT", keys, handler)
-        }
-        Row(Modifier.fillMaxWidth().height(20.dp), horizontalArrangement = Arrangement.spacedBy(Gap)) {
-            ColorKey(Keys.RED, RemoteColors.ColorRed, R.string.cd_color_red, keys, handler)
-            ColorKey(Keys.GREEN, RemoteColors.ColorGreen, R.string.cd_color_green, keys, handler)
-            ColorKey(Keys.YELLOW, RemoteColors.ColorYellow, R.string.cd_color_yellow, keys, handler)
-            ColorKey(Keys.BLUE, RemoteColors.ColorBlue, R.string.cd_color_blue, keys, handler)
+            Box(
+                Modifier.fillMaxWidth().weight(if (inputRow) 3f else 3.4f),
+                contentAlignment = Alignment.Center,
+            ) {
+                DPad(keys, handler)
+            }
+            KeyRow(0.9f) {
+                TextKey(Keys.BACK, "BACK", keys, handler)
+                TextKey(Keys.INFO, "INFO", keys, handler)
+                TextKey(Keys.EXIT, "EXIT", keys, handler)
+            }
+            Row(Modifier.fillMaxWidth().height(20.dp), horizontalArrangement = Arrangement.spacedBy(Gap)) {
+                ColorKey(Keys.RED, RemoteColors.ColorRed, R.string.cd_color_red, keys, handler)
+                ColorKey(Keys.GREEN, RemoteColors.ColorGreen, R.string.cd_color_green, keys, handler)
+                ColorKey(Keys.YELLOW, RemoteColors.ColorYellow, R.string.cd_color_yellow, keys, handler)
+                ColorKey(Keys.BLUE, RemoteColors.ColorBlue, R.string.cd_color_blue, keys, handler)
+            }
         }
     }
 }

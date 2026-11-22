@@ -34,7 +34,7 @@ import java.io.File
  * `./gradlew :app:testDebugUnitTest --tests de.hotelremote.StoreScreenshots -Pscreenshots`
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35], qualifiers = "w360dp-h640dp-port-xxhdpi")
+@Config(sdk = [35], qualifiers = "de-w360dp-h640dp-port-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class StoreScreenshots {
     @get:Rule

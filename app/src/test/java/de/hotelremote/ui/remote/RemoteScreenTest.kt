@@ -2,6 +2,7 @@ package de.hotelremote.ui.remote
 
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.down
@@ -14,6 +15,7 @@ import de.hotelremote.ir.IrSignal
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import kotlinx.coroutines.Job
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,5 +147,17 @@ class RemoteScreenTest {
     fun powerKeyShowsIconWithDescription() {
         show(remote("POWER"))
         rule.onNodeWithTag("key_POWER").assertContentDescriptionEquals("Ein/Aus")
+    }
+
+    /** Arabisch (RTL): Texte werden gespiegelt, das Tastenfeld nicht. */
+    @Test
+    @Config(sdk = [35], qualifiers = "ar")
+    fun keypadStaysLeftToRightInArabic() {
+        show(remote("SOURCE", "MUTE", "LEFT", "RIGHT", "VOL_UP", "CH_UP", "POWER"))
+        fun left(tag: String) = rule.onNodeWithTag(tag).getBoundsInRoot().left
+        assertTrue(left("key_SOURCE") < left("key_MUTE"))
+        assertTrue(left("key_LEFT") < left("key_RIGHT"))
+        assertTrue(left("key_VOL_UP") < left("key_CH_UP"))
+        rule.onNodeWithTag("key_POWER").assertContentDescriptionEquals("تشغيل/إيقاف")
     }
 }
