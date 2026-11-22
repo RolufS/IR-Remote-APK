@@ -36,6 +36,10 @@ THE REMOTE
 
 Save and name several remotes, such as “Room 412”. Next time, the one you used last is ready right away.
 
+AUTOMATIONS AND SLEEP TIMER
+• Automations: several keys in a row with one tap, e.g. Menu → Arrow down → OK, with its own wait time per step
+• Sleep timer on the phone: after 15 to 120 minutes (or a custom value) the phone turns the TV off or runs an automation – even when the app is closed. The phone has to point at the TV.
+
 AD-FREE AND OFFLINE
 • No ads, no in-app purchases, no account
 • No internet permission – works in airplane mode too
@@ -58,6 +62,6 @@ Brand names belong to their owners. The app is not affiliated with the manufactu
 |---|---|---|
 | App name | 20 | 30 |
 | Short description | 67 | 80 |
-| Full description | 1555 | 4000 |
+| Full description | 1882 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

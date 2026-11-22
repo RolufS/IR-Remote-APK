@@ -41,6 +41,10 @@ DIE FERNBEDIENUNG
 
 Mehrere Fernbedienungen lassen sich speichern und benennen, etwa „Zimmer 412“. Beim nächsten Start ist die zuletzt benutzte sofort da.
 
+AUTOMATIONEN UND SLEEP-TIMER
+• Automationen: mehrere Tasten nacheinander mit einem Tipp, z. B. Menü → Pfeil runter → OK, mit eigener Wartezeit pro Schritt
+• Sleep-Timer im Handy: nach 15 bis 120 Minuten (oder eigenem Wert) schaltet das Handy den Fernseher aus oder startet eine Automation – auch wenn die App geschlossen ist. Das Handy muss dafür auf den Fernseher zeigen.
+
 WERBEFREI UND OFFLINE
 • Keine Werbung, keine In-App-Käufe, kein Konto
 • Keine Internet-Berechtigung – funktioniert auch im Flugmodus
@@ -63,11 +67,23 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
 
 - Erhebt oder teilt die App erforderliche Nutzerdaten? **Nein.**
   Begründung: Die App hat keine INTERNET-Berechtigung und keine Analyse-, Werbe-
-  oder Absturzbibliotheken. Gespeicherte Fernbedienungen bleiben im privaten
-  Speicher der App auf dem Gerät; Daten, die das Gerät nie verlassen, gelten bei
+  oder Absturzbibliotheken. Gespeicherte Fernbedienungen, Automationen und der
+  Sleep-Timer bleiben im privaten Speicher der App auf dem Gerät; Daten, die das Gerät nie verlassen, gelten bei
   Google nicht als „erhoben“.
 - Damit entfallen die Fragen zu Verschlüsselung und Löschanfragen; Ergebnis im
   Store: „Keine Daten erhoben“, „Keine Daten an Dritte weitergegeben“.
+
+### Berechtigungen (ab Version 1.2)
+
+- `TRANSMIT_IR` – Infrarot senden.
+- `SCHEDULE_EXACT_ALARM` – Sleep-Timer löst pünktlich aus (ab Android 14 nur
+  nach Zustimmung des Nutzers; ohne sie ein ungenauer Alarm). Bewusst **kein**
+  `USE_EXACT_ALARM`. Falls die Play Console fragt: Die App ist kein Wecker;
+  der genaue Alarm ist eine vom Nutzer gestartete Zeitschaltung (Sleep-Timer).
+- `POST_NOTIFICATIONS` – laufende Benachrichtigung mit Restzeit und „Abbrechen“.
+- `RECEIVE_BOOT_COMPLETED` – einen laufenden Sleep-Timer nach einem Neustart
+  wieder planen.
+- Keine Internet-, Standort-, Kontakt- oder Vordergrunddienst-Berechtigung.
 
 ### Einstufung des Inhalts (IARC-Fragebogen)
 
@@ -142,7 +158,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.1.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.2.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
@@ -157,6 +173,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 1788 | 4000 |
+| Vollständige Beschreibung | 2162 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

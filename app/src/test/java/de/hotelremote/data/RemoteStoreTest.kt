@@ -88,4 +88,28 @@ class RemoteStoreTest {
         assertEquals(emptyList<SavedRemote>(), store.all())
         assertNull(store.lastUsed())
     }
+    @Test fun automationsAreSavedAndLoaded() {
+        val store = RemoteStore(file())
+        store.add(remote("a", 1))
+        store.add(remote("b", 2))
+        val list = listOf(
+            Automation("x", "Einschlafen", listOf(AutomationStep("MENU"), AutomationStep("X:Sleep", delayAfterMs = 500))),
+        )
+        store.updateAutomations("a", list)
+        store.updateAutomations("unbekannt", list)
+        val loaded = RemoteStore(file()).all().associateBy { it.id }
+        assertEquals(list, loaded.getValue("a").automations)
+        assertEquals(emptyList<Automation>(), loaded.getValue("b").automations)
+        assertEquals(1500L, loaded.getValue("a").automations.single().steps.first().delayAfterMs)
+    }
+
+    @Test fun oldJsonWithoutAutomationsLoadsWithEmptyList() {
+        val f = file()
+        f.writeText(
+            """[{"id":"a","brand":"LG","codeLabel":"Code 1","keys":{"POWER":{"freq":38000,"frame":[1,2,3],"periodMs":108}},"lastUsed":5}]""",
+        )
+        val r = RemoteStore(f).all().single()
+        assertEquals("a", r.id)
+        assertEquals(emptyList<Automation>(), r.automations)
+    }
 }

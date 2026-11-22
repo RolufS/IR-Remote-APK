@@ -1,6 +1,8 @@
 package de.hotelremote.ui
 
 import de.hotelremote.Keys
+import de.hotelremote.data.Automation
+import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
 import de.hotelremote.data.RemoteStorage
@@ -48,6 +50,9 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
     override fun delete(id: String) = write { list.removeAll { it.id == id } }
     override fun markUsed(id: String, now: Long) = write {
         list.replaceAll { if (it.id == id) it.copy(lastUsed = now) else it }
+    }
+    override fun updateAutomations(id: String, automations: List<Automation>) = write {
+        list.replaceAll { if (it.id == id) it.copy(automations = automations) else it }
     }
 }
 
@@ -289,5 +294,52 @@ class AppControllerTest {
         runCurrent()
         assertEquals(sentBefore, sent.size)
         assertFalse(c.state.value.wizard is WizardState.Scanning)
+    }
+    @Test fun saveAndDeleteAutomationOfCurrentRemote() = runTest {
+        val store = FakeStorage(listOf(remote("a", 1), remote("b", 2)))
+        val c = controller(store)
+        val a = Automation("x", "Einschlafen", listOf(AutomationStep(Keys.POWER)))
+        assertTrue(c.saveAutomation(a))
+        assertEquals(listOf(a), c.state.value.current?.automations)
+        assertEquals(listOf(a), store.list.first { it.id == "b" }.automations)
+        val renamed = a.copy(name = "Aus")
+        c.saveAutomation(renamed)
+        assertEquals(listOf(renamed), c.state.value.current?.automations)
+        c.deleteAutomation("x")
+        assertEquals(emptyList<Automation>(), c.state.value.current?.automations)
+    }
+
+    @Test fun saveAutomationFailureShowsMessage() = runTest {
+        val store = FakeStorage(listOf(remote("a", 1)))
+        val c = controller(store)
+        store.failWrite = true
+        assertFalse(c.saveAutomation(Automation("x", "A", listOf(AutomationStep(Keys.POWER)))))
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        assertEquals(emptyList<Automation>(), c.state.value.current?.automations)
+    }
+
+    @Test fun runAutomationSendsCurrentKeysAndReportsMissing() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.runAutomation("Test", listOf(AutomationStep(Keys.POWER, 1000), AutomationStep(Keys.MENU), AutomationStep(Keys.POWER)))
+        runCurrent()
+        assertEquals("Test", c.automationProgress.value?.name)
+        advanceTimeBy(5000)
+        runCurrent()
+        assertEquals(listOf(sig(1), sig(1)), sent)
+        assertEquals(UiMessage.KEYS_MISSING, c.state.value.message)
+        assertEquals(listOf(Keys.MENU), c.state.value.missingKeys)
+        assertNull(c.automationProgress.value)
+    }
+
+    @Test fun secondAutomationWhileRunningIsRejected() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.runAutomation("A", listOf(AutomationStep(Keys.POWER, 1000), AutomationStep(Keys.POWER)))
+        runCurrent()
+        c.runAutomation("B", listOf(AutomationStep(Keys.POWER)))
+        assertEquals(UiMessage.AUTOMATION_BUSY, c.state.value.message)
+        c.cancelAutomation()
+        runCurrent()
+        assertNull(c.automationProgress.value)
+        assertEquals(1, sent.size)
     }
 }

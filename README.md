@@ -2,7 +2,9 @@
 
 Offline-Fernbedienung für Hotel-Fernseher per Infrarot (Paket `de.hotelremote`).
 Ein Wizard findet den passenden Code für den TV, danach steht eine Fernbedienung
-mit HDMI-Reihe und Zusatztasten bereit. Die App hat keine INTERNET-Berechtigung;
+mit HDMI-Reihe und Zusatztasten bereit. Automationen senden mehrere Tasten
+nacheinander, ein Sleep-Timer schaltet den TV vom Handy aus (auch bei
+geschlossener App). Die App hat keine INTERNET-Berechtigung;
 die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
 
 ## Sprachen
@@ -23,7 +25,7 @@ einfach die passende `app/src/main/res/values-*/strings.xml` ändern; der Test
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.1.apk`
+- USB: `adb install -r dist/Fernbedienung-1.2.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -32,11 +34,11 @@ einfach die passende `app/src/main/res/values-*/strings.xml` ändern; der Test
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.1.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.2.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.1.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.2.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -53,7 +55,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.1.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.2.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -101,6 +103,17 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 7. Der Suchlauf schaltet den TV aus, der Stopp mit Kandidatenprüfung schaltet ihn wieder an.
 8. Flugmodus an: Alles funktioniert unverändert.
 9. ⋮ → Sprache → z. B. English: Texte wechseln, die gespeicherten Fernbedienungen bleiben.
+10. ⋮ → Automationen → „+ Neue Automation“: Name, Schritte (z. B. Menü, Pfeil runter, OK)
+    mit Wartezeiten, „Testen“ sendet die Folge, Speichern. Über ⚡ startet ein Tipp die
+    Automation; die Leiste zeigt „Schritt i von n“, „Abbrechen“ stoppt, der Bildschirm bleibt an.
+11. ⚡ → Sleep-Timer (Handy) → eigener Wert 2 min, „Ausschalten“: Akku-Hinweis (nur beim
+    ersten Mal), ab Android 14 Frage nach „Wecker und Erinnerungen“, ab Android 13 nach
+    Benachrichtigungen. Die Benachrichtigung zählt herunter; App schließen (aus „Zuletzt
+    verwendet“ wischen), Handy sperren und auf den TV legen: nach 2 min geht der TV aus,
+    danach „Sleep-Timer ausgeführt“.
+12. Timer starten und über „Abbrechen“ in der Benachrichtigung beenden: nichts wird gesendet.
+13. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
+14. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 11 wiederholen.
 
 ## Datenschutz
 

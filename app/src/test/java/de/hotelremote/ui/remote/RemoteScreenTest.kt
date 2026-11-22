@@ -59,6 +59,7 @@ class RemoteScreenTest {
         remote: SavedRemote,
         irAvailable: Boolean = true,
         handler: KeyHandler = FakeHandler(),
+        onQuick: () -> Unit = {},
     ) {
         rule.setContent {
             HotelRemoteTheme {
@@ -70,6 +71,7 @@ class RemoteScreenTest {
                     onSwitch = {},
                     onOpenList = {},
                     onMenu = {},
+                    onQuick = onQuick,
                 )
             }
         }
@@ -159,5 +161,13 @@ class RemoteScreenTest {
         assertTrue(left("key_LEFT") < left("key_RIGHT"))
         assertTrue(left("key_VOL_UP") < left("key_CH_UP"))
         rule.onNodeWithTag("key_POWER").assertContentDescriptionEquals("تشغيل/إيقاف")
+    }
+
+    @Test
+    fun quickButtonOpensSheetCallback() {
+        var opened = 0
+        show(remote("MUTE"), onQuick = { opened++ })
+        rule.onNodeWithTag("header_quick").assertContentDescriptionEquals("Automationen und Sleep-Timer").performClick()
+        assertEquals(1, opened)
     }
 }

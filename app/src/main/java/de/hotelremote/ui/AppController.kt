@@ -1,5 +1,10 @@
 package de.hotelremote.ui
 
+import de.hotelremote.automation.AutomationProgress
+import de.hotelremote.automation.AutomationResult
+import de.hotelremote.automation.AutomationRunner
+import de.hotelremote.data.Automation
+import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
 import de.hotelremote.data.RemoteStorage
@@ -27,10 +32,14 @@ sealed interface Screen {
     data object ExtraKeys : Screen
     data object About : Screen
     data object Language : Screen
+    data object Automations : Screen
+
+    /** Editor; [automationId] null = neue Automation. */
+    data class AutomationEdit(val automationId: String?) : Screen
 }
 
 /** Snackbar-Meldungen; App.kt setzt sie in Texte der aktuellen Sprache um. */
-enum class UiMessage { SAVE_FAILED, LOAD_FAILED, SEND_FAILED }
+enum class UiMessage { SAVE_FAILED, LOAD_FAILED, SEND_FAILED, KEYS_MISSING, AUTOMATION_BUSY, TIMER_NO_NOTIFICATIONS }
 
 data class AppUiState(
     val loading: Boolean = true,
@@ -44,6 +53,8 @@ data class AppUiState(
     val brands: List<Brand> = emptyList(),
     val meta: Map<String, String> = emptyMap(),
     val message: UiMessage? = null,
+    /** Zu [UiMessage.KEYS_MISSING]: die übersprungenen Tasten. */
+    val missingKeys: List<String> = emptyList(),
     /** Erststart: „Sprache wählen“ kommt vor allem anderen und hat kein Zurück. */
     val languageFirstStart: Boolean = false,
 )
@@ -74,6 +85,11 @@ class AppController(
     private var catalog: CodeCatalog? = null
     private var machine: WizardMachine? = null
     private var scanRunner: ScanRunner? = null
+
+    private val automationRunner = AutomationRunner(scope, send, ::automationFinished)
+
+    /** Laufende Automation (null = keine). */
+    val automationProgress: StateFlow<AutomationProgress?> = automationRunner.progress
 
     /** Bildschirm, zu dem „Sprache wählen“ zurückkehrt. */
     private var languageReturn: Screen = Screen.Remote
@@ -175,6 +191,47 @@ class AppController(
             showMessage(UiMessage.SAVE_FAILED)
             null
         }
+
+    // ---- Automationen ----
+
+    /** Führt eine (auch ungespeicherte) Folge mit den Tasten der aktuellen Fernbedienung aus. */
+    fun runAutomation(name: String, steps: List<AutomationStep>) {
+        val keys = _state.value.current?.keys ?: return
+        if (!automationRunner.start(name, keys, steps) && automationProgress.value != null) {
+            showMessage(UiMessage.AUTOMATION_BUSY)
+        }
+    }
+
+    fun cancelAutomation() = automationRunner.cancel()
+
+    private fun automationFinished(result: AutomationResult) {
+        if (result.missing.isNotEmpty()) {
+            _state.update { it.copy(message = UiMessage.KEYS_MISSING, missingKeys = result.missing) }
+        }
+    }
+
+    /** Neu oder geändert (gleiche id ersetzt); true, wenn gespeichert. */
+    fun saveAutomation(automation: Automation): Boolean {
+        val current = _state.value.current ?: return false
+        val list = current.automations.toMutableList()
+        val index = list.indexOfFirst { it.id == automation.id }
+        if (index >= 0) list[index] = automation else list += automation
+        return writeAutomations(current.id, list)
+    }
+
+    fun deleteAutomation(id: String) {
+        val current = _state.value.current ?: return
+        writeAutomations(current.id, current.automations.filterNot { it.id == id })
+    }
+
+    private fun writeAutomations(remoteId: String, list: List<Automation>): Boolean {
+        val remotes = storing {
+            store.updateAutomations(remoteId, list)
+            store.all()
+        } ?: return false
+        _state.update { s -> s.copy(remotes = remotes, current = s.current?.let { c -> remotes.firstOrNull { it.id == c.id } }) }
+        return true
+    }
 
     // ---- Sprache ----
 
@@ -288,5 +345,6 @@ class AppController(
 
     fun close() {
         scanRunner?.stop()
+        automationRunner.cancel()
     }
 }

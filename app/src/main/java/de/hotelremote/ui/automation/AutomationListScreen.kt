@@ -1,0 +1,117 @@
+package de.hotelremote.ui.automation
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import de.hotelremote.R
+import de.hotelremote.automation.AutomationProgress
+import de.hotelremote.data.Automation
+import de.hotelremote.ui.remote.SourceBrush
+import de.hotelremote.ui.theme.RemoteColors
+
+/** Automationen der aktuellen Fernbedienung: Tippen bearbeitet, ▶ führt aus, × löscht nach Rückfrage. */
+@Composable
+fun AutomationListScreen(
+    automations: List<Automation>,
+    progress: AutomationProgress?,
+    onRun: (Automation) -> Unit,
+    onCancelRun: () -> Unit,
+    onEdit: (String?) -> Unit,
+    onDelete: (String) -> Unit,
+    onBack: () -> Unit,
+) {
+    var deleteFor by rememberSaveable { mutableStateOf<String?>(null) }
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(RemoteColors.BackgroundTop, RemoteColors.BackgroundBottom)))
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ScreenHeader(stringResource(R.string.auto_title), "automations_back", onBack)
+        if (progress != null) AutomationProgressBar(progress, onCancelRun)
+        if (automations.isEmpty()) {
+            Text(
+                stringResource(R.string.auto_empty),
+                color = RemoteColors.KeyText.copy(alpha = 0.7f),
+                modifier = Modifier.padding(8.dp).weight(1f),
+            )
+        } else {
+            LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(automations, key = { it.id }) { a ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(RowColor)
+                            .testTag("automation_${a.id}")
+                            .clickable(role = Role.Button) { onEdit(a.id) }
+                            .padding(start = 14.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(a.name, color = RemoteColors.KeyText, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                stringResource(R.string.auto_steps_count, a.steps.size),
+                                color = RemoteColors.KeyText.copy(alpha = 0.55f),
+                                fontSize = 13.sp,
+                            )
+                        }
+                        SymbolButton("▶", stringResource(R.string.cd_auto_run), "automation_run_${a.id}") { onRun(a) }
+                        SymbolButton("×", stringResource(R.string.list_delete), "automation_delete_${a.id}") { deleteFor = a.id }
+                    }
+                }
+            }
+        }
+        WideButton(stringResource(R.string.auto_new), "automation_new", SourceBrush, Modifier.fillMaxWidth()) { onEdit(null) }
+    }
+
+    automations.firstOrNull { it.id == deleteFor }?.let { a ->
+        AlertDialog(
+            onDismissRequest = { deleteFor = null },
+            text = { Text(stringResource(R.string.auto_delete_confirm, a.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        deleteFor = null
+                        onDelete(a.id)
+                    },
+                    modifier = Modifier.testTag("automation_delete_confirm"),
+                ) { Text(stringResource(R.string.list_delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteFor = null }) { Text(stringResource(R.string.list_cancel)) }
+            },
+        )
+    }
+}

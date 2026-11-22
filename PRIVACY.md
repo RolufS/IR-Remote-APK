@@ -1,6 +1,6 @@
 # Datenschutzerklärung – Fernbedienung
 
-Stand: 22. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
+Stand: 23. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
 
 ## Kurz gesagt
 
@@ -16,11 +16,18 @@ Die App erhebt keine Daten, hat keinen Internetzugang und gibt nichts weiter.
   Bibliotheken für Analyse, Tracking oder Absturzberichte.
 - **Keine Weitergabe.** Es werden keine Daten an Dritte weitergegeben.
 - **Gespeicherte Fernbedienungen** (Marke, Code, optionaler Name wie
-  „Zimmer 412“) liegen nur lokal auf dem Gerät im privaten Speicher der App.
+  „Zimmer 412“, Automationen) und ein laufender Sleep-Timer liegen nur lokal auf dem Gerät im privaten Speicher der App.
   Sie werden nicht gesichert oder synchronisiert und beim Deinstallieren der
   App gelöscht.
-- **Berechtigungen.** Die einzige Berechtigung ist „Infrarot senden“
-  (`android.permission.TRANSMIT_IR`), um Signale an den Fernseher zu senden.
+- **Berechtigungen.** Alle wirken nur auf dem Gerät:
+  - „Infrarot senden“ (`android.permission.TRANSMIT_IR`), um Signale an den
+    Fernseher zu senden.
+  - „Wecker und Erinnerungen“ (`android.permission.SCHEDULE_EXACT_ALARM`),
+    damit der Sleep-Timer pünktlich auslöst.
+  - „Benachrichtigungen“ (`android.permission.POST_NOTIFICATIONS`) für die
+    Restzeit des Sleep-Timers.
+  - „Nach dem Start ausführen“ (`android.permission.RECEIVE_BOOT_COMPLETED`),
+    um einen laufenden Sleep-Timer nach einem Neustart wieder zu planen.
 
 ## Kontakt
 
@@ -38,8 +45,10 @@ The app collects no data, has no internet access and shares nothing.
   The code database is bundled with the app.
 - **No ads, no analytics.** No advertising and no analytics, tracking or crash-reporting libraries.
 - **No sharing.** No data is shared with third parties.
-- **Saved remotes** (brand, code, optional name) are stored only locally in the app's private
+- **Saved remotes** (brand, code, optional name, automations) and a running sleep timer are stored only locally in the app's private
   storage. They are not backed up or synced and are deleted when the app is uninstalled.
-- **Permissions.** The only permission is "transmit infrared" (`android.permission.TRANSMIT_IR`).
+- **Permissions.** All of them act on the device only: "transmit infrared" (`TRANSMIT_IR`),
+  exact alarms for the sleep timer (`SCHEDULE_EXACT_ALARM`), notifications for the time left
+  (`POST_NOTIFICATIONS`) and re-scheduling a running sleep timer after a reboot (`RECEIVE_BOOT_COMPLETED`).
 
 Contact: GitHub issues at https://github.com/RolufS/IR-Remote-APK/issues

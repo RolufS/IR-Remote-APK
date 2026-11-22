@@ -23,6 +23,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Zurück aus den Einstellungen: Sleep-Timer ggf. genau planen. */
+    override fun onResume() {
+        super.onResume()
+        vm.refreshSleepTimer()
+    }
+
     /**
      * Im Hintergrund kein Suchlauf: er hält an und der Assistent prüft die letzten Kandidaten.
      * Beim Neuaufbau der Activity (Konfigurationswechsel) läuft er weiter. Ein Sprachwechsel in der App

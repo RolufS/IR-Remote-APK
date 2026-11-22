@@ -15,6 +15,7 @@ data class SavedRemote(
     val codeLabel: String,
     val keys: Map<String, IrSignal>,
     val lastUsed: Long,
+    val automations: List<Automation> = emptyList(),
 ) {
     val title get() = name?.takeIf { it.isNotBlank() } ?: "$brand · $codeLabel"
 }
@@ -26,6 +27,7 @@ interface RemoteStorage {
     fun rename(id: String, name: String?)
     fun delete(id: String)
     fun markUsed(id: String, now: Long)
+    fun updateAutomations(id: String, automations: List<Automation>)
 }
 
 /** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
@@ -52,6 +54,9 @@ class RemoteStore(private val file: File) : RemoteStorage {
 
     @Synchronized
     override fun markUsed(id: String, now: Long) = update(id) { it.copy(lastUsed = now) }
+
+    @Synchronized
+    override fun updateAutomations(id: String, automations: List<Automation>) = update(id) { it.copy(automations = automations) }
 
     @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()

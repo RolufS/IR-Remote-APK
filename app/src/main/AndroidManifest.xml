@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
+    <!-- Handy-Sleep-Timer: genauer Alarm (ab Android 14 nur mit Zustimmung), Restzeit-Benachrichtigung,
+         Wiederherstellen nach Neustart. Bewusst kein USE_EXACT_ALARM und kein FOREGROUND_SERVICE. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature
         android:name="android.hardware.consumerir"
         android:required="false" />
@@ -23,6 +28,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name=".sleeptimer.SleepTimerReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".sleeptimer.SleepTimerBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <!-- Speichert die App-Sprache vor Android 13 (AppCompat). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

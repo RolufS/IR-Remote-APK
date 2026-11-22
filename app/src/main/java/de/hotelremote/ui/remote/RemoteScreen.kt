@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,7 @@ import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ui.theme.RemoteColors
 
-enum class RemoteMenu { EXTRA_KEYS, WIZARD, LANGUAGE, ABOUT }
+enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, WIZARD, LANGUAGE, ABOUT }
 
 private val SideMargin = 12.dp
 private val Gap = 8.dp
@@ -67,6 +68,7 @@ fun RemoteScreen(
     onSwitch: (String) -> Unit,
     onOpenList: () -> Unit,
     onMenu: (RemoteMenu) -> Unit,
+    onQuick: () -> Unit = {},
 ) {
     val keys = remote.keys.keys
     val inputRow = showInputRow(keys)
@@ -80,7 +82,7 @@ fun RemoteScreen(
         verticalArrangement = Arrangement.spacedBy(Gap),
     ) {
         if (!irAvailable) NoIrBanner()
-        Header(remote, remotes, onSwitch, onOpenList, onMenu)
+        Header(remote, remotes, onSwitch, onOpenList, onMenu, onQuick)
         // Tastenfeld immer LTR, auch bei Arabisch: links/rechts, Wippen und Steuerkreuz bleiben an ihrem Platz.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             KeyRow(1.25f) {
@@ -291,6 +293,7 @@ private fun Header(
     onSwitch: (String) -> Unit,
     onOpenList: () -> Unit,
     onMenu: (RemoteMenu) -> Unit,
+    onQuick: () -> Unit,
 ) {
     var switchOpen by remember { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(false) }
@@ -300,12 +303,15 @@ private fun Header(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", onOpenList)
-        Box {
+        // Titel nimmt den Platz zwischen den Symbolen und wird bei Bedarf gekürzt.
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             Text(
                 remote.title + " ▾",
                 color = RemoteColors.KeyText,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .testTag("header_title")
                     .clip(RoundedCornerShape(12.dp))
@@ -325,11 +331,15 @@ private fun Header(
                 }
             }
         }
+        HeaderButton(stringResource(R.string.cd_quick), "header_quick", onQuick) {
+            Icon(BoltIcon, null, Modifier.size(20.dp), tint = RemoteColors.KeyText.copy(alpha = 0.75f))
+        }
         Box {
             HeaderIcon("⋮", stringResource(R.string.cd_more_menu), "header_menu") { menuOpen = true }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                 listOf(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
+                    R.string.menu_automations to RemoteMenu.AUTOMATIONS,
                     R.string.menu_wizard to RemoteMenu.WIZARD,
                     R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,
@@ -349,6 +359,13 @@ private fun Header(
 
 @Composable
 private fun HeaderIcon(symbol: String, description: String, tag: String, onClick: () -> Unit) {
+    HeaderButton(description, tag, onClick) {
+        Text(symbol, color = RemoteColors.KeyText.copy(alpha = 0.75f), fontSize = 18.sp)
+    }
+}
+
+@Composable
+private fun HeaderButton(description: String, tag: String, onClick: () -> Unit, content: @Composable () -> Unit) {
     Box(
         Modifier
             .testTag(tag)
@@ -358,6 +375,6 @@ private fun HeaderIcon(symbol: String, description: String, tag: String, onClick
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
-        Text(symbol, color = RemoteColors.KeyText.copy(alpha = 0.75f), fontSize = 18.sp)
+        content()
     }
 }
