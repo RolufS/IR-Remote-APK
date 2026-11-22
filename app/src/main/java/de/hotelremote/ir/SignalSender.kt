@@ -6,7 +6,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.time.TimeSource
 
 /**
@@ -31,7 +30,7 @@ class SignalSender(
     fun hold(signal: IrSignal): Job {
         val frame = nextFrame(signal)
         val repeat = signal.repeat ?: frame
-        return scope.launch {
+        return scope.launch(serial) {
             send(signal.freq, frame)
             delay(HOLD_DELAY_MS)
             while (true) {
@@ -51,13 +50,12 @@ class SignalSender(
         }
     }
 
-    private suspend fun send(freq: Int, pattern: List<Int>) {
-        withContext(serial) {
-            try {
-                tx.transmit(freq, pattern.toIntArray())
-            } catch (e: Exception) {
-                onError(e)
-            }
+    // Läuft immer auf `serial`; bei Hold gibt delay() die Dispatcher-Slot zwischen Wiederholungen frei.
+    private fun send(freq: Int, pattern: List<Int>) {
+        try {
+            tx.transmit(freq, pattern.toIntArray())
+        } catch (e: Exception) {
+            onError(e)
         }
     }
 

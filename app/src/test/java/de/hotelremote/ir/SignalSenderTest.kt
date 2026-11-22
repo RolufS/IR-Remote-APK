@@ -82,4 +82,15 @@ class SignalSenderTest {
         runCurrent()
         assertEquals(2, bad.calls.size)
     }
+
+    @Test fun holdThenPressKeepSubmissionOrderWithSeparateDispatchers() = runTest {
+        val tx = FakeTx()
+        val s = SignalSender(tx, CoroutineScope(StandardTestDispatcher(testScheduler)),
+            StandardTestDispatcher(testScheduler)) { }
+        val job = s.hold(rc5)
+        s.press(rc5)
+        runCurrent()
+        job.cancel()
+        assertEquals(listOf(rc5.frame, rc5.frameAlt), tx.calls.map { it.second })
+    }
 }
