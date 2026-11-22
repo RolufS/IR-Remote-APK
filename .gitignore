@@ -3,3 +3,9 @@ tools/.venv/
 tools/sources/
 __pycache__/
 .pytest_cache/
+.gradle/
+build/
+app/build/
+local.properties
+*.jks
+.idea/
