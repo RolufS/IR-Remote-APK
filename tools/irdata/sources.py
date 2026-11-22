@@ -13,6 +13,7 @@ from .signal import Signal
 _TV_DIR = re.compile(r"(?i)\btv\b|television")
 _POWER_SLOTS = {"POWER", "POWER_ON", "POWER_OFF"}
 MALFORMED = "<malformed>"  # Schluessel in RemoteFile.unsupported fuer kaputte Eintraege
+MAX_PATTERN_US = 2_000_000
 
 
 @dataclass
@@ -72,7 +73,12 @@ def _raw_signal(e: dict[str, str]) -> Signal:
     data = [int(x) for x in e["data"].split()]
     if freq <= 0 or not data or min(data) <= 0:
         raise ValueError("bad raw signal")
-    return from_raw(freq, data)
+    signal = from_raw(freq, data)
+    # Android (ConsumerIrService) lehnt Muster ueber 2 s Gesamtdauer ab.
+    for part in (signal.frame, signal.repeat, signal.frame_alt):
+        if part is not None and sum(abs(d) for d in part) > MAX_PATTERN_US:
+            raise ValueError("raw signal longer than 2 s")
+    return signal
 
 
 def _flipper_entries(text: str) -> Iterator[dict[str, str]]:

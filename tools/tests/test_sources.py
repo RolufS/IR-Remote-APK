@@ -94,3 +94,15 @@ def test_irdb_malformed_rows_are_counted_not_fatal(tmp_path):
     (f,) = iter_irdb(tmp_path)
     assert f.keys == {"POWER": encode_irdb("NEC1", 9, -1, 1)}
     assert f.unsupported == {"<malformed>": 3}
+
+
+def test_flipper_raw_longer_than_two_seconds_is_malformed(tmp_path):
+    # Android (ConsumerIrService) lehnt Muster ueber 2 s Gesamtdauer ab.
+    d = tmp_path / "TVs" / "Acme"
+    d.mkdir(parents=True)
+    too_long = "name: Mute\ntype: raw\nfrequency: 38000\ndata: 9000 1000000 9000 1000000 500\n"
+    at_limit = "name: Vol_up\ntype: raw\nfrequency: 38000\ndata: 3000 1000000 3000 994000\n"
+    (d / "Acme_1.ir").write_text("Filetype: IR signals file\n#\n" + too_long + "#\n" + at_limit, encoding="utf-8")
+    f = next(iter_flipper(tmp_path))
+    assert "MUTE" not in f.keys and f.unsupported == {"<malformed>": 1}
+    assert sum(f.keys["VOL_UP"].frame) <= 2_000_000
