@@ -47,6 +47,17 @@ müssen alle späteren Bundles signiert sein – Keystore und Passwörter sicher
 aufbewahren (nicht im Repo). Store-Texte, Formular-Antworten und Grafiken liegen
 unter `docs/play-store/`.
 
+Grafiken neu erzeugen:
+
+```
+# App-Icon (Vektor + Legacy-PNGs), icon-512.png, feature-graphic.png (benötigt Pillow)
+tools/.venv/Scripts/python tools/make_graphics.py
+# Screenshots 1080 x 1920 aus den echten Compose-Bildschirmen (Robolectric, ohne Emulator)
+./gradlew :app:testDebugUnitTest --tests de.hotelremote.StoreScreenshots -Pscreenshots
+```
+
+Ohne `-Pscreenshots` wird der Screenshot-Test übersprungen.
+
 ## Code-Datenbank neu bauen
 
 ```

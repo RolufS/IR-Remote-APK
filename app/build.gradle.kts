@@ -57,6 +57,15 @@ android {
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        // Store-Screenshots (Test StoreScreenshots) nur mit -Pscreenshots, Ausgabe nach docs/play-store/.
+        val screenshots = providers.gradleProperty("screenshots").isPresent
+        val screenshotsDir = rootProject.file("docs/play-store").path
+        unitTests.all { test ->
+            if (screenshots) {
+                test.systemProperty("hotelremote.screenshots.dir", screenshotsDir)
+                test.outputs.upToDateWhen { false }
+            }
+        }
     }
 }
 
