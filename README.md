@@ -29,6 +29,24 @@ sein (kein `~`; ein relativer Pfad würde relativ zu `app/` aufgelöst).
 Fehlen sie, wird unsigniert gebaut (mit Warnung).
 Den Schlüssel anlegen: `keytool -genkeypair -keystore ~/.android/hotelremote.jks -alias hotelremote -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Fernbedienung"`.
 
+## Play Store
+
+Für den Play Store wird ein App Bundle (AAB) hochgeladen. Es wird mit demselben
+Schlüssel signiert wie das APK (Properties wie oben):
+
+```
+./gradlew :app:bundleRelease
+mkdir -p dist
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.0.aab
+```
+
+Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
+aktiv lassen. Google erzeugt und verwaltet dann den eigentlichen App-Signaturschlüssel;
+`~/.android/hotelremote.jks` dient als Upload-Schlüssel. Mit diesem Schlüssel
+müssen alle späteren Bundles signiert sein – Keystore und Passwörter sicher
+aufbewahren (nicht im Repo). Store-Texte, Formular-Antworten und Grafiken liegen
+unter `docs/play-store/`.
+
 ## Code-Datenbank neu bauen
 
 ```
