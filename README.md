@@ -15,12 +15,18 @@ die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
 
 ```
 ./gradlew :app:assembleRelease
+mkdir -p dist
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.0.apk
 ```
 
-Ergebnis: `app/build/outputs/apk/release/app-release.apk`. Zum Signieren stehen
+Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
+`dist/Fernbedienung-1.0.apk` ist die Datei zum Installieren (`dist/` steht nicht
+im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
-`HOTELREMOTE_KEY_PASSWORD`. Fehlen sie, wird unsigniert gebaut (mit Warnung).
+`HOTELREMOTE_KEY_PASSWORD`. `HOTELREMOTE_STORE_FILE` muss ein absoluter Pfad
+sein (kein `~`; ein relativer Pfad würde relativ zu `app/` aufgelöst).
+Fehlen sie, wird unsigniert gebaut (mit Warnung).
 Den Schlüssel anlegen: `keytool -genkeypair -keystore ~/.android/hotelremote.jks -alias hotelremote -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Fernbedienung"`.
 
 ## Code-Datenbank neu bauen
