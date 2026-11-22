@@ -57,4 +57,18 @@
     <string name="wiz_nomatch_title">Kein passender Code gefunden.</string>
     <string name="wiz_other_brand">Andere Marke wählen</string>
     <string name="wiz_scan_resume">Suchlauf fortsetzen</string>
+    <string name="list_title">Meine Fernbedienungen</string>
+    <string name="list_subtitle">%1$s · %2$s</string>
+    <string name="list_new">+ Neue Fernbedienung suchen</string>
+    <string name="list_rename">Umbenennen</string>
+    <string name="list_delete">Löschen</string>
+    <string name="list_delete_confirm">Fernbedienung „%1$s“ löschen?</string>
+    <string name="list_name_hint">Name</string>
+    <string name="list_save">Speichern</string>
+    <string name="list_cancel">Abbrechen</string>
+    <string name="about_text">Fernbedienung 1.0 – werbefrei, ohne Internet.</string>
+    <string name="about_codes">Code-Daten</string>
+    <string name="about_flipper">Flipper-IRDB (CC0-1.0), Stand %1$s</string>
+    <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>
+    <string name="about_counts">%1$s Code-Sätze, %2$s Marken</string>
 </resources>

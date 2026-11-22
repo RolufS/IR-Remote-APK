@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +69,6 @@ fun WizardScreen(
     onStopScan: () -> Unit,
     onResumeScan: (Int) -> Unit,
     onSave: (name: String?, brandName: String) -> Unit,
-    onClose: () -> Unit,
     onBack: () -> Unit,
 ) {
     // Hinweis vor dem Suchlauf: lokaler Zwischenschritt, kein Zustand des Automaten.
@@ -151,7 +151,7 @@ private fun WizardButton(
             .height(52.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(brush)
-            .clickable(onClick = onClick),
+            .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(text, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
@@ -183,7 +183,7 @@ private fun Header(left: String, progress: Float? = null) {
 private fun ColumnScope.BigTestButton(label: String, onClick: () -> Unit, brush: Brush = KeyBrush) {
     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
         Box(
-            Modifier.size(140.dp).clip(CircleShape).background(brush).clickable(onClick = onClick),
+            Modifier.size(140.dp).clip(CircleShape).background(brush).clickable(role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Text(label, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
@@ -415,7 +415,7 @@ private fun WizardPreview() {
             state = WizardState.TestCode(1, 0, 12, 10, Keys.MUTE),
             brands = listOf(Brand(1, "Samsung", 1, 12), Brand(2, "Acme", null, 3)),
             onPickBrand = {}, onStartScan = {}, onTest = {}, onAnswer = {}, onTvOff = {},
-            onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onClose = {}, onBack = {},
+            onStopScan = {}, onResumeScan = {}, onSave = { _, _ -> }, onBack = {},
         )
     }
 }

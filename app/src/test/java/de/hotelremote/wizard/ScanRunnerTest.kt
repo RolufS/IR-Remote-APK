@@ -52,6 +52,32 @@ class ScanRunnerTest {
         assertFalse(runner.running.value)
     }
 
+    @Test fun quickStopThenStartKeepsRunning() = runTest {
+        val m = machine()
+        val runner = ScanRunner(m, {}, backgroundScope)
+        runner.start()
+        runCurrent()
+        runner.stop()
+        m.startScan(0)
+        runner.start()
+        runCurrent()
+        assertTrue(runner.running.value)
+        advanceTimeBy(1201)
+        assertTrue(runner.running.value)
+        assertEquals(1, (m.state as WizardState.Scanning).position)
+    }
+
+    @Test fun notifiesStateChanges() = runTest {
+        val m = machine()
+        val positions = mutableListOf<Int>()
+        val runner = ScanRunner(m, {}, backgroundScope, onStateChanged = {
+            (m.state as? WizardState.Scanning)?.let { positions += it.position }
+        })
+        runner.start()
+        advanceTimeBy(1200 * 2 + 1)
+        assertEquals(listOf(1, 2), positions)
+    }
+
     @Test fun runsToEndAndStops() = runTest {
         val sent = mutableListOf<IrSignal>()
         val m = machine()
