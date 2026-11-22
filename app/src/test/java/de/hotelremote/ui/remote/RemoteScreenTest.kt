@@ -1,5 +1,6 @@
 package de.hotelremote.ui.remote
 
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -138,5 +139,11 @@ class RemoteScreenTest {
         assertEquals(listOf("X:Key01"), handler.pressed)
         rule.onNodeWithTag("key_X:Key02").performTouchInput { swipeUp() }
         assertEquals(listOf("X:Key01"), handler.pressed)
+    }
+
+    @Test
+    fun powerKeyShowsIconWithDescription() {
+        show(remote("POWER"))
+        rule.onNodeWithTag("key_POWER").assertContentDescriptionEquals("Ein/Aus")
     }
 }

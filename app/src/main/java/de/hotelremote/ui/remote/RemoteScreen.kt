@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -80,7 +82,7 @@ fun RemoteScreen(
             TextKey(Keys.SOURCE, "SOURCE", keys, handler, brush = SourceBrush)
             Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                 PowerButton(keys, handler, Modifier.fillMaxHeight().aspectRatio(1f)) {
-                    Label("⏻", 20.sp, Color.White)
+                    Icon(PowerIcon, stringResource(R.string.wiz_key_power), Modifier.size(26.dp), tint = Color.White)
                 }
             }
             TextKey(Keys.MUTE, "MUTE", keys, handler)

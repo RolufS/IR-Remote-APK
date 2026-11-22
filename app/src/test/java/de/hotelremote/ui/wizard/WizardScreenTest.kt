@@ -1,5 +1,6 @@
 package de.hotelremote.ui.wizard
 
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -108,5 +109,21 @@ class WizardScreenTest {
         rule.onNodeWithText("Suchlauf starten").performClick()
         assertEquals(listOf(4), resumed)
         assertEquals(0, started)
+    }
+
+    @Test fun powerTestButtonShowsIcon() {
+        show(WizardState.TestCode(1, 0, 2, 10, Keys.POWER))
+        rule.onNodeWithTag("big_test_button").assertContentDescriptionEquals("Ein/Aus")
+        rule.onNodeWithText("Richte das Handy auf den Fernseher und tippe auf Ein/Aus.").assertExists()
+    }
+
+    @Test fun muteTestButtonShowsText() {
+        show(WizardState.TestCode(1, 0, 2, 10, Keys.MUTE))
+        rule.onNodeWithTag("big_test_button").assertTextContains("MUTE")
+    }
+
+    @Test fun scanVerifyShowsPowerIcon() {
+        show(WizardState.ScanVerify(emptyList(), 0, Keys.POWER))
+        rule.onNodeWithTag("big_test_button").assertContentDescriptionEquals("Ein/Aus")
     }
 }

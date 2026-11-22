@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -52,6 +54,7 @@ import de.hotelremote.data.Brand
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ui.remote.KeyBrush
 import de.hotelremote.ui.remote.NoIrBanner
+import de.hotelremote.ui.remote.PowerIcon
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import de.hotelremote.ui.theme.RemoteColors
@@ -217,18 +220,32 @@ private fun Header(left: String, progress: Float? = null) {
     }
 }
 
-/** Großer runder Testknopf in der Mitte des freien Platzes. */
+/** Großer runder Testknopf in der Mitte des freien Platzes; mit [icon] zeigt er das Symbol, [label] beschreibt es. */
 @Composable
-private fun ColumnScope.BigTestButton(label: String, onClick: () -> Unit, brush: Brush = KeyBrush) {
+private fun ColumnScope.BigTestButton(label: String, onClick: () -> Unit, brush: Brush = KeyBrush, icon: ImageVector? = null) {
     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
         Box(
-            Modifier.size(140.dp).clip(CircleShape).background(brush).clickable(role = Role.Button, onClick = onClick),
+            Modifier
+                .testTag("big_test_button")
+                .size(140.dp)
+                .clip(CircleShape)
+                .background(brush)
+                .clickable(role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Text(label, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            if (icon != null) {
+                Icon(icon, label, Modifier.size(56.dp), tint = Color.White)
+            } else {
+                Text(label, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            }
         }
     }
 }
+
+/** Testknopf für eine Taste aus [keyDisplay]; Ein/Aus erscheint als [PowerIcon]. */
+@Composable
+private fun ColumnScope.KeyTestButton(key: String, onClick: () -> Unit) =
+    BigTestButton(keyDisplay(key), onClick, icon = if (isPower(key)) PowerIcon else null)
 
 @Composable
 private fun keyDisplay(key: String): String = when (key) {
@@ -308,7 +325,7 @@ private fun TestCode(
             progress = (s.index + 1).toFloat() / s.total,
         )
         Title(stringResource(R.string.wiz_test_title, keyDisplay(s.testKey)))
-        BigTestButton(keyDisplay(s.testKey), onTest)
+        KeyTestButton(s.testKey, onTest)
         Question(
             stringResource(
                 when (s.testKey) {
@@ -333,7 +350,7 @@ private fun TestCode(
 private fun Confirm(s: WizardState.Confirm, onTest: () -> Unit, onAnswer: (Boolean) -> Unit) {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Title(stringResource(R.string.wiz_confirm_title, keyDisplay(s.confirmKey)))
-        BigTestButton(keyDisplay(s.confirmKey), onTest)
+        KeyTestButton(s.confirmKey, onTest)
         Question(stringResource(R.string.wiz_confirm_question))
         NoYes(onAnswer)
     }
@@ -373,7 +390,7 @@ private fun ScanVerify(s: WizardState.ScanVerify, onTest: () -> Unit, onAnswer: 
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Header(stringResource(R.string.wiz_verify_header, s.index + 1, s.candidates.size))
         Title(stringResource(R.string.wiz_verify_title))
-        BigTestButton(stringResource(R.string.wiz_key_power), onTest)
+        BigTestButton(stringResource(R.string.wiz_key_power), onTest, icon = PowerIcon)
         NoYes(onAnswer)
     }
 }

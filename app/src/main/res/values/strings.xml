@@ -28,14 +28,14 @@
     <string name="wiz_key_mute">MUTE</string>
     <string name="wiz_key_vol_down">VOL –</string>
     <string name="wiz_key_vol_up">VOL +</string>
-    <string name="wiz_key_power">⏻</string>
+    <string name="wiz_key_power">Ein/Aus</string>
     <string name="wiz_q_mute">Wurde der Ton stumm geschaltet?</string>
     <string name="wiz_q_vol_down">Wurde es leiser?</string>
     <string name="wiz_q_power">Ist der Fernseher an- oder ausgegangen?</string>
     <string name="wiz_no_next">Nein, nächster</string>
     <string name="wiz_no">Nein</string>
     <string name="wiz_yes">Ja</string>
-    <string name="wiz_tv_off_link">Fernseher ist aus → mit ⏻ testen</string>
+    <string name="wiz_tv_off_link">Fernseher ist aus → mit Ein/Aus testen</string>
     <string name="wiz_confirm_title">Zur Sicherheit: tippe auf %1$s.</string>
     <string name="wiz_confirm_question">Hat der Fernseher reagiert?</string>
     <string name="wiz_scan_intro">Der Fernseher muss eingeschaltet sein.</string>
@@ -44,7 +44,7 @@
     <string name="wiz_scan_text">Die App sendet nacheinander „Ausschalten“ für jede Marke. Tippe auf Stopp, sobald der Fernseher ausgeht.</string>
     <string name="wiz_scan_progress">%1$d von %2$d · %3$s</string>
     <string name="wiz_scan_stop">Stopp – hat reagiert!</string>
-    <string name="wiz_verify_title">Tippe auf ⏻. Ist der Fernseher wieder angegangen?</string>
+    <string name="wiz_verify_title">Tippe auf Ein/Aus. Ist der Fernseher wieder angegangen?</string>
     <string name="wiz_verify_header">Kandidat %1$d von %2$d</string>
     <string name="wiz_inputs_title">Eingang direkt wählen?</string>
     <string name="wiz_inputs_text">Tippe auf HDMI 1. Wechselt der Fernseher direkt auf diesen Eingang?</string>
