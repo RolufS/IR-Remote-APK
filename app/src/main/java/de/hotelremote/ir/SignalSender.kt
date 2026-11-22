@@ -50,7 +50,7 @@ class SignalSender(
         }
     }
 
-    // Läuft immer auf `serial`; bei Hold gibt delay() die Dispatcher-Slot zwischen Wiederholungen frei.
+    // LÃ¤uft immer auf `serial`; bei Hold gibt delay() den Dispatcher-Slot zwischen Wiederholungen frei.
     private fun send(freq: Int, pattern: List<Int>) {
         try {
             tx.transmit(freq, pattern.toIntArray())
