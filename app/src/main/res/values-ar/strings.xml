@@ -70,7 +70,7 @@
     <string name="list_name_hint">الاسم</string>
     <string name="list_save">حفظ</string>
     <string name="list_cancel">إلغاء</string>
-    <string name="about_text">جهاز التحكم 1.0 – بلا إعلانات، بلا إنترنت.</string>
+    <string name="about_text">جهاز التحكم 1.1 – بلا إعلانات، بلا إنترنت.</string>
     <string name="about_codes">بيانات الرموز</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0)، الإصدار %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

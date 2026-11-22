@@ -70,7 +70,7 @@
     <string name="list_name_hint">नाम</string>
     <string name="list_save">सहेजें</string>
     <string name="list_cancel">रद्द करें</string>
-    <string name="about_text">टीवी रिमोट 1.0 – बिना विज्ञापन, बिना इंटरनेट।</string>
+    <string name="about_text">टीवी रिमोट 1.1 – बिना विज्ञापन, बिना इंटरनेट।</string>
     <string name="about_codes">कोड डेटा</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), संस्करण %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

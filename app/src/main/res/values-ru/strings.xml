@@ -70,7 +70,7 @@
     <string name="list_name_hint">Название</string>
     <string name="list_save">Сохранить</string>
     <string name="list_cancel">Отмена</string>
-    <string name="about_text">ТВ-пульт 1.0 – без рекламы и без интернета.</string>
+    <string name="about_text">ТВ-пульт 1.1 – без рекламы и без интернета.</string>
     <string name="about_codes">Данные кодов</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), версия %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

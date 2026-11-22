@@ -3,6 +3,13 @@
 Texte zum Kopieren in die Play Console (Hauptsprache: Deutsch – de-DE).
 Die Texte in den Codeblöcken werden 1:1 übernommen; Zeichenzahlen stehen am Ende.
 
+Die App selbst hat 11 Sprachen (Deutsch, Englisch, Chinesisch vereinfacht, Hindi,
+Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch, Indonesisch).
+Den Store-Eintrag gibt es auf Deutsch (diese Datei) und Englisch
+([listing-en.md](listing-en.md)); in der Play Console unter „Store-Eintrag →
+Übersetzungen verwalten“ Englisch (en-US) hinzufügen und die englischen Texte
+einfügen. Die Screenshots sind die deutschen und gelten für alle Sprachen.
+
 ## App-Name (max. 30 Zeichen)
 
 ```
@@ -40,6 +47,9 @@ WERBEFREI UND OFFLINE
 • Keine Datenerhebung, keine Analyse
 • Die Code-Datenbank ist in der App enthalten (Flipper-IRDB, CC0)
 • Quelloffen: github.com/RolufS/IR-Remote-APK
+
+11 SPRACHEN
+Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch und Indonesisch. Die Sprache wählst du beim ersten Start, später jederzeit im Menü.
 
 WICHTIG
 Benötigt ein Handy mit Infrarot-Sender. Viele Handys haben keinen; die App zeigt dann einen Hinweis. Fernseher, die nur per WLAN oder Bluetooth gesteuert werden, lassen sich nicht bedienen.
@@ -132,7 +142,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.0.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.1.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
@@ -147,6 +157,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 1570 | 4000 |
+| Vollständige Beschreibung | 1788 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

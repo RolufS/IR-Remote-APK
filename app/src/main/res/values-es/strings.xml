@@ -70,7 +70,7 @@
     <string name="list_name_hint">Nombre</string>
     <string name="list_save">Guardar</string>
     <string name="list_cancel">Cancelar</string>
-    <string name="about_text">Control remoto 1.0 – sin anuncios, sin internet.</string>
+    <string name="about_text">Control remoto 1.1 – sin anuncios, sin internet.</string>
     <string name="about_codes">Datos de códigos</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), versión %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

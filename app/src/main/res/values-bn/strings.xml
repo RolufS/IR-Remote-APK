@@ -70,7 +70,7 @@
     <string name="list_name_hint">নাম</string>
     <string name="list_save">সংরক্ষণ করুন</string>
     <string name="list_cancel">বাতিল</string>
-    <string name="about_text">টিভি রিমোট 1.0 – বিজ্ঞাপন নেই, ইন্টারনেট নেই।</string>
+    <string name="about_text">টিভি রিমোট 1.1 – বিজ্ঞাপন নেই, ইন্টারনেট নেই।</string>
     <string name="about_codes">কোড ডেটা</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), সংস্করণ %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>

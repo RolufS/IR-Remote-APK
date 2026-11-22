@@ -70,7 +70,7 @@
     <string name="list_name_hint">Nom</string>
     <string name="list_save">Enregistrer</string>
     <string name="list_cancel">Annuler</string>
-    <string name="about_text">Télécommande 1.0 – sans publicité, sans internet.</string>
+    <string name="about_text">Télécommande 1.1 – sans publicité, sans internet.</string>
     <string name="about_codes">Données des codes</string>
     <string name="about_flipper">Flipper-IRDB (CC0-1.0), version %1$s</string>
     <string name="about_irdb">Contains/accesses irdb by Simon Peter and contributors, used under permission. For licensing details and for information on how to contribute to the database, see https://github.com/probonopd/irdb</string>
