@@ -172,6 +172,11 @@ def _f_rc5(a: int, c: int) -> Signal:
     return _rc5(a, c)
 
 
+def _f_rc5x(a: int, c: int) -> Signal:
+    # Flipper RC5X: field bit 0, only the low 6 command bits are stored
+    return _rc5(a, (c & 0x3F) | 0x40)
+
+
 def _f_rc6(a: int, c: int) -> Signal:
     return _rc6(a, c)
 
@@ -200,7 +205,7 @@ def _f_rca(a: int, c: int) -> Signal:
 
 _FLIPPER = {
     "rc5": _f_rc5,
-    "rc5x": _f_rc5,
+    "rc5x": _f_rc5x,
     "rc6": _f_rc6,
     "sirc": _f_sirc(5),
     "sirc15": _f_sirc(8),
@@ -290,9 +295,34 @@ def _near(value: int, target: int) -> bool:
     return abs(value - target) <= target * 0.25
 
 
+def _tail_ok(tail: list[int], first: Signal) -> bool:
+    """Tail after the first frame: a lone trailing space, or gaps (>= 10 ms) followed by
+    NEC repeat bursts or further identical frames."""
+    while tail:
+        if len(tail) == 1:
+            return True
+        if tail[0] < 10000:
+            return False
+        rest = tail[1:]
+        if len(rest) >= 3 and _near(rest[0], 16 * NEC_UNIT) and _near(rest[1], 4 * NEC_UNIT)                 and _near(rest[2], NEC_UNIT):
+            tail = rest[3:]
+        elif len(rest) >= 67 and _decode_frame(rest[:67]) == first:
+            tail = rest[67:]
+        else:
+            return False
+    return True
+
+
 def _decode_nec_family(data: list[int]) -> Signal | None:
-    if len(data) != 67:
+    if len(data) < 67:
         return None
+    first = _decode_frame(data[:67])
+    if first is None or not _tail_ok(data[67:], first):
+        return None
+    return first
+
+
+def _decode_frame(data: list[int]) -> Signal | None:
     if _near(data[0], 16 * NEC_UNIT) and _near(data[1], 8 * NEC_UNIT):
         lead, repeat = 16, True
     elif _near(data[0], 8 * NEC_UNIT) and _near(data[1], 8 * NEC_UNIT):

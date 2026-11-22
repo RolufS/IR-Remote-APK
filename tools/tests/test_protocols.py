@@ -123,3 +123,29 @@ def test_raw_nec_is_canonicalized():
 def test_raw_unknown_stays_raw():
     s = from_raw(38000, [3000, 1000, 500, 500, 500])
     assert s.frame == (3000, 1000, 500, 500, 500) and s.repeat is None and s.period_ms == 6 + 40
+
+
+def test_rc5x_has_no_field_offset_in_flipper():
+    assert encode_flipper("RC5X", 0, 0x0C) == encode_flipper("RC5", 0, 0x4C)
+    assert encode_flipper("RC5X", 0, 0x0C).frame != encode_flipper("RC5", 0, 0x0C).frame
+
+
+def test_rc6_exact_units():
+    s = encode_flipper("RC6", 0x00, 0x0C)
+    u = [6, 2, 1, 2, 1, 1, 1, 1, 1, 2, 2] + [1, 1] * 11 + [1, 2, 1, 1, 2, 1, 1, 1]
+    assert s.frame == tuple(x * 444 for x in u)
+
+
+def test_raw_nec_trailing_gap_and_repeat_burst():
+    ref = encode_flipper("NEC", 4, 8)
+    assert from_raw(38000, list(ref.frame) + [40000]) == ref
+    assert from_raw(38000, list(ref.frame) + [40000, 9024, 2256, 564]) == ref
+    assert from_raw(38000, list(ref.frame) + [40000, 9024, 2256, 564, 96000]) == ref
+    assert from_raw(38000, list(ref.frame) + [40000] + list(ref.frame)) == ref
+    assert from_raw(38000, list(ref.frame) + [500, 9024, 2256, 564]).repeat is None
+
+
+def test_raw_necx_path():
+    ref = encode_flipper("Samsung32", 7, 2)
+    jitter = [int(d * (1.1 if i % 3 else 0.92)) for i, d in enumerate(ref.frame)]
+    assert from_raw(38000, jitter) == ref and ref.repeat is None
