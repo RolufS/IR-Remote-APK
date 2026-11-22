@@ -22,9 +22,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Im Hintergrund kein Suchlauf: er hält an und der Assistent prüft die letzten Kandidaten. */
+    /**
+     * Im Hintergrund kein Suchlauf: er hält an und der Assistent prüft die letzten Kandidaten.
+     * Beim Neuaufbau der Activity (Konfigurationswechsel) läuft er weiter.
+     */
     override fun onStop() {
         super.onStop()
-        vm.controller.onAppStopped()
+        if (!isChangingConfigurations) vm.controller.onAppStopped()
     }
 }

@@ -111,6 +111,25 @@ class SignalSenderTest {
         assertEquals(2, bad.calls.size)
     }
 
+    @Test fun holdReportsTransmitErrorOncePerHold() = runTest {
+        val errors = mutableListOf<Throwable>()
+        val bad = FakeTx(UnsupportedOperationException("Kein Infrarot-Sender"))
+        val s = sender(bad, errors)
+        val job = s.hold(nec)
+        runCurrent()
+        advanceTimeBy(108 * 5 + 1)
+        runCurrent()
+        job.cancel()
+        assertEquals(1, errors.size)
+        // Neuer Haltevorgang: wieder höchstens eine Meldung.
+        val again = s.hold(rc5)
+        runCurrent()
+        advanceTimeBy(400 + 114 * 3 + 1)
+        runCurrent()
+        again.cancel()
+        assertEquals(2, errors.size)
+    }
+
     @Test fun holdThenPressKeepSubmissionOrderWithSeparateDispatchers() = runTest {
         val tx = FakeTx()
         val s = SignalSender(tx, CoroutineScope(StandardTestDispatcher(testScheduler)),
