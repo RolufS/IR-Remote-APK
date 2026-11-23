@@ -47,6 +47,11 @@ AUTOMATIONEN UND SLEEP-TIMER
 • Vorlagen für den Sleep-Timer des Fernsehers: per Sleep-Taste oder Menüweg gängiger Marken – ungeprüft, einmal testen und bei Bedarf anpassen
 • Sleep-Timer im Handy: nach 15 bis 120 Minuten (oder eigenem Wert) schaltet das Handy den Fernseher aus oder startet eine Automation – auch wenn die App geschlossen ist. Das Handy muss dafür auf den Fernseher zeigen.
 
+SCHNELLSTEUERUNG OHNE APP
+• Kacheln in den Schnelleinstellungen für Ein/Aus, leiser, lauter und Eingang – funktionieren auch auf dem Sperrbildschirm
+• Widget für den Startbildschirm mit denselben vier Tasten
+• Auf Wunsch eine stille Benachrichtigung mit vier Tasten auf dem Sperrbildschirm
+
 WERBEFREI UND OFFLINE
 • Keine Werbung, keine In-App-Käufe, kein Konto
 • Keine Internet-Berechtigung – funktioniert auch im Flugmodus
@@ -84,7 +89,9 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
   der genaue Alarm ist eine vom Nutzer gestartete Zeitschaltung (Sleep-Timer).
 - `POST_NOTIFICATIONS` – laufende Benachrichtigung mit Restzeit und „Abbrechen“.
 - `RECEIVE_BOOT_COMPLETED` – einen laufenden Sleep-Timer nach einem Neustart
-  wieder planen.
+  wieder planen und die Sperrbildschirm-Steuerung (falls eingeschaltet) wieder anzeigen.
+- `VIBRATE` (ab Version 1.4) – kurzes Vibrieren als Bestätigung, wenn eine Kachel,
+  das Widget oder die Sperrbildschirm-Steuerung sendet (normale Berechtigung, keine Rückfrage).
 - Keine Internet-, Standort-, Kontakt- oder Vordergrunddienst-Berechtigung.
 
 ### Einstufung des Inhalts (IARC-Fragebogen)
@@ -160,7 +167,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.3.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.4.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
@@ -175,6 +182,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 2423 | 4000 |
+| Vollständige Beschreibung | 2714 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

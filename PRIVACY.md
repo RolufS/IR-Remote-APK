@@ -27,7 +27,10 @@ Die App erhebt keine Daten, hat keinen Internetzugang und gibt nichts weiter.
   - „Benachrichtigungen“ (`android.permission.POST_NOTIFICATIONS`) für die
     Restzeit des Sleep-Timers.
   - „Nach dem Start ausführen“ (`android.permission.RECEIVE_BOOT_COMPLETED`),
-    um einen laufenden Sleep-Timer nach einem Neustart wieder zu planen.
+    um einen laufenden Sleep-Timer nach einem Neustart wieder zu planen und die
+    Steuerung auf dem Sperrbildschirm (falls eingeschaltet) wieder anzuzeigen.
+  - „Vibrieren“ (`android.permission.VIBRATE`) als kurze Bestätigung, wenn eine
+    Kachel, das Widget oder die Sperrbildschirm-Steuerung sendet.
 
 ## Kontakt
 
@@ -49,6 +52,8 @@ The app collects no data, has no internet access and shares nothing.
   storage. They are not backed up or synced and are deleted when the app is uninstalled.
 - **Permissions.** All of them act on the device only: "transmit infrared" (`TRANSMIT_IR`),
   exact alarms for the sleep timer (`SCHEDULE_EXACT_ALARM`), notifications for the time left
-  (`POST_NOTIFICATIONS`) and re-scheduling a running sleep timer after a reboot (`RECEIVE_BOOT_COMPLETED`).
+  (`POST_NOTIFICATIONS`), re-scheduling a running sleep timer and restoring the lock-screen controls
+  after a reboot (`RECEIVE_BOOT_COMPLETED`) and a short vibration when a tile, the widget or the
+  lock-screen controls send (`VIBRATE`).
 
 Contact: GitHub issues at https://github.com/RolufS/IR-Remote-APK/issues

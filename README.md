@@ -4,7 +4,10 @@ Offline-Fernbedienung für Hotel-Fernseher per Infrarot (Paket `de.hotelremote`)
 Ein Wizard findet den passenden Code für den TV, danach steht eine Fernbedienung
 mit HDMI-Reihe und Zusatztasten bereit. Automationen senden mehrere Tasten
 nacheinander, ein Sleep-Timer schaltet den TV vom Handy aus (auch bei
-geschlossener App). Die App hat keine INTERNET-Berechtigung;
+geschlossener App). Ein/Aus, Lautstärke und Eingang gehen auch ohne die App zu
+öffnen: über Kacheln in den Schnelleinstellungen (auch auf dem Sperrbildschirm),
+ein Widget und optional eine Benachrichtigung auf dem Sperrbildschirm.
+Die App hat keine INTERNET-Berechtigung;
 die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
 
 ## Sprachen
@@ -61,9 +64,44 @@ Recherche und Quellen: [docs/sleep-timer-research.md](docs/sleep-timer-research.
 Rückmeldungen (klappt / klappt nicht, mit Marke und Baujahr) gerne als
 [Issue](https://github.com/RolufS/IR-Remote-APK/issues).
 
+## Schnellsteuerung
+
+Die wichtigsten Tasten ohne die App zu öffnen. Alle Wege senden an die **zuletzt
+benutzte Fernbedienung** (die in der App zuletzt geöffnete). Android erlaubt auf
+Handys keine Widgets auf dem Sperrbildschirm; deshalb drei Wege:
+
+- **Kacheln** (ab Android 7): „TV Ein/Aus“, „TV leiser“, „TV lauter“, „TV Eingang“.
+  Schnelleinstellungen aufklappen → Bearbeiten (Stift) → Kacheln hineinziehen; ab
+  Android 13 auch über ⋮ → Schnellsteuerung → „Kachel … hinzufügen“. Ein Tipp sendet
+  sofort, auch auf dem Sperrbildschirm ohne Entsperren (kurzes Vibrieren; bei Fehlern
+  ein kurzer Hinweis). Untertitel (ab Android 10): Name der Fernbedienung. Manche
+  Hersteller verlangen für Kacheln fremder Apps trotzdem das Entsperren.
+- **Widget** (4×1, skalierbar): lange auf den Startbildschirm drücken → Widgets →
+  Fernbedienung → „Schnellsteuerung“; ab Android 8 (je nach Launcher) auch über
+  „Widget hinzufügen“. Zeigt den Namen der Fernbedienung und vier runde Knöpfe;
+  ein Tipp auf den Namen öffnet die App.
+- **Sperrbildschirm-Benachrichtigung** (Standard aus): ⋮ → Schnellsteuerung →
+  „Steuerung auf dem Sperrbildschirm anzeigen“. Stille, dauerhafte Benachrichtigung
+  im Kanal „Schnellsteuerung“ mit vier Knöpfen, die ohne Entsperren senden; ab
+  Android 13 fragt die App nach der Erlaubnis für Benachrichtigungen. Nach einem
+  Neustart erscheint sie wieder. Ab Android 14 lässt sie sich entsperrt wegwischen;
+  beim nächsten Öffnen der App kommt sie zurück.
+
+**Eingang** sendet die in ⋮ → Schnellsteuerung gewählte Taste (HDMI 1–4 oder SOURCE,
+angeboten werden nur Tasten der aktuellen Fernbedienung), sonst HDMI 1, sonst SOURCE.
+Die Wahl gilt für alle Fernbedienungen; fehlt einer die gewählte Taste, greift der
+Standard. **Ein/Aus** sendet wie ein kurzer Druck in der App den Umschalter POWER,
+sonst „Einschalten“ bzw. „Ausschalten“.
+
+Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, Widget
+`QuickWidgetProvider.kt`, Benachrichtigung `QuickNotification.kt`, Knöpfe
+`QuickControlReceiver.kt`), Einstellungen `ui/quick/QuickControlsScreen.kt`, Layouts
+`res/layout/widget_quick.xml` und `notification_quick.xml`, Widget-Info
+`res/xml/quick_widget_info.xml`.
+
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.3.apk`
+- USB: `adb install -r dist/Fernbedienung-1.4.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -72,11 +110,11 @@ Rückmeldungen (klappt / klappt nicht, mit Marke und Baujahr) gerne als
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.3.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.4.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.3.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.4.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -93,7 +131,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.3.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.4.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -156,6 +194,20 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 13. Timer starten und über „Abbrechen“ in der Benachrichtigung beenden: nichts wird gesendet.
 14. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
 15. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 12 wiederholen.
+16. Kacheln: Schnelleinstellungen → Bearbeiten → die vier TV-Kacheln hinzufügen (ab Android 13
+    auch über ⋮ → Schnellsteuerung). Untertitel zeigt die Fernbedienung. Handy sperren,
+    Schnelleinstellungen vom Sperrbildschirm aufklappen: Ein/Aus, leiser, lauter und Eingang
+    wirken am TV ohne Entsperren, das Handy vibriert kurz.
+17. ⋮ → Schnellsteuerung → Eingangstaste z. B. HDMI 2: die Kachel „TV Eingang“ schaltet auf HDMI 2.
+18. Widget hinzufügen (lange auf den Startbildschirm drücken oder „Widget hinzufügen“): die vier
+    Knöpfe senden; in der App auf eine andere Fernbedienung wechseln oder sie umbenennen –
+    der Name im Widget ändert sich.
+19. ⋮ → Schnellsteuerung → „Steuerung auf dem Sperrbildschirm anzeigen“ (ab Android 13 mit
+    Erlaubnisfrage): stille Benachrichtigung mit vier Knöpfen; auf dem Sperrbildschirm senden
+    sie ohne Entsperren. Handy neu starten: die Benachrichtigung ist wieder da. Schalter aus:
+    sie verschwindet.
+20. Alle Fernbedienungen löschen: Kacheln sind ausgegraut („Keine Fernbedienung“), das Widget
+    zeigt „Keine Fernbedienung“.
 
 Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
 Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt

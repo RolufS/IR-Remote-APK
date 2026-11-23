@@ -42,6 +42,11 @@ AUTOMATIONS AND SLEEP TIMER
 • Templates for the TV's own sleep timer: via the sleep key or the menu path of common brands – untested, try once and adjust if needed
 • Sleep timer on the phone: after 15 to 120 minutes (or a custom value) the phone turns the TV off or runs an automation – even when the app is closed. The phone has to point at the TV.
 
+QUICK CONTROLS WITHOUT THE APP
+• Quick Settings tiles for power, volume down, volume up and input – they work on the lock screen too
+• Home screen widget with the same four keys
+• Optionally a silent notification with four keys on the lock screen
+
 AD-FREE AND OFFLINE
 • No ads, no in-app purchases, no account
 • No internet permission – works in airplane mode too
@@ -64,6 +69,6 @@ Brand names belong to their owners. The app is not affiliated with the manufactu
 |---|---|---|
 | App name | 20 | 30 |
 | Short description | 67 | 80 |
-| Full description | 2130 | 4000 |
+| Full description | 2378 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.
