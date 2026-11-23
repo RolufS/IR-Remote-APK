@@ -114,6 +114,52 @@ class LockScreenTest {
         assertEquals(app.getString(R.string.key_vol_up), view.findViewById<View>(R.id.mini_vol_up).contentDescription)
     }
 
+    /** Misst die aufgezogene Ansicht wie das System: feste Breite, höchstens [MINI_REMOTE_MAX_HEIGHT_DP] hoch. */
+    private fun measureBig(widthDp: Int): View {
+        val density = app.resources.displayMetrics.density
+        return show().big().apply {
+            measure(
+                View.MeasureSpec.makeMeasureSpec((widthDp * density).toInt(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec((MINI_REMOTE_MAX_HEIGHT_DP * density).toInt(), View.MeasureSpec.AT_MOST),
+            )
+            layout(0, 0, measuredWidth, measuredHeight)
+        }
+    }
+
+    @Test fun miniRemoteKeysTallEnoughWithinLimit() {
+        addRemote(*MINI_REMOTE.mapNotNull { (it.second as? QuickButton.Key)?.key }.toTypedArray(), Keys.HDMI1)
+        val dpad = setOf(R.id.mini_up, R.id.mini_left, R.id.mini_ok, R.id.mini_right, R.id.mini_down)
+        val density = app.resources.displayMetrics.density
+        for (fullRemote in listOf(false, true)) {
+            settings.fullRemote = fullRemote
+            // Schmales (320 dp) und breites (411 dp) Telefon, abzüglich der Ränder der Benachrichtigung.
+            for (width in listOf(280, 380)) {
+                val view = measureBig(width)
+                val total = view.measuredHeight / density
+                assertTrue("Gesamthöhe $total dp > $MINI_REMOTE_MAX_HEIGHT_DP dp", total <= MINI_REMOTE_MAX_HEIGHT_DP)
+                for ((id, button) in MINI_REMOTE) {
+                    val key = view.findViewById<View>(id)
+                    val height = key.height / density
+                    val min = if (id in dpad) MINI_DPAD_MIN_DP else MINI_KEY_MIN_DP
+                    assertTrue("$button nur $height dp hoch (mind. $min, Breite $width)", height >= min)
+                    assertTrue("$button nur ${key.width / density} dp breit (Breite $width)", key.width / density >= MINI_DPAD_MIN_DP)
+                }
+            }
+        }
+    }
+
+    @Test fun miniRemoteLabelsReadable() {
+        addRemote(Keys.POWER)
+        val view = show().big()
+        val scaled = app.resources.displayMetrics.scaledDensity
+        for (id in listOf(R.id.mini_ch_up, R.id.mini_ch_down, R.id.mini_back, R.id.mini_home, R.id.mini_ok)) {
+            val text = view.findViewById<android.widget.TextView>(id)
+            assertTrue("${text.text}: ${text.textSize / scaled} sp", text.textSize / scaled >= 12f)
+        }
+        assertEquals(app.getString(R.string.mini_ch_up), view.findViewById<android.widget.TextView>(R.id.mini_ch_up).text.toString())
+        assertEquals(app.getString(R.string.mini_home), view.findViewById<android.widget.TextView>(R.id.mini_home).text.toString())
+    }
+
     @Test fun miniRemotePendingIntentsUniquePerKey() {
         val keys = MINI_REMOTE.map { it.second }
         assertEquals(keys.size, keys.toSet().size)

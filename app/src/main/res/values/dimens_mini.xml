@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Maße der Mini-Fernbedienung (notification_quick_big.xml); Budget siehe MINI_REMOTE_MAX_HEIGHT_DP. -->
+<resources>
+    <dimen name="mini_key_height">52dp</dimen>
+    <dimen name="mini_key_margin">2dp</dimen>
+    <dimen name="mini_round_key">48dp</dimen>
+</resources>

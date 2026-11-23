@@ -1,291 +1,304 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aufgezogene Sperrbildschirm-Benachrichtigung: Mini-Fernbedienung im Stil der App (höchstens ~250 dp hoch).
-     Reihe 1 Ein/Aus · Stumm · Eingang, Reihe 2 Lautstärke und Programm, darunter das Steuerkreuz mit Zurück und
-     Home, ganz unten (wenn erlaubt) „Ganze Fernbedienung“. Fehlende Tasten blendet MiniRemoteViews aus. -->
+<!-- Aufgezogene Sperrbildschirm-Benachrichtigung: Mini-Fernbedienung in zwei Spalten, damit die Tasten hoch bleiben.
+     Links Ein/Aus | Stumm, Eingang | Home, Leiser | Lauter, CH ▼ | CH ▲; rechts das Steuerkreuz und darunter Zurück.
+     Oben rechts im Steuerkreuz (wenn erlaubt) das kleine Symbol „Ganze Fernbedienung“, ohne eigene Zeile.
+     dp-Budget (MINI_REMOTE_MAX_HEIGHT_DP = 252): 2 × 3 dp Innenrand + 4 Zeilen × (52 dp + 2 × 2 dp) = 230 dp.
+     Fehlende Tasten macht MiniRemoteViews unsichtbar (INVISIBLE), der Platz bleibt. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/quick_widget_bg"
-    android:orientation="vertical"
-    android:padding="6dp">
+android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:padding="3dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/mini_power"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/quick_power_bg"
-                android:layout_gravity="center"
-                android:layout_margin="3dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_quick_power" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/mini_mute"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/quick_key_bg"
-                android:layout_gravity="center"
-                android:layout_margin="3dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_quick_mute" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/mini_input"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/quick_input_bg"
-                android:layout_gravity="center"
-                android:layout_margin="3dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_quick_input" />
-        </FrameLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/mini_vol_down"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:layout_margin="3dp"
-            android:layout_weight="1"
-            android:scaleType="center"
-            android:src="@drawable/ic_quick_vol_down" />
-
-        <ImageView
-            android:id="@+id/mini_vol_up"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:layout_margin="3dp"
-            android:layout_weight="1"
-            android:scaleType="center"
-            android:src="@drawable/ic_quick_vol_up" />
-
-        <TextView
-            android:id="@+id/mini_ch_up"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:layout_margin="3dp"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="CH ▲"
-            android:textColor="#FFECEEF0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/mini_ch_down"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:layout_margin="3dp"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="CH ▼"
-            android:textColor="#FFECEEF0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/mini_back"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:layout_marginEnd="6dp"
-            android:layout_marginStart="3dp"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="BACK"
-            android:textColor="#FFECEEF0"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+        android:layout_marginEnd="4dp"
+        android:layout_weight="2"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+android:baselineAligned="false"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_margin="1dp" />
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1">
 
                 <ImageView
-                    android:id="@+id/mini_up"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/quick_rect_key_bg"
-                    android:layout_margin="1dp"
+                    android:id="@+id/mini_power"
+                    android:layout_width="@dimen/mini_round_key"
+                    android:layout_height="@dimen/mini_round_key"
+                    android:layout_gravity="center"
+                    android:background="@drawable/quick_power_bg"
                     android:scaleType="center"
-                    android:src="@drawable/ic_quick_up" />
+                    android:src="@drawable/ic_quick_power" />
+            </FrameLayout>
 
-                <FrameLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_margin="1dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1">
 
                 <ImageView
-                    android:id="@+id/mini_left"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/quick_rect_key_bg"
-                    android:layout_margin="1dp"
+                    android:id="@+id/mini_mute"
+                    android:layout_width="@dimen/mini_round_key"
+                    android:layout_height="@dimen/mini_round_key"
+                    android:layout_gravity="center"
+                    android:background="@drawable/quick_key_bg"
                     android:scaleType="center"
-                    android:src="@drawable/ic_quick_left" />
-
-                <TextView
-                    android:id="@+id/mini_ok"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/quick_rect_key_bg"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:layout_margin="1dp"
-                    android:maxLines="1"
-                    android:text="OK"
-                    android:textColor="#FFECEEF0"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/mini_right"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/quick_rect_key_bg"
-                    android:layout_margin="1dp"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_quick_right" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_margin="1dp" />
-
-                <ImageView
-                    android:id="@+id/mini_down"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/quick_rect_key_bg"
-                    android:layout_margin="1dp"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_quick_down" />
-
-                <FrameLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_margin="1dp" />
-            </LinearLayout>
+                    android:src="@drawable/ic_quick_mute" />
+            </FrameLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/mini_home"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="@drawable/quick_rect_key_bg"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:layout_marginEnd="3dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="HOME"
-            android:textColor="#FFECEEF0"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/mini_input"
+                    android:layout_width="@dimen/mini_round_key"
+                    android:layout_height="@dimen/mini_round_key"
+                    android:layout_gravity="center"
+                    android:background="@drawable/quick_input_bg"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_quick_input" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/mini_home"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/mini_home"
+                android:textColor="#FFECEEF0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/mini_vol_down"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_vol_down" />
+
+            <ImageView
+                android:id="@+id/mini_vol_up"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_vol_up" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/mini_ch_down"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/mini_ch_down"
+                android:textColor="#FFECEEF0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/mini_ch_up"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/mini_ch_up"
+                android:textColor="#FFECEEF0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/mini_full_remote"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="@drawable/quick_pill_bg"
-        android:contentDescription="@string/lock_full_remote"
-        android:gravity="center"
-        android:layout_marginEnd="3dp"
-        android:layout_marginStart="3dp"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_quick_remote" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:importantForAccessibility="no"
-            android:includeFontPadding="false"
-            android:layout_marginStart="6dp"
-            android:maxLines="1"
-            android:text="@string/lock_full_remote"
-            android:textColor="#FFECEEF0"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/mini_up"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_up" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/mini_full_remote"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/quick_pill_bg"
+                    android:contentDescription="@string/lock_full_remote"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_quick_remote"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/mini_left"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_left" />
+
+            <TextView
+                android:id="@+id/mini_ok"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/mini_ok"
+                android:textColor="#FFECEEF0"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/mini_right"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/mini_down"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:scaleType="center"
+                android:src="@drawable/ic_quick_down" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/mini_back"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/mini_key_height"
+                android:layout_margin="@dimen/mini_key_margin"
+                android:layout_weight="1"
+                android:background="@drawable/quick_rect_key_bg"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/mini_back"
+                android:textColor="#FFECEEF0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

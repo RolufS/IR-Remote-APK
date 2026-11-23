@@ -7,6 +7,19 @@ import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
 
+/**
+ * Höchste Höhe der eigenen aufgezogenen Ansicht (Inhaltsbereich von DecoratedCustomViewStyle) in dp: die Plattform
+ * garantiert für erweiterte eigene Ansichten nur „as little as 252 dp“ (developer.android.com, Custom notification
+ * layouts; früher 256 dp). Kopfzeile (notification_content_margin_top 50 dp) und unterer Rand
+ * (notification_content_margin 20 dp) legt das System außen herum. notification_quick_big.xml bleibt mit Reserve darunter:
+ * 2 × 3 dp Innenrand + 4 Zeilen × (52 dp Taste + 2 × 2 dp Abstand) = 230 dp.
+ */
+internal const val MINI_REMOTE_MAX_HEIGHT_DP = 252
+
+/** Mindesthöhe der Tasten der Mini-Fernbedienung in dp (Steuerkreuz [MINI_DPAD_MIN_DP]). */
+internal const val MINI_KEY_MIN_DP = 48
+internal const val MINI_DPAD_MIN_DP = 44
+
 /** Tasten der Mini-Fernbedienung (notification_quick_big.xml): Ansicht und gesendeter Knopf. */
 internal val MINI_REMOTE: List<Pair<Int, QuickButton>> = listOf(
     R.id.mini_power to QuickButton.Key(Keys.POWER),
@@ -35,7 +48,7 @@ internal fun miniRemoteSlot(button: QuickButton): String = when (button) {
 /**
  * Belegt die Mini-Fernbedienung: Tasten, die [remote] fehlt, sind unsichtbar (Platz bleibt, das Steuerkreuz behält
  * seine Form); ohne Fernbedienung bleiben alle sichtbar und melden beim Tippen „Keine Fernbedienung“.
- * [fullRemote] zeigt unten den Knopf „Ganze Fernbedienung“.
+ * [fullRemote] zeigt oben rechts im Steuerkreuz das Symbol „Ganze Fernbedienung“ (ohne eigene Zeile).
  */
 internal fun RemoteViews.bindMiniRemote(context: Context, remote: SavedRemote?, inputKey: String?, fullRemote: Boolean) {
     val keys = remote?.keys?.keys

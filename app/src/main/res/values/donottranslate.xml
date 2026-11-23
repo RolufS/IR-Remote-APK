@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Feste Tastenbeschriftungen der Mini-Fernbedienung (notification_quick_big.xml): wie auf der Fernbedienung, nicht übersetzt. -->
+<resources>
+    <string name="mini_ch_up" translatable="false">CH ▲</string>
+    <string name="mini_ch_down" translatable="false">CH ▼</string>
+    <string name="mini_back" translatable="false">BACK</string>
+    <string name="mini_home" translatable="false">HOME</string>
+    <string name="mini_ok" translatable="false">OK</string>
+</resources>
