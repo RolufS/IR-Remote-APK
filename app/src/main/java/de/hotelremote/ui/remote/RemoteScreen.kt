@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +39,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -45,6 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -303,6 +308,8 @@ private fun Header(
     onQuick: () -> Unit,
 ) {
     var switchOpen by remember { mutableStateOf(false) }
+    var titleWidth by remember { mutableIntStateOf(0) }
+    var menuWidth by remember { mutableIntStateOf(0) }
     var menuOpen by remember { mutableStateOf(false) }
     Row(
         Modifier.fillMaxWidth().height(40.dp),
@@ -312,29 +319,42 @@ private fun Header(
         HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
         // Titel nimmt den Platz zwischen den Symbolen und wird bei Bedarf gekürzt.
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Text(
-                remote.title + " ▾",
-                color = RemoteColors.KeyText,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .testTag("header_title")
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(enabled = !recording) { switchOpen = true }
-                    .background(Color.White.copy(alpha = 0.06f))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-            )
-            DropdownMenu(expanded = switchOpen, onDismissRequest = { switchOpen = false }) {
-                remotes.forEach { r ->
-                    DropdownMenuItem(
-                        text = { Text(r.title) },
-                        onClick = {
-                            switchOpen = false
-                            onSwitch(r.id)
-                        },
-                    )
+            // Anker ist der Titel selbst; das Menü (mindestens so breit wie der Titel) sitzt mittig darunter,
+            // die Namen darin sind ebenfalls zentriert.
+            Box {
+                Text(
+                    remote.title + " ▾",
+                    color = RemoteColors.KeyText,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .testTag("header_title")
+                        .onSizeChanged { titleWidth = it.width }
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(enabled = !recording) { switchOpen = true }
+                        .background(Color.White.copy(alpha = 0.06f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+                DropdownMenu(
+                    expanded = switchOpen,
+                    onDismissRequest = { switchOpen = false },
+                    offset = with(LocalDensity.current) { DpOffset(centeredMenuOffset(titleWidth, menuWidth).toDp(), 0.dp) },
+                    modifier = Modifier
+                        .testTag("switch_menu")
+                        .widthIn(min = with(LocalDensity.current) { titleWidth.toDp() })
+                        .onSizeChanged { menuWidth = it.width },
+                ) {
+                    remotes.forEach { r ->
+                        DropdownMenuItem(
+                            text = { Text(r.title, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
+                            onClick = {
+                                switchOpen = false
+                                onSwitch(r.id)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -364,6 +384,9 @@ private fun Header(
         }
     }
 }
+
+/** Waagerechter Versatz (px), der ein Menü der Breite [menu] mittig unter einen Anker der Breite [anchor] setzt. */
+internal fun centeredMenuOffset(anchor: Int, menu: Int): Int = (anchor - menu) / 2
 
 @Composable
 private fun HeaderIcon(symbol: String, description: String, tag: String, enabled: Boolean = true, onClick: () -> Unit) {

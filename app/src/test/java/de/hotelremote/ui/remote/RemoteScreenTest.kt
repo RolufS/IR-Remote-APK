@@ -257,4 +257,37 @@ class RemoteScreenTest {
         rule.onNodeWithTag("recording_done").performClick()
         assertEquals(listOf("done"), calls)
     }
+
+    // ---- Kopfzeile ----
+
+    @Test
+    fun switchMenuOpensCenteredUnderTitle() {
+        // Kurze Namen: das Menü (mind. 112 dp) ist breiter als der Titel, aber schmaler als der Bildschirm.
+        val r = remote("MUTE").copy(name = "Pattaya")
+        val other = r.copy(id = "r2", name = "Zimmer 12")
+        rule.setContent {
+            HotelRemoteTheme {
+                RemoteScreen(r, listOf(r, other), true, FakeHandler(), {}, {}, {})
+            }
+        }
+        rule.onNodeWithTag("header_title").performClick()
+        rule.waitForIdle()
+        fun centerOnScreen(tag: String): Float {
+            val node = rule.onNodeWithTag(tag).fetchSemanticsNode()
+            return node.positionOnScreen.x + node.size.width / 2f
+        }
+        val title = centerOnScreen("header_title")
+        val menu = centerOnScreen("switch_menu")
+        val density = rule.density.density
+        assertTrue("Titelmitte $title, Menümitte $menu", kotlin.math.abs(title - menu) < 4 * density)
+        val titleWidth = rule.onNodeWithTag("header_title").fetchSemanticsNode().size.width
+        val menuWidth = rule.onNodeWithTag("switch_menu").fetchSemanticsNode().size.width
+        assertTrue("Menü $menuWidth schmaler als Titel $titleWidth", menuWidth >= titleWidth)
+    }
+
+    @Test
+    fun centeredMenuOffsetCentersBothWays() {
+        assertEquals(-50, centeredMenuOffset(anchor = 100, menu = 200))
+        assertEquals(30, centeredMenuOffset(anchor = 160, menu = 100))
+    }
 }
