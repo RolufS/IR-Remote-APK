@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Schnellsteuerung: kurzes Vibrieren als Bestätigung (normale Berechtigung, keine Rückfrage). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature
         android:name="android.hardware.consumerir"
         android:required="false" />
@@ -39,6 +41,61 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- Schnellsteuerung: Knöpfe von Widget und Sperrbildschirm-Benachrichtigung, Widget, vier Kacheln (ab Android 7). -->
+        <receiver
+            android:name=".quick.QuickControlReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".quick.QuickWidgetProvider"
+            android:exported="true"
+            android:label="@string/menu_quick">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quick_widget_info" />
+        </receiver>
+        <service
+            android:name=".quick.PowerTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_power"
+            android:label="@string/tile_power"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".quick.VolumeDownTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_vol_down"
+            android:label="@string/tile_vol_down"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".quick.VolumeUpTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_vol_up"
+            android:label="@string/tile_vol_up"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".quick.InputTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_input"
+            android:label="@string/tile_input"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
         <!-- Speichert die App-Sprache vor Android 13 (AppCompat). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

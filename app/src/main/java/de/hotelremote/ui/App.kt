@@ -41,6 +41,7 @@ import de.hotelremote.ui.automation.keyName
 import de.hotelremote.ui.automation.templateName
 import de.hotelremote.ui.language.AppLanguages
 import de.hotelremote.ui.language.LanguageScreen
+import de.hotelremote.ui.quick.QuickControlsScreen
 import de.hotelremote.ui.remote.ExtraKeysScreen
 import de.hotelremote.ui.remote.QuickSheet
 import de.hotelremote.ui.remote.RemoteMenu
@@ -62,6 +63,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val wizardBack = { if (!c.wizardBack()) onExit() }
     val progress by c.automationProgress.collectAsStateWithLifecycle()
     val sleepTimer by vm.sleepTimer.collectAsStateWithLifecycle()
+    val quickPrefs by vm.quickPrefs.collectAsStateWithLifecycle()
     val recordedSteps by c.recordedSteps.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     val recording = state.recording?.let { r ->
@@ -96,7 +98,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
         onDispose { view.keepScreenOn = false }
     }
     BackHandler(
-        enabled = !state.loading && state.screen in setOf(Screen.RemoteList, Screen.ExtraKeys, Screen.About, Screen.Automations),
+        enabled = !state.loading && state.screen in setOf(Screen.RemoteList, Screen.ExtraKeys, Screen.About, Screen.Automations, Screen.QuickControls),
     ) {
         c.show(Screen.Remote)
     }
@@ -159,6 +161,13 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 templates = remember(current.brand, current.keys) { SleepTemplates.forRemote(current.brand, current.keys.keys) },
                 onTemplate = { c.openTemplate(it, templateName(context.resources, it)) },
             )
+            state.screen == Screen.QuickControls -> QuickControlsScreen(
+                remote = current,
+                prefs = quickPrefs,
+                onInputKey = vm::setQuickInputKey,
+                onLockScreen = vm::setLockScreenControls,
+                onBack = { c.show(Screen.Remote) },
+            )
             state.screen is Screen.AutomationEdit -> {
                 val edit = state.screen as Screen.AutomationEdit
                 val id = edit.automationId
@@ -186,6 +195,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     when (menu) {
                         RemoteMenu.EXTRA_KEYS -> c.show(Screen.ExtraKeys)
                         RemoteMenu.AUTOMATIONS -> c.show(Screen.Automations)
+                        RemoteMenu.QUICK_CONTROLS -> c.show(Screen.QuickControls)
                         RemoteMenu.WIZARD -> c.openWizard()
                         RemoteMenu.LANGUAGE -> c.openLanguage()
                         RemoteMenu.ABOUT -> c.show(Screen.About)

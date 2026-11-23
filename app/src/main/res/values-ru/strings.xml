@@ -180,4 +180,24 @@
     <string name="tpl_note_display">Телевизор показывает установленное значение – проверьте в первый раз.</string>
     <string name="tpl_note_position">Меню различаются по модели и версии – при необходимости измените число нажатий стрелок.</string>
     <string name="tpl_show">Шаблоны таймера сна</string>
+    <string name="menu_quick">Быстрое управление</string>
+    <string name="tile_power">ТВ вкл/выкл</string>
+    <string name="tile_vol_down">ТВ тише</string>
+    <string name="tile_vol_up">ТВ громче</string>
+    <string name="tile_input">ТВ вход</string>
+    <string name="quick_no_remote">Нет пульта</string>
+    <string name="quick_key_missing">На этом пульте нет такой кнопки.</string>
+    <string name="widget_description">Питание, громкость и вход последнего использованного пульта</string>
+    <string name="quick_target">Отправляет на последний использованный пульт: %1$s</string>
+    <string name="quick_input_section">КНОПКА ВХОДА</string>
+    <string name="quick_input_none">На этом пульте нет кнопки входа.</string>
+    <string name="quick_lock_switch">Показывать управление на экране блокировки</string>
+    <string name="quick_lock_hint">Беззвучное уведомление с четырьмя кнопками, которые работают без разблокировки.</string>
+    <string name="quick_notif_blocked">Уведомления для приложения отключены.</string>
+    <string name="quick_tiles_section">ПЛИТКИ</string>
+    <string name="quick_tiles_howto">Откройте быстрые настройки → Изменить → перетащите плитки ТВ. Плитки работают и на экране блокировки.</string>
+    <string name="quick_add_tile">Добавить плитку «%1$s»</string>
+    <string name="quick_widget_section">ВИДЖЕТ</string>
+    <string name="quick_widget_howto">Нажмите и удерживайте главный экран → Виджеты → ТВ-пульт.</string>
+    <string name="quick_add_widget">Добавить виджет</string>
 </resources>

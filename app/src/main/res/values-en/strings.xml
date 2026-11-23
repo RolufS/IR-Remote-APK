@@ -180,4 +180,24 @@
     <string name="tpl_note_display">The TV shows the value it set – please check the first time.</string>
     <string name="tpl_note_position">Menus differ by model and version – adjust the number of arrow presses if needed.</string>
     <string name="tpl_show">View sleep timer templates</string>
+    <string name="menu_quick">Quick controls</string>
+    <string name="tile_power">TV power</string>
+    <string name="tile_vol_down">TV volume down</string>
+    <string name="tile_vol_up">TV volume up</string>
+    <string name="tile_input">TV input</string>
+    <string name="quick_no_remote">No remote</string>
+    <string name="quick_key_missing">This remote doesn’t have this key.</string>
+    <string name="widget_description">Power, volume and input of the remote you used last</string>
+    <string name="quick_target">Sends to the remote you used last: %1$s</string>
+    <string name="quick_input_section">INPUT KEY</string>
+    <string name="quick_input_none">This remote has no input key.</string>
+    <string name="quick_lock_switch">Show controls on the lock screen</string>
+    <string name="quick_lock_hint">A silent notification with four keys that work without unlocking.</string>
+    <string name="quick_notif_blocked">Notifications are turned off for the app.</string>
+    <string name="quick_tiles_section">TILES</string>
+    <string name="quick_tiles_howto">Open Quick Settings → Edit → drag in the TV tiles. The tiles also work on the lock screen.</string>
+    <string name="quick_add_tile">Add tile “%1$s”</string>
+    <string name="quick_widget_section">WIDGET</string>
+    <string name="quick_widget_howto">Long-press the home screen → Widgets → TV Remote.</string>
+    <string name="quick_add_widget">Add widget</string>
 </resources>

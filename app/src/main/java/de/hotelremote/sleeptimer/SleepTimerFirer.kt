@@ -4,6 +4,7 @@ import de.hotelremote.automation.automationDurationMs
 import de.hotelremote.automation.runSteps
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.RemoteStorage
+import de.hotelremote.ir.DirectSender
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.ir.IrTransmitter
 import kotlinx.coroutines.CancellationException
@@ -37,10 +38,10 @@ fun fitsSleepTimer(steps: List<AutomationStep>) = automationDurationMs(steps) <=
 class SleepTimerFirer(
     private val scheduler: SleepTimerScheduler,
     private val remotes: RemoteStorage,
-    private val tx: IrTransmitter,
+    tx: IrTransmitter,
 ) {
-    /** Toggle-Zustand (RC5/RC6: frame/frameAlt) pro Signal, wie im [de.hotelremote.ir.SignalSender]. */
-    private val nextIsAlt = HashMap<List<Int>, Boolean>()
+    /** Mit Toggle-Zustand (RC5/RC6: frame/frameAlt) pro Signal, wie im [de.hotelremote.ir.SignalSender]. */
+    private val sender = DirectSender(tx)
 
     suspend fun fire(): FireResult {
         val timer = scheduler.takeDue() ?: return FireResult.NO_TIMER
@@ -74,10 +75,5 @@ class SleepTimerFirer(
         }
     }
 
-    private fun send(signal: IrSignal) {
-        val alt = signal.frameAlt
-        val useAlt = alt != null && nextIsAlt[signal.frame] == true
-        if (alt != null) nextIsAlt[signal.frame] = !useAlt
-        tx.transmit(signal.freq, (if (useAlt) alt!! else signal.frame).toIntArray())
-    }
+    private fun send(signal: IrSignal) = sender.send(signal)
 }

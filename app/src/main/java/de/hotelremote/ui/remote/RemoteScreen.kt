@@ -72,7 +72,7 @@ import de.hotelremote.ui.automation.RecordingBar
 import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.theme.RemoteColors
 
-enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, WIZARD, LANGUAGE, ABOUT }
+enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, QUICK_CONTROLS, WIZARD, LANGUAGE, ABOUT }
 
 private val SideMargin = 12.dp
 private val Gap = 8.dp
@@ -399,6 +399,7 @@ private fun Header(
                 listOf(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
                     R.string.menu_automations to RemoteMenu.AUTOMATIONS,
+                    R.string.menu_quick to RemoteMenu.QUICK_CONTROLS,
                     R.string.menu_wizard to RemoteMenu.WIZARD,
                     R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,

@@ -180,4 +180,24 @@
     <string name="tpl_note_display">টিভি সেট করা মান দেখায় – প্রথমবার মিলিয়ে নিন।</string>
     <string name="tpl_note_position">মডেল ও সংস্করণভেদে মেনু আলাদা – দরকার হলে তীর বোতামের সংখ্যা বদলান।</string>
     <string name="tpl_show">স্লিপ টাইমার টেমপ্লেট দেখুন</string>
+    <string name="menu_quick">কুইক কন্ট্রোল</string>
+    <string name="tile_power">টিভি পাওয়ার</string>
+    <string name="tile_vol_down">টিভি ভলিউম কমান</string>
+    <string name="tile_vol_up">টিভি ভলিউম বাড়ান</string>
+    <string name="tile_input">টিভি ইনপুট</string>
+    <string name="quick_no_remote">কোনো রিমোট নেই</string>
+    <string name="quick_key_missing">এই রিমোটে এই বোতাম নেই।</string>
+    <string name="widget_description">শেষবার ব্যবহৃত রিমোটের পাওয়ার, ভলিউম ও ইনপুট</string>
+    <string name="quick_target">শেষবার ব্যবহৃত রিমোটে পাঠায়: %1$s</string>
+    <string name="quick_input_section">ইনপুট বোতাম</string>
+    <string name="quick_input_none">এই রিমোটে কোনো ইনপুট বোতাম নেই।</string>
+    <string name="quick_lock_switch">লক স্ক্রিনে কন্ট্রোল দেখান</string>
+    <string name="quick_lock_hint">চারটি বোতাম সহ একটি নীরব বিজ্ঞপ্তি, যা আনলক না করেও কাজ করে।</string>
+    <string name="quick_notif_blocked">এই অ্যাপের বিজ্ঞপ্তি বন্ধ আছে।</string>
+    <string name="quick_tiles_section">টাইল</string>
+    <string name="quick_tiles_howto">কুইক সেটিংস খুলুন → সম্পাদনা → টিভি টাইল টেনে আনুন। টাইলগুলো লক স্ক্রিনেও কাজ করে।</string>
+    <string name="quick_add_tile">টাইল “%1$s” যোগ করুন</string>
+    <string name="quick_widget_section">উইজেট</string>
+    <string name="quick_widget_howto">হোম স্ক্রিনে দীর্ঘক্ষণ চাপুন → উইজেট → টিভি রিমোট।</string>
+    <string name="quick_add_widget">উইজেট যোগ করুন</string>
 </resources>

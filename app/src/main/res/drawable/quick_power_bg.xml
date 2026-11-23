@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Runder Knopf der Schnellsteuerung (Farben aus RemoteColors, Verlauf oben -> unten). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:angle="270"
+                android:endColor="#FFA72C24"
+                android:startColor="#FFCF3B31" />
+        </shape>
+    </item>
+</ripple>

@@ -180,4 +180,24 @@
     <string name="tpl_note_display">电视会显示设置的值 – 第一次请核对。</string>
     <string name="tpl_note_position">菜单因型号和版本而异 – 如有需要请调整方向键次数。</string>
     <string name="tpl_show">查看睡眠定时模板</string>
+    <string name="menu_quick">快捷控制</string>
+    <string name="tile_power">电视电源</string>
+    <string name="tile_vol_down">电视音量减</string>
+    <string name="tile_vol_up">电视音量加</string>
+    <string name="tile_input">电视信号源</string>
+    <string name="quick_no_remote">没有遥控器</string>
+    <string name="quick_key_missing">此遥控器没有这个按键。</string>
+    <string name="widget_description">上次使用的遥控器的电源、音量和信号源</string>
+    <string name="quick_target">发送到上次使用的遥控器：%1$s</string>
+    <string name="quick_input_section">信号源按键</string>
+    <string name="quick_input_none">此遥控器没有信号源按键。</string>
+    <string name="quick_lock_switch">在锁定屏幕上显示控制</string>
+    <string name="quick_lock_hint">一条静音通知，带四个按键，无需解锁即可使用。</string>
+    <string name="quick_notif_blocked">此应用的通知已关闭。</string>
+    <string name="quick_tiles_section">快捷设置图块</string>
+    <string name="quick_tiles_howto">展开快捷设置 → 编辑 → 拖入电视图块。图块在锁定屏幕上也可使用。</string>
+    <string name="quick_add_tile">添加图块“%1$s”</string>
+    <string name="quick_widget_section">小部件</string>
+    <string name="quick_widget_howto">长按主屏幕 → 小部件 → 电视遥控器。</string>
+    <string name="quick_add_widget">添加小部件</string>
 </resources>

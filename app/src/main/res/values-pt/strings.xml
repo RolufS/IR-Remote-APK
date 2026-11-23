@@ -180,4 +180,24 @@
     <string name="tpl_note_display">A TV mostra o valor ajustado – confira na primeira vez.</string>
     <string name="tpl_note_position">Os menus variam conforme modelo e versão – ajuste o número de setas se preciso.</string>
     <string name="tpl_show">Ver modelos de timer da TV</string>
+    <string name="menu_quick">Controle rápido</string>
+    <string name="tile_power">TV ligar/desligar</string>
+    <string name="tile_vol_down">TV diminuir volume</string>
+    <string name="tile_vol_up">TV aumentar volume</string>
+    <string name="tile_input">TV entrada</string>
+    <string name="quick_no_remote">Nenhum controle</string>
+    <string name="quick_key_missing">Este controle não tem essa tecla.</string>
+    <string name="widget_description">Ligar/desligar, volume e entrada do último controle usado</string>
+    <string name="quick_target">Envia para o último controle usado: %1$s</string>
+    <string name="quick_input_section">TECLA DE ENTRADA</string>
+    <string name="quick_input_none">Este controle não tem tecla de entrada.</string>
+    <string name="quick_lock_switch">Mostrar controles na tela de bloqueio</string>
+    <string name="quick_lock_hint">Uma notificação silenciosa com quatro teclas que funcionam sem desbloquear.</string>
+    <string name="quick_notif_blocked">As notificações do app estão desativadas.</string>
+    <string name="quick_tiles_section">BLOCOS</string>
+    <string name="quick_tiles_howto">Abra as configurações rápidas → Editar → arraste os blocos de TV. Os blocos também funcionam na tela de bloqueio.</string>
+    <string name="quick_add_tile">Adicionar bloco “%1$s”</string>
+    <string name="quick_widget_section">WIDGET</string>
+    <string name="quick_widget_howto">Toque e segure a tela inicial → Widgets → Controle remoto.</string>
+    <string name="quick_add_widget">Adicionar widget</string>
 </resources>

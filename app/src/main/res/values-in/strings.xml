@@ -180,4 +180,24 @@
     <string name="tpl_note_display">TV menampilkan nilai yang disetel – periksa saat pertama kali.</string>
     <string name="tpl_note_position">Menu berbeda per model dan versi – sesuaikan jumlah tombol panah bila perlu.</string>
     <string name="tpl_show">Lihat templat timer tidur</string>
+    <string name="menu_quick">Kontrol cepat</string>
+    <string name="tile_power">Daya TV</string>
+    <string name="tile_vol_down">Volume TV turun</string>
+    <string name="tile_vol_up">Volume TV naik</string>
+    <string name="tile_input">Input TV</string>
+    <string name="quick_no_remote">Tidak ada remote</string>
+    <string name="quick_key_missing">Remote ini tidak punya tombol tersebut.</string>
+    <string name="widget_description">Daya, volume, dan input dari remote yang terakhir dipakai</string>
+    <string name="quick_target">Mengirim ke remote yang terakhir dipakai: %1$s</string>
+    <string name="quick_input_section">TOMBOL INPUT</string>
+    <string name="quick_input_none">Remote ini tidak punya tombol input.</string>
+    <string name="quick_lock_switch">Tampilkan kontrol di layar kunci</string>
+    <string name="quick_lock_hint">Notifikasi senyap dengan empat tombol yang berfungsi tanpa membuka kunci.</string>
+    <string name="quick_notif_blocked">Notifikasi untuk aplikasi ini dinonaktifkan.</string>
+    <string name="quick_tiles_section">UBIN</string>
+    <string name="quick_tiles_howto">Buka Setelan Cepat → Edit → seret ubin TV ke dalamnya. Ubin juga berfungsi di layar kunci.</string>
+    <string name="quick_add_tile">Tambahkan ubin “%1$s”</string>
+    <string name="quick_widget_section">WIDGET</string>
+    <string name="quick_widget_howto">Tekan lama layar utama → Widget → Remote TV.</string>
+    <string name="quick_add_widget">Tambahkan widget</string>
 </resources>

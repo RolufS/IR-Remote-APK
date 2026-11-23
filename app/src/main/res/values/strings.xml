@@ -180,4 +180,24 @@
     <string name="tpl_note_display">Der Fernseher zeigt den eingestellten Wert an – bitte beim ersten Mal prüfen.</string>
     <string name="tpl_note_position">Menüs unterscheiden sich je nach Modell und Version – Zahl der Pfeiltasten bei Bedarf anpassen.</string>
     <string name="tpl_show">Sleep-Timer-Vorlagen ansehen</string>
+    <string name="menu_quick">Schnellsteuerung</string>
+    <string name="tile_power">TV Ein/Aus</string>
+    <string name="tile_vol_down">TV leiser</string>
+    <string name="tile_vol_up">TV lauter</string>
+    <string name="tile_input">TV Eingang</string>
+    <string name="quick_no_remote">Keine Fernbedienung</string>
+    <string name="quick_key_missing">Diese Taste fehlt der Fernbedienung.</string>
+    <string name="widget_description">Ein/Aus, Lautstärke und Eingang der zuletzt benutzten Fernbedienung</string>
+    <string name="quick_target">Sendet an die zuletzt benutzte Fernbedienung: %1$s</string>
+    <string name="quick_input_section">EINGANGSTASTE</string>
+    <string name="quick_input_none">Diese Fernbedienung hat keine Eingangstaste.</string>
+    <string name="quick_lock_switch">Steuerung auf dem Sperrbildschirm anzeigen</string>
+    <string name="quick_lock_hint">Stille Benachrichtigung mit vier Tasten, die auch ohne Entsperren funktionieren.</string>
+    <string name="quick_notif_blocked">Benachrichtigungen sind für die App ausgeschaltet.</string>
+    <string name="quick_tiles_section">KACHELN</string>
+    <string name="quick_tiles_howto">Schnelleinstellungen aufklappen → Bearbeiten → TV-Kacheln hineinziehen. Die Kacheln funktionieren auch auf dem Sperrbildschirm.</string>
+    <string name="quick_add_tile">Kachel „%1$s“ hinzufügen</string>
+    <string name="quick_widget_section">WIDGET</string>
+    <string name="quick_widget_howto">Lange auf den Startbildschirm drücken → Widgets → Fernbedienung.</string>
+    <string name="quick_add_widget">Widget hinzufügen</string>
 </resources>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sperrbildschirm-Benachrichtigung: kompakte Reihe Ein/Aus · − · + · Eingang. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/quick_power"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@drawable/quick_power_bg"
+            android:contentDescription="@string/tile_power"
+            android:scaleType="center"
+            android:src="@drawable/ic_quick_power" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/quick_vol_down"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@drawable/quick_key_bg"
+            android:contentDescription="@string/tile_vol_down"
+            android:scaleType="center"
+            android:src="@drawable/ic_quick_vol_down" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/quick_vol_up"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@drawable/quick_key_bg"
+            android:contentDescription="@string/tile_vol_up"
+            android:scaleType="center"
+            android:src="@drawable/ic_quick_vol_up" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/quick_input"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@drawable/quick_input_bg"
+            android:contentDescription="@string/tile_input"
+            android:scaleType="center"
+            android:src="@drawable/ic_quick_input" />
+    </FrameLayout>
+</LinearLayout>

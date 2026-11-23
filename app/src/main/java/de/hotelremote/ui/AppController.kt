@@ -36,6 +36,7 @@ sealed interface Screen {
     data object About : Screen
     data object Language : Screen
     data object Automations : Screen
+    data object QuickControls : Screen
 
     /**
      * Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme).

@@ -14,6 +14,8 @@ import de.hotelremote.data.CodeRepository
 import de.hotelremote.data.RemoteStore
 import de.hotelremote.ir.AndroidIrTransmitter
 import de.hotelremote.ir.SignalSender
+import de.hotelremote.quick.QuickControls
+import de.hotelremote.quick.QuickPrefs
 import de.hotelremote.sleeptimer.AndroidAlarmScheduler
 import de.hotelremote.sleeptimer.SleepTimer
 import de.hotelremote.sleeptimer.SleepTimerGraph
@@ -25,7 +27,14 @@ import de.hotelremote.ui.language.LanguageChoice
 import de.hotelremote.ui.remote.KeyHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.io.File
 
 /** Verdrahtet Android-Teile (IR-Sender, Dateien, Ressourcen) mit dem [AppController]. */
@@ -69,6 +78,42 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
     }
 
     fun cancelSleepTimer() = timerScheduler.cancel()
+
+    private val quickSettings = QuickControls.settings(app)
+    private val _quickPrefs = MutableStateFlow(quickSettings.load())
+
+    /** Einstellungen „Schnellsteuerung“. */
+    val quickPrefs: StateFlow<QuickPrefs> = _quickPrefs.asStateFlow()
+
+    fun setQuickInputKey(key: String) {
+        quickSettings.inputKey = key
+        _quickPrefs.update { it.copy(inputKey = key) }
+    }
+
+    fun setLockScreenControls(on: Boolean) {
+        quickSettings.lockScreen = on
+        _quickPrefs.update { it.copy(lockScreen = on) }
+        refreshQuickControls()
+    }
+
+    /**
+     * Widget und Sperrbildschirm-Benachrichtigung zeigen die zuletzt benutzte Fernbedienung; eine weggewischte
+     * Benachrichtigung (ab Android 14 möglich) oder eine inzwischen erteilte Erlaubnis kommt so zurück.
+     */
+    fun refreshQuickControls() {
+        viewModelScope.launch(Dispatchers.IO) { QuickControls.refresh(getApplication()) }
+    }
+
+    init {
+        // Nach dem Laden und bei jedem Wechsel (oder Umbenennen) der aktuellen = zuletzt benutzten Fernbedienung.
+        viewModelScope.launch {
+            controller.state
+                .filter { !it.loading }
+                .map { it.current?.id to it.current?.title }
+                .distinctUntilChanged()
+                .collect { refreshQuickControls() }
+        }
+    }
 
     /** Rückkehr in die App: Alarm neu setzen (kann verloren gegangen sein), ggf. jetzt genau. */
     fun rearmSleepTimer() = timerScheduler.rearm()

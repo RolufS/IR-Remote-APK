@@ -180,4 +180,24 @@
     <string name="tpl_note_display">يعرض التلفاز القيمة المضبوطة – تحقّق منها في المرة الأولى.</string>
     <string name="tpl_note_position">تختلف القوائم حسب الطراز والإصدار – عدّل عدد ضغطات الأسهم عند الحاجة.</string>
     <string name="tpl_show">عرض قوالب مؤقّت النوم</string>
+    <string name="menu_quick">تحكم سريع</string>
+    <string name="tile_power">تشغيل/إيقاف التلفاز</string>
+    <string name="tile_vol_down">خفض صوت التلفاز</string>
+    <string name="tile_vol_up">رفع صوت التلفاز</string>
+    <string name="tile_input">مصدر التلفاز</string>
+    <string name="quick_no_remote">لا يوجد جهاز تحكم</string>
+    <string name="quick_key_missing">لا يحتوي جهاز التحكم هذا على هذا الزر.</string>
+    <string name="widget_description">التشغيل والصوت والمصدر لآخر جهاز تحكم مستخدم</string>
+    <string name="quick_target">يرسل إلى آخر جهاز تحكم مستخدم: %1$s</string>
+    <string name="quick_input_section">زر المصدر</string>
+    <string name="quick_input_none">لا يحتوي جهاز التحكم هذا على زر مصدر.</string>
+    <string name="quick_lock_switch">عرض التحكم على شاشة القفل</string>
+    <string name="quick_lock_hint">إشعار صامت بأربعة أزرار تعمل دون فتح القفل.</string>
+    <string name="quick_notif_blocked">الإشعارات متوقفة لهذا التطبيق.</string>
+    <string name="quick_tiles_section">المربعات</string>
+    <string name="quick_tiles_howto">افتح الإعدادات السريعة ← تعديل ← اسحب مربعات التلفاز. تعمل المربعات أيضًا على شاشة القفل.</string>
+    <string name="quick_add_tile">إضافة المربع «%1$s»</string>
+    <string name="quick_widget_section">الأداة</string>
+    <string name="quick_widget_howto">اضغط مطولًا على الشاشة الرئيسية ← الأدوات ← جهاز التحكم.</string>
+    <string name="quick_add_widget">إضافة الأداة</string>
 </resources>

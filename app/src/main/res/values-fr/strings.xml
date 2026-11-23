@@ -180,4 +180,24 @@
     <string name="tpl_note_display">Le téléviseur affiche la valeur réglée – vérifiez la première fois.</string>
     <string name="tpl_note_position">Les menus varient selon le modèle et la version – ajustez le nombre de flèches si besoin.</string>
     <string name="tpl_show">Voir les modèles de mise en veille</string>
+    <string name="menu_quick">Commandes rapides</string>
+    <string name="tile_power">TV marche/arrêt</string>
+    <string name="tile_vol_down">TV volume −</string>
+    <string name="tile_vol_up">TV volume +</string>
+    <string name="tile_input">TV entrée</string>
+    <string name="quick_no_remote">Aucune télécommande</string>
+    <string name="quick_key_missing">Cette télécommande n’a pas cette touche.</string>
+    <string name="widget_description">Marche/arrêt, volume et entrée de la dernière télécommande utilisée</string>
+    <string name="quick_target">Envoie à la dernière télécommande utilisée : %1$s</string>
+    <string name="quick_input_section">TOUCHE D’ENTRÉE</string>
+    <string name="quick_input_none">Cette télécommande n’a pas de touche d’entrée.</string>
+    <string name="quick_lock_switch">Afficher les commandes sur l’écran de verrouillage</string>
+    <string name="quick_lock_hint">Une notification silencieuse avec quatre touches qui fonctionnent sans déverrouiller.</string>
+    <string name="quick_notif_blocked">Les notifications sont désactivées pour l’appli.</string>
+    <string name="quick_tiles_section">VIGNETTES</string>
+    <string name="quick_tiles_howto">Ouvrez les réglages rapides → Modifier → faites glisser les vignettes TV. Elles fonctionnent aussi sur l’écran de verrouillage.</string>
+    <string name="quick_add_tile">Ajouter la vignette « %1$s »</string>
+    <string name="quick_widget_section">WIDGET</string>
+    <string name="quick_widget_howto">Appui long sur l’écran d’accueil → Widgets → Télécommande.</string>
+    <string name="quick_add_widget">Ajouter le widget</string>
 </resources>

@@ -23,10 +23,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Start und Rückkehr (z. B. aus den Einstellungen): Sleep-Timer-Alarm neu setzen, ggf. genau. */
+    /**
+     * Start und Rückkehr (z. B. aus den Einstellungen): Sleep-Timer-Alarm neu setzen, ggf. genau; Schnellsteuerung
+     * (Widget, Sperrbildschirm-Benachrichtigung) auffrischen.
+     */
     override fun onResume() {
         super.onResume()
         vm.rearmSleepTimer()
+        vm.refreshQuickControls()
     }
 
     /**
