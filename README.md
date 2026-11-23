@@ -1,18 +1,127 @@
-# Fernbedienung
+<p align="center">
+  <img src="docs/play-store/icon-512.png" alt="App-Icon" width="96" height="96">
+</p>
 
-Offline-Fernbedienung für Hotel-Fernseher per Infrarot (Paket `de.hotelremote`).
-Ein Wizard findet den passenden Code für den TV, danach steht eine Fernbedienung
-mit HDMI-Reihe und Zusatztasten bereit. Automationen senden mehrere Tasten
-nacheinander, ein Sleep-Timer schaltet den TV vom Handy aus (auch bei
-geschlossener App). Ein/Aus, Lautstärke und Eingang gehen auch ohne die App zu
-öffnen: über Kacheln in den Schnelleinstellungen (auch auf dem Sperrbildschirm),
-Widgets mit frei wählbaren Tasten und Automationen und optional eine
-Benachrichtigung auf dem Sperrbildschirm, die sich zur Mini-Fernbedienung aufziehen lässt;
-auf Wunsch auch die ganze Fernbedienung über dem Sperrbildschirm.
-Die App hat keine INTERNET-Berechtigung;
-die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
+<h1 align="center">Fernbedienung</h1>
 
-## Sprachen
+<p align="center">
+  <b>Werbefreie IR-Fernbedienung für Hotel-Fernseher</b><br>
+  Das Handy mit Infrarot-Sender wird zur Fernbedienung – offline, ohne Konto, ohne Werbung.
+</p>
+
+<p align="center">
+  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.6.3-2C5199" alt="Version 1.6.3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-MIT-2F9E44" alt="Lizenz: MIT"></a>
+  <img src="https://img.shields.io/badge/No%20ads%20%C2%B7%20No%20tracking%20%C2%B7%20No%20internet-CF3B31" alt="No ads · No tracking · No internet">
+  <img src="https://img.shields.io/badge/Android-6%2B-3DDC84?logo=android&logoColor=white" alt="Android 6+">
+</p>
+
+<p align="center">
+  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/APK%20herunterladen-neueste%20Version-2C5199?style=for-the-badge&logo=android&logoColor=white" alt="APK herunterladen"></a>
+</p>
+
+<p align="center">
+  <img src="docs/play-store/feature-graphic.png" alt="Fernbedienung – Feature-Grafik" width="100%">
+</p>
+
+<p align="center"><a href="#english">English summary below</a></p>
+
+## Warum?
+
+Im Hotelzimmer fehlt die Fernbedienung, die Batterien sind leer oder man möchte sie lieber
+nicht anfassen – und wer seinen Fire TV Stick mitbringt, muss trotzdem erst auf den richtigen
+HDMI-Eingang umschalten. Die Fernbedienungs-Apps im Play Store sind meist voller Werbung und
+Tracker. Diese App macht nur eins: Sie findet den Code für den Fernseher und sendet ihn per
+Infrarot – ohne Werbung, ohne Internet, ohne Datensammeln.
+
+## Funktionen
+
+**🔎 Fernbedienung finden**
+- Assistent: Marke wählen, MUTE antippen, „Ja“ oder „Nein“ – fertig. Danach Bestätigungstest und Eingangs-Test.
+- Marke unbekannt? Ein Suchlauf sendet nacheinander Ausschalt-Befehle, bis der Fernseher ausgeht.
+- HDMI 1–4 direkt, wenn der Fernseher es kann – ideal für Fire TV Stick, Chromecast & Co.
+
+**📱 Bedienen**
+- Vollbild-Fernbedienung mit Ziffern, Steuerkreuz, Farbtasten und HDMI-Reihe.
+- Lautstärke und Programm laufen weiter, solange die Taste gehalten wird.
+- „Weitere Tasten“ mit allen Extra-Tasten des gefundenen Codes; mehrere Fernbedienungen speichern und benennen.
+
+**⚡ Automationen**
+- Mehrere Tasten nacheinander mit einem Tipp, Wartezeit je Schritt.
+- Aufnahme: Fernbedienung einfach benutzen, die App zeichnet Tasten und Pausen auf.
+- Vorlagen für den Sleep-Timer des Fernsehers und ein Sleep-Timer im Handy, der den TV auch bei geschlossener App ausschaltet.
+
+**🔒 Schnellsteuerung**
+- Kacheln in den Schnelleinstellungen: Ein/Aus, leiser, lauter, Eingang – auch auf dem Sperrbildschirm.
+- Widget mit 1–6 frei belegbaren Knöpfen (Tasten oder Automationen), Live-Vorschau beim Einrichten.
+- Sperrbildschirm-Benachrichtigung, aufziehbar zur Mini-Fernbedienung – auf Wunsch öffnet ein Tipp die ganze Fernbedienung über dem Sperrbildschirm.
+
+**🌍 11 Sprachen** – Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch, Indonesisch.
+
+**🛡️ Datenschutz** – keine INTERNET-Berechtigung, keine Werbung, kein Tracking; die Code-Datenbank steckt in der App.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/01-remote.png" width="220" alt="Fernbedienung"><br><sub>Fernbedienung mit HDMI-Reihe</sub></td>
+    <td align="center"><img src="docs/screenshots/02-wizard-brand.png" width="220" alt="Assistent: Markenwahl"><br><sub>Assistent: Marke wählen</sub></td>
+    <td align="center"><img src="docs/screenshots/03-wizard-test.png" width="220" alt="Assistent: Code testen"><br><sub>Assistent: Code testen</sub></td>
+    <td align="center"><img src="docs/screenshots/04-wizard-inputs.png" width="220" alt="Assistent: Eingänge"><br><sub>Assistent: HDMI-Eingänge</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/05-quick-menu.png" width="220" alt="Schnellmenü"><br><sub>⚡-Menü: Automationen und Sleep-Timer</sub></td>
+    <td align="center"><img src="docs/screenshots/06-automations.png" width="220" alt="Automationen"><br><sub>Automationen mit Vorlagen</sub></td>
+    <td align="center"><img src="docs/screenshots/07-recording.png" width="220" alt="Aufnahme"><br><sub>Automation aufnehmen</sub></td>
+    <td align="center"><img src="docs/screenshots/08-sleep-timer.png" width="220" alt="Sleep-Timer"><br><sub>Sleep-Timer im Handy</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/09-quick-controls.png" width="220" alt="Schnellsteuerung"><br><sub>Einstellungen Schnellsteuerung</sub></td>
+    <td align="center"><img src="docs/screenshots/10-widget-setup.png" width="220" alt="Widget einrichten"><br><sub>Widget einrichten mit Vorschau</sub></td>
+    <td align="center"><img src="docs/screenshots/13-lockscreen-mini-remote.png" width="220" alt="Mini-Fernbedienung auf dem Sperrbildschirm"><br><sub>Mini-Fernbedienung auf dem Sperrbildschirm (Darstellung)</sub></td>
+    <td align="center"><img src="docs/screenshots/14-widget.png" width="220" alt="Widgets auf dem Startbildschirm"><br><sub>Widgets auf dem Startbildschirm (Darstellung)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/11-language.png" width="220" alt="Sprachwahl"><br><sub>11 Sprachen</sub></td>
+    <td align="center"><img src="docs/screenshots/12-wizard-en.png" width="220" alt="Assistent auf Englisch"><br><sub>Auch auf Englisch</sub></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<sub>Bilder aus den echten Bildschirmen der App (Beispiel-Fernbedienung „Hotel Berlin · Samsung“ mit Codes aus der
+mitgelieferten Datenbank). „Darstellung“: die Layouts der App in einem nachgebildeten Sperr- bzw. Startbildschirm; das
+genaue Aussehen hängt vom Hersteller ab.</sub>
+
+## Voraussetzungen
+
+- **Android 6 oder neuer.**
+- **Ein Handy mit Infrarot-Sender** (IR-Blaster), z. B. viele Modelle von Xiaomi, Redmi und POCO sowie einige von
+  Huawei und Honor. Ohne IR-Sender zeigt die App einen Hinweis.
+- **Ein Fernseher mit Infrarot-Empfänger** – das sind praktisch alle, die mit einer normalen Fernbedienung kommen.
+
+## Installation
+
+1. Die APK von der [neuesten Version](https://github.com/RolufS/IR-Remote-APK/releases/latest) herunterladen.
+2. Auf dem Handy öffnen und die Installation aus unbekannten Quellen für den Browser bzw. Dateimanager erlauben.
+3. Beim ersten Start die Sprache wählen – danach führt der Assistent zur passenden Fernbedienung.
+
+Per USB: `adb install -r Fernbedienung-1.6.3.apk`
+
+**Xiaomi / Redmi / POCO (MIUI, HyperOS):** Für `adb install` in den Entwickleroptionen „Installation über USB“
+einschalten. Damit der Sleep-Timer auch bei geschlossener App zuverlässig auslöst, in den App-Infos unter
+„Akku“ die Option **„Keine Einschränkungen“** wählen.
+
+## Datenschutz
+
+Die App erhebt keine Daten, hat keinen Internetzugang und enthält weder Werbung noch Tracking. Gespeicherte
+Fernbedienungen liegen nur auf dem Gerät. Details: [PRIVACY.md](PRIVACY.md) (zugleich die Datenschutzerklärung für
+den Play Store).
+
+## Bedienung im Detail
+
+<details>
+<summary><b>Sprachen</b></summary>
 
 Die App gibt es in 11 Sprachen: Deutsch (Standard, `values/`), Englisch,
 Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch,
@@ -28,7 +137,10 @@ einfach die passende `app/src/main/res/values-*/strings.xml` ändern; der Test
 `TranslationsTest` prüft, dass Namen und Platzhalter (`%1$s`, `%1$d`) zu
 `values/strings.xml` passen.
 
-## Automationen
+</details>
+
+<details>
+<summary><b>Automationen</b></summary>
 
 Eine Automation sendet mehrere Tasten nacheinander, mit einer Wartezeit nach
 jedem Schritt (0,5–10 s). Anlegen geht auf zwei Wegen:
@@ -47,7 +159,10 @@ jedem Schritt (0,5–10 s). Anlegen geht auf zwei Wegen:
 
 Ausgeführt wird eine Automation über ⚡ oder ▶ in der Liste.
 
-## Sleep-Timer-Vorlagen
+</details>
+
+<details>
+<summary><b>Sleep-Timer-Vorlagen</b></summary>
 
 Unter den Automationen stehen fertige Vorlagen, die den Sleep-Timer **des Fernsehers**
 stellen (unabhängig vom Sleep-Timer im Handy):
@@ -66,7 +181,10 @@ Recherche und Quellen: [docs/sleep-timer-research.md](docs/sleep-timer-research.
 Rückmeldungen (klappt / klappt nicht, mit Marke und Baujahr) gerne als
 [Issue](https://github.com/RolufS/IR-Remote-APK/issues).
 
-## Schnellsteuerung
+</details>
+
+<details>
+<summary><b>Schnellsteuerung: Kacheln, Widget, Sperrbildschirm</b></summary>
 
 Die wichtigsten Tasten ohne die App zu öffnen. Alle Wege senden an die **zuletzt
 benutzte Fernbedienung** (die in der App zuletzt geöffnete). Android erlaubt auf
@@ -96,9 +214,7 @@ Handys keine Widgets auf dem Sperrbildschirm; deshalb drei Wege:
   Neustart erscheint sie wieder. Ab Android 14 lässt sie sich entsperrt wegwischen;
   beim nächsten Öffnen der App kommt sie zurück.
 
-### Sperrbildschirm
-
-Echte Widgets auf dem Sperrbildschirm gibt es auf Android-Handys nicht. Deshalb zwei
+**Sperrbildschirm.** Echte Widgets auf dem Sperrbildschirm gibt es auf Android-Handys nicht. Deshalb zwei
 Wege, beide ohne Entsperren:
 
 - **Aufziehbare Benachrichtigung**: unter „Steuerung auf dem Sperrbildschirm anzeigen“
@@ -141,6 +257,17 @@ Die Wahl gilt für alle Fernbedienungen; fehlt einer die gewählte Taste, greift
 Standard. **Ein/Aus** sendet wie ein kurzer Druck in der App den Umschalter POWER,
 sonst „Einschalten“ bzw. „Ausschalten“.
 
+Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
+Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt
+dort nur für die Bildschirme der App).
+
+</details>
+
+## Für Entwickler
+
+<details>
+<summary><b>Code-Überblick Schnellsteuerung</b></summary>
+
 Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, Widget
 `QuickWidgetProvider.kt`, Einrichten `WidgetConfigActivity.kt`, Benachrichtigung
 `QuickNotification.kt` mit Mini-Fernbedienung `MiniRemoteViews.kt`, ganze Fernbedienung über
@@ -151,13 +278,10 @@ dem Sperrbildschirm `LockScreenRemoteActivity.kt`, Knöpfe `QuickControlReceiver
 Widget-Info
 `res/xml/quick_widget_info.xml`.
 
-## APK installieren
+</details>
 
-- USB: `adb install -r dist/Fernbedienung-1.6.3.apk`
-- Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
-  aus unbekannten Quellen erlauben.
-
-## App bauen
+<details>
+<summary><b>App bauen und signieren</b></summary>
 
 ```
 ./gradlew :app:assembleRelease
@@ -167,7 +291,9 @@ cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.3.apk
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
 `dist/Fernbedienung-1.6.3.apk` ist die Datei zum Installieren (`dist/` steht nicht
-im Repo). Zum Signieren stehen
+im Repo). Installieren per USB: `adb install -r dist/Fernbedienung-1.6.3.apk`.
+
+Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
 `HOTELREMOTE_KEY_PASSWORD`. `HOTELREMOTE_STORE_FILE` muss ein absoluter Pfad
@@ -175,7 +301,10 @@ sein (kein `~`; ein relativer Pfad würde relativ zu `app/` aufgelöst).
 Fehlen sie, wird unsigniert gebaut (mit Warnung).
 Den Schlüssel anlegen: `keytool -genkeypair -keystore ~/.android/hotelremote.jks -alias hotelremote -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Fernbedienung"`.
 
-## Play Store
+</details>
+
+<details>
+<summary><b>Play Store und Grafiken</b></summary>
 
 Für den Play Store wird ein App Bundle (AAB) hochgeladen. Es wird mit demselben
 Schlüssel signiert wie das APK (Properties wie oben):
@@ -198,13 +327,17 @@ Grafiken neu erzeugen:
 ```
 # App-Icon (Vektor + Legacy-PNGs), icon-512.png, feature-graphic.png (benötigt Pillow)
 tools/.venv/Scripts/python tools/make_graphics.py
-# Screenshots 1080 x 1920 aus den echten Compose-Bildschirmen (Robolectric, ohne Emulator)
+# Screenshots 1080 x 1920 aus den echten Compose-Bildschirmen (Robolectric, ohne Emulator):
+# Store-Bilder nach docs/play-store/, Bilder dieser Seite nach docs/screenshots/
 ./gradlew :app:testDebugUnitTest --tests de.hotelremote.StoreScreenshots -Pscreenshots
 ```
 
 Ohne `-Pscreenshots` wird der Screenshot-Test übersprungen.
 
-## Code-Datenbank neu bauen
+</details>
+
+<details>
+<summary><b>Code-Datenbank neu bauen (und irdb)</b></summary>
 
 ```
 bash tools/fetch_sources.sh
@@ -213,14 +346,15 @@ tools/.venv/Scripts/python tools/build_codes.py --flipper tools/sources/flipper 
 
 Danach die App neu bauen.
 
-## irdb (optional)
-
-Mit `--irdb tools/sources/irdb` fließen zusätzlich Codes aus irdb ein. Deren
+**irdb (optional):** Mit `--irdb tools/sources/irdb` fließen zusätzlich Codes aus irdb ein. Deren
 Lizenz verlangt, vorher ein Issue beim irdb-Projekt zu eröffnen und in der App
 einen Hinweis anzuzeigen. Der Info-Bildschirm zeigt den Hinweis automatisch,
 wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 
-## Prüfliste am Gerät (mit echtem Fernseher)
+</details>
+
+<details>
+<summary><b>Prüfliste am Gerät (mit echtem Fernseher)</b></summary>
 
 1. Erster Start fragt nach der Sprache, danach öffnet sich der Wizard.
 2. Die Marke des eigenen TVs wird gefunden, MUTE schaltet stumm.
@@ -294,18 +428,25 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
     mit). Die Tasten der Mini-Fernbedienung senden weiter ohne Entsperren. Option wieder aus:
     Tippen auf die Benachrichtigung öffnet die App (nach dem Entsperren), die Kachel ist ausgegraut.
 
-Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
-Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt
-dort nur für die Bildschirme der App).
+</details>
 
-## Datenschutz
+## English
 
-Die App erhebt keine Daten und hat keinen Internetzugang, siehe
-[PRIVACY.md](PRIVACY.md). Diese Datei ist auch die Datenschutzerklärung für die
-Play Console: https://github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md
+**Fernbedienung** ("TV Remote") turns an Android phone with an infrared blaster into a remote control for hotel
+TVs – no ads, no tracking, no internet permission. A short wizard finds the right code: pick the brand, tap MUTE
+and say whether the TV reacted; for unknown brands a scan sends power-off codes until the TV switches off. The
+remote has number keys, a D-pad, color keys and – if the TV supports it – direct HDMI 1–4 keys, handy for a Fire TV
+Stick. Automations send several keys with one tap and can be recorded simply by using the remote; templates help
+set the TV's own sleep timer, and a phone-side sleep timer turns the TV off even when the app is closed. Quick
+Settings tiles, a home-screen widget with freely assignable buttons and an expandable lock-screen notification
+(optionally opening the full remote over the lock screen) work without opening the app. The app is available in 11
+languages and needs Android 6+ and a phone with an IR emitter (e.g. many Xiaomi, Redmi and POCO models).
 
-## Lizenz
+[**Download the latest APK**](https://github.com/RolufS/IR-Remote-APK/releases/latest) · [Privacy policy (German)](PRIVACY.md)
 
-Der Code steht unter der MIT-Lizenz, siehe [LICENSE](LICENSE).
-Die Code-Daten in `app/src/main/assets/codes.db` stammen aus der
-[Flipper-IRDB](https://github.com/Lucaslhm/Flipper-IRDB) (CC0-1.0).
+## Quellen und Lizenz
+
+- Der Code steht unter der [MIT-Lizenz](LICENSE).
+- Die Infrarot-Codes in `app/src/main/assets/codes.db` stammen aus der
+  [Flipper-IRDB](https://github.com/Lucaslhm/Flipper-IRDB) (CC0-1.0).
+- Quellen der Sleep-Timer-Vorlagen: [docs/sleep-timer-research.md](docs/sleep-timer-research.md).
