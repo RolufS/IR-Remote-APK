@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">Уведомления для приложения отключены.</string>
     <string name="quick_tiles_section">ПЛИТКИ</string>
     <string name="quick_tiles_howto">Откройте быстрые настройки → Изменить → перетащите плитки ТВ. Плитки работают и на экране блокировки.</string>
+    <string name="quick_tiles_unsupported">Плитки доступны с Android 7. На этом устройстве используйте виджет и экран блокировки.</string>
     <string name="quick_add_tile">Добавить плитку «%1$s»</string>
     <string name="quick_widget_section">ВИДЖЕТ</string>
     <string name="quick_widget_howto">Нажмите и удерживайте главный экран → Виджеты → ТВ-пульт. Кнопки выбираются при добавлении.</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">Тогда любой, у кого в руках ваш телефон, сможет управлять телевизором – и больше ничем.</string>
     <string name="quick_full_remote_howto">Чтобы открыть его, нажмите на уведомление на экране блокировки или на плитку «ТВ-пульт».</string>
     <string name="lock_tap_full_remote">Нажмите, чтобы открыть полный пульт</string>
+    <string name="lock_full_hint">Полный</string>
     <string name="tile_remote">ТВ-пульт</string>
     <string name="tile_enable_in_app">Включите в приложении</string>
     <string name="lock_no_remote">Пульта ещё нет – откройте приложение</string>

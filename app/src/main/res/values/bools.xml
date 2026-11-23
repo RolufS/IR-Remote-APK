@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Schnelleinstellungs-Kacheln (TileService) gibt es erst ab Android 7 (API 24): bis dahin bleiben die Dienste
+     im Manifest deaktiviert, ab API 24 schaltet values-v24 sie ein. -->
+<resources>
+    <bool name="quick_tiles_supported">false</bool>
+</resources>

@@ -60,3 +60,13 @@ internal fun RemoteViews.bindMiniRemote(context: Context, remote: SavedRemote?, 
         setOnClickPendingIntent(id, QuickControlReceiver.pendingIntent(context, button, miniRemoteSlot(button)))
     }
 }
+
+/**
+ * Hinweis „Ganze Fernbedienung“ ([R.id.mini_full_hint] in der Ecke des Steuerkreuzes, [R.id.quick_full_hint] am Ende
+ * der Reihe): nur sichtbar, wenn [allowed]; sonst [hidden] (INVISIBLE in der Ecke, damit das Steuerkreuz seine Form
+ * behält, GONE in der Reihe). Bewusst ohne setOnClickPendingIntent: ein Tippen darauf ist ein Tippen auf die
+ * Benachrichtigung, und nur deren contentIntent öffnet die ganze Fernbedienung ohne Entsperren.
+ */
+internal fun RemoteViews.bindFullRemoteHint(id: Int, allowed: Boolean, hidden: Int) {
+    setViewVisibility(id, if (allowed) View.VISIBLE else hidden)
+}

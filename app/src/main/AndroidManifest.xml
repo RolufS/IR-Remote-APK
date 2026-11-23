@@ -43,7 +43,8 @@
             </intent-filter>
         </receiver>
         <!-- Schnellsteuerung: Knöpfe von Widget und Sperrbildschirm-Benachrichtigung, Widget mit Einrichten,
-             fünf Kacheln (ab Android 7). Das Einrichten startet der Launcher, daher exportiert. -->
+             fünf Kacheln (ab Android 7: vorher deaktiviert über @bool/quick_tiles_supported, die TileService-Klassen
+             werden dort nie geladen). Das Einrichten startet der Launcher, daher exportiert. -->
         <activity
             android:name=".quick.WidgetConfigActivity"
             android:excludeFromRecents="true"
@@ -71,9 +72,11 @@
         <service
             android:name=".quick.PowerTileService"
             android:exported="true"
+            android:enabled="@bool/quick_tiles_supported"
             android:icon="@drawable/ic_quick_power"
             android:label="@string/tile_power"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            tools:targetApi="24">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -81,9 +84,11 @@
         <service
             android:name=".quick.VolumeDownTileService"
             android:exported="true"
+            android:enabled="@bool/quick_tiles_supported"
             android:icon="@drawable/ic_quick_vol_down"
             android:label="@string/tile_vol_down"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            tools:targetApi="24">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -91,9 +96,11 @@
         <service
             android:name=".quick.VolumeUpTileService"
             android:exported="true"
+            android:enabled="@bool/quick_tiles_supported"
             android:icon="@drawable/ic_quick_vol_up"
             android:label="@string/tile_vol_up"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            tools:targetApi="24">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -101,9 +108,11 @@
         <service
             android:name=".quick.InputTileService"
             android:exported="true"
+            android:enabled="@bool/quick_tiles_supported"
             android:icon="@drawable/ic_quick_input"
             android:label="@string/tile_input"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            tools:targetApi="24">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -123,9 +132,11 @@
         <service
             android:name=".quick.RemoteTileService"
             android:exported="true"
+            android:enabled="@bool/quick_tiles_supported"
             android:icon="@drawable/ic_quick_remote"
             android:label="@string/tile_remote"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            tools:targetApi="24">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>

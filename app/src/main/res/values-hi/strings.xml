@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">इस ऐप के लिए सूचनाएँ बंद हैं।</string>
     <string name="quick_tiles_section">टाइल</string>
     <string name="quick_tiles_howto">क्विक सेटिंग्स खोलें → संपादित करें → टीवी टाइल खींचकर जोड़ें। टाइल लॉक स्क्रीन पर भी काम करती हैं।</string>
+    <string name="quick_tiles_unsupported">टाइल के लिए Android 7 या नया संस्करण चाहिए। इस डिवाइस पर विजेट और लॉक स्क्रीन का उपयोग करें।</string>
     <string name="quick_add_tile">टाइल “%1$s” जोड़ें</string>
     <string name="quick_widget_section">विजेट</string>
     <string name="quick_widget_howto">होम स्क्रीन को देर तक दबाएँ → विजेट → टीवी रिमोट। जोड़ते समय आप बटन चुनते हैं।</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">तब आपका फ़ोन हाथ में लेने वाला कोई भी टीवी चला सकता है – और कुछ नहीं।</string>
     <string name="quick_full_remote_howto">खोलने के लिए लॉक स्क्रीन की सूचना या „टीवी रिमोट“ टाइल पर टैप करें।</string>
     <string name="lock_tap_full_remote">पूरे रिमोट के लिए टैप करें</string>
+    <string name="lock_full_hint">पूरा</string>
     <string name="tile_remote">टीवी रिमोट</string>
     <string name="tile_enable_in_app">ऐप में चालू करें</string>
     <string name="lock_no_remote">अभी कोई रिमोट नहीं – ऐप खोलें</string>

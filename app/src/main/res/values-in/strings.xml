@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">Notifikasi untuk aplikasi ini dinonaktifkan.</string>
     <string name="quick_tiles_section">UBIN</string>
     <string name="quick_tiles_howto">Buka Setelan Cepat → Edit → seret ubin TV ke dalamnya. Ubin juga berfungsi di layar kunci.</string>
+    <string name="quick_tiles_unsupported">Ubin memerlukan Android 7 atau lebih baru. Di perangkat ini, gunakan widget dan layar kunci.</string>
     <string name="quick_add_tile">Tambahkan ubin “%1$s”</string>
     <string name="quick_widget_section">WIDGET</string>
     <string name="quick_widget_howto">Tekan lama layar utama → Widget → Remote TV. Anda memilih tombol saat menambahkannya.</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">Siapa pun yang memegang ponselmu bisa mengendalikan TV – tidak lebih.</string>
     <string name="quick_full_remote_howto">Untuk membukanya, ketuk notifikasi layar kunci atau ubin „Remote TV“.</string>
     <string name="lock_tap_full_remote">Ketuk untuk remote lengkap</string>
+    <string name="lock_full_hint">Penuh</string>
     <string name="tile_remote">Remote TV</string>
     <string name="tile_enable_in_app">Aktifkan di aplikasi</string>
     <string name="lock_no_remote">Belum ada remote – buka aplikasi</string>

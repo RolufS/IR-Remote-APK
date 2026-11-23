@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">Las notificaciones de la app están desactivadas.</string>
     <string name="quick_tiles_section">ICONOS</string>
     <string name="quick_tiles_howto">Abre los ajustes rápidos → Editar → arrastra los iconos de TV. También funcionan en la pantalla de bloqueo.</string>
+    <string name="quick_tiles_unsupported">Los iconos de ajustes rápidos requieren Android 7 o posterior. En este dispositivo usa el widget y la pantalla de bloqueo.</string>
     <string name="quick_add_tile">Añadir icono «%1$s»</string>
     <string name="quick_widget_section">WIDGET</string>
     <string name="quick_widget_howto">Mantén pulsada la pantalla de inicio → Widgets → Control remoto. Al añadirlo eliges las teclas.</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">Cualquiera que tenga tu móvil podrá manejar la TV, nada más.</string>
     <string name="quick_full_remote_howto">Para abrirlo, toca la notificación de la pantalla de bloqueo o el icono «TV control remoto».</string>
     <string name="lock_tap_full_remote">Toca para el control completo</string>
+    <string name="lock_full_hint">Completo</string>
     <string name="tile_remote">TV control remoto</string>
     <string name="tile_enable_in_app">Actívalo en la app</string>
     <string name="lock_no_remote">Aún no hay control remoto: abre la app</string>

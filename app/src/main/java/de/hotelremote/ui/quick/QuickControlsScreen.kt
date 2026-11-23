@@ -203,7 +203,8 @@ fun QuickControlsScreen(
             Body(stringResource(R.string.quick_full_remote_howto))
 
             Section(stringResource(R.string.quick_tiles_section))
-            Body(stringResource(R.string.quick_tiles_howto))
+            // Vor Android 7 gibt es keine Kacheln (die Dienste sind dort deaktiviert): Hinweis statt Anleitung.
+            Body(stringResource(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) R.string.quick_tiles_howto else R.string.quick_tiles_unsupported))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 tiles().forEach { tile ->
                     val label = stringResource(tile.label)

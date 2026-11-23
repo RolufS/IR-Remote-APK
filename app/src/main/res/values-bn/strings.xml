@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">এই অ্যাপের বিজ্ঞপ্তি বন্ধ আছে।</string>
     <string name="quick_tiles_section">টাইল</string>
     <string name="quick_tiles_howto">কুইক সেটিংস খুলুন → সম্পাদনা → টিভি টাইল টেনে আনুন। টাইলগুলো লক স্ক্রিনেও কাজ করে।</string>
+    <string name="quick_tiles_unsupported">টাইলের জন্য Android 7 বা নতুন সংস্করণ লাগে। এই ডিভাইসে উইজেট ও লক স্ক্রিন ব্যবহার করুন।</string>
     <string name="quick_add_tile">টাইল “%1$s” যোগ করুন</string>
     <string name="quick_widget_section">উইজেট</string>
     <string name="quick_widget_howto">হোম স্ক্রিনে দীর্ঘক্ষণ চাপুন → উইজেট → টিভি রিমোট। যোগ করার সময় বোতাম বেছে নেবেন।</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">তখন আপনার ফোন হাতে পাওয়া যে কেউ টিভি চালাতে পারবে – আর কিছু নয়।</string>
     <string name="quick_full_remote_howto">খুলতে লক স্ক্রিনের বিজ্ঞপ্তি বা „টিভি রিমোট“ টাইলে ট্যাপ করুন।</string>
     <string name="lock_tap_full_remote">পুরো রিমোটের জন্য ট্যাপ করুন</string>
+    <string name="lock_full_hint">পূর্ণ</string>
     <string name="tile_remote">টিভি রিমোট</string>
     <string name="tile_enable_in_app">অ্যাপে চালু করুন</string>
     <string name="lock_no_remote">এখনো কোনো রিমোট নেই – অ্যাপ খুলুন</string>

@@ -225,6 +225,49 @@ class LockScreenTest {
         assertTrue(shadowOf(app).broadcastIntents.isNotEmpty())
     }
 
+    /** Hinweis-Symbol „Groß“: nur bei erlaubter ganzer Fernbedienung sichtbar (Ecke INVISIBLE, Reihe GONE). */
+    @Test fun fullRemoteHintVisibleOnlyWhenAllowed() {
+        addRemote(Keys.POWER)
+        var n = show()
+        assertEquals(View.INVISIBLE, n.big().findViewById<View>(R.id.mini_full_hint).visibility)
+        assertEquals(View.GONE, n.small().findViewById<View>(R.id.quick_full_hint).visibility)
+        settings.fullRemote = true
+        n = show()
+        val corner = n.big().findViewById<View>(R.id.mini_full_hint)
+        assertEquals(View.VISIBLE, corner.visibility)
+        assertEquals(
+            app.getString(R.string.lock_full_hint),
+            corner.findViewById<android.widget.TextView>(R.id.mini_full_hint_label).text.toString(),
+        )
+        assertEquals(View.VISIBLE, n.small().findViewById<View>(R.id.quick_full_hint).visibility)
+        // Und wieder aus.
+        settings.fullRemote = false
+        n = show()
+        assertEquals(View.INVISIBLE, n.big().findViewById<View>(R.id.mini_full_hint).visibility)
+        assertEquals(View.GONE, n.small().findViewById<View>(R.id.quick_full_hint).visibility)
+    }
+
+    /**
+     * Das Hinweis-Symbol hat keine eigene Funktion: kein Klick-PendingIntent, nicht klickbar, nicht fokussierbar.
+     * So landet ein Tippen darauf bei der Benachrichtigung selbst (contentIntent → ganze Fernbedienung ohne Entsperren).
+     */
+    @Test fun fullRemoteHintHasNoClickAction() {
+        addRemote(Keys.POWER)
+        settings.fullRemote = true
+        val n = show()
+        for (hint in listOf(n.big().findViewById<View>(R.id.mini_full_hint), n.small().findViewById<View>(R.id.quick_full_hint))) {
+            val views = listOf(hint) + ((hint as? android.view.ViewGroup)?.let { g -> (0 until g.childCount).map { g.getChildAt(it) } } ?: emptyList())
+            for (view in views) {
+                assertFalse("${view.id} hat einen Klick", view.hasOnClickListeners())
+                assertFalse("${view.id} klickbar", view.isClickable)
+                assertFalse("${view.id} fokussierbar", view.isFocusable)
+            }
+            hint.performClick()
+            assertNull(shadowOf(app).nextStartedActivity)
+            assertTrue(shadowOf(app).broadcastIntents.isEmpty())
+        }
+    }
+
     @Test fun fullRemoteIntentOpensLockActivity() {
         val intent = LockScreenRemoteActivity.intent(app)
         assertEquals(ComponentName(app, LockScreenRemoteActivity::class.java), intent.component)

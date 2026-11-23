@@ -102,11 +102,20 @@ class AndroidSleepTimerNotifier(private val context: Context) : SleepTimerNotifi
             .setOnlyAlertOnce(true)
             .setWhen(timer.endAt)
             .setShowWhen(true)
-            .setUsesChronometer(true)
-            .setChronometerCountDown(true)
+            .apply { showCountdown() }
             .addAction(0, context.getString(R.string.list_cancel), SleepTimerReceiver.pendingIntent(context, SleepTimerReceiver.ACTION_CANCEL))
             .build()
         notify(ID_RUNNING, n)
+    }
+
+    /**
+     * Restzeit als rückwärts laufende Uhr (ab Android 7). Vorher kann der Chronometer nur aufwärts zählen: dann
+     * zeigt die Benachrichtigung stattdessen die Endzeit ([NotificationCompat.Builder.setWhen]).
+     */
+    private fun NotificationCompat.Builder.showCountdown() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
+        setUsesChronometer(true)
+        setChronometerCountDown(true)
     }
 
     override fun cancelRunning() = manager.cancel(ID_RUNNING)

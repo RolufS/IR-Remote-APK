@@ -2,7 +2,8 @@
 <!-- Aufgezogene Sperrbildschirm-Benachrichtigung: Mini-Fernbedienung in zwei Spalten, damit die Tasten hoch bleiben.
      Links Ein/Aus | Stumm, Eingang | Home, Leiser | Lauter, CH ▼ | CH ▲; rechts das Steuerkreuz und darunter Zurück.
      Kein Knopf „Ganze Fernbedienung“ (SystemUI verlangt bei Klicks in eigenen Ansichten immer das Entsperren):
-     sie öffnet das Tippen auf die Benachrichtigung selbst (contentIntent).
+     sie öffnet das Tippen auf die Benachrichtigung selbst (contentIntent). Wenn erlaubt, zeigt oben rechts im
+     Steuerkreuz ein Hinweis „Groß“ ohne eigene Funktion darauf hin.
      dp-Budget (MINI_REMOTE_MAX_HEIGHT_DP = 252): 2 × 3 dp Innenrand + 4 Zeilen × (52 dp + 2 × 2 dp) = 230 dp.
      Fehlende Tasten macht MiniRemoteViews unsichtbar (INVISIBLE), der Platz bleibt. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -190,11 +191,45 @@ android:baselineAligned="false"
                 android:scaleType="center"
                 android:src="@drawable/ic_quick_up" />
 
-            <FrameLayout
+            <!-- Hinweis „Groß“ ohne eigene Funktion (nicht klickbar, kein PendingIntent): ein Tippen darauf ist ein
+                 Tippen auf die Benachrichtigung → contentIntent → ganze Fernbedienung. INVISIBLE, wenn nicht erlaubt. -->
+            <LinearLayout
+                android:id="@+id/mini_full_hint"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/mini_key_height"
                 android:layout_margin="@dimen/mini_key_margin"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:alpha="0.7"
+                android:background="@drawable/quick_rect_key_bg"
+                android:clickable="false"
+                android:contentDescription="@string/lock_tap_full_remote"
+                android:focusable="false"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="invisible">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_quick_expand" />
+
+                <TextView
+                    android:id="@+id/mini_full_hint_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:importantForAccessibility="no"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/lock_full_hint"
+                    android:textColor="#FFECEEF0"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

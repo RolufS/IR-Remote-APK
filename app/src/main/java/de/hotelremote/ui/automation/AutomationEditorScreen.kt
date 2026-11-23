@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
 import de.hotelremote.R
 import de.hotelremote.automation.AutomationProgress
 import de.hotelremote.automation.AutomationTemplate
@@ -52,6 +53,7 @@ import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.sleeptimer.Hint
 import de.hotelremote.ui.theme.RemoteColors
 import java.text.NumberFormat
+import java.util.Locale
 import java.util.UUID
 
 /** Schrittliste als flache Liste [Taste, Wartezeit, Taste, Wartezeit, …]. */
@@ -89,7 +91,8 @@ fun AutomationEditorScreen(
     template: AutomationTemplate? = null,
 ) {
     val res = LocalContext.current.resources
-    val locale = LocalConfiguration.current.locales[0]
+    // Configuration.locales gibt es erst ab Android 7; ConfigurationCompat liest vorher Configuration.locale.
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: Locale.getDefault()
     val seconds = remember(locale) { NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 } }
     // Saveable: Eingaben überstehen das Neuerzeugen der Activity (z. B. Sprachwechsel, Prozess-Ende im Hintergrund).
     var name by rememberSaveable(initial?.id, draft) { mutableStateOf(draft?.name ?: initial?.name.orEmpty()) }

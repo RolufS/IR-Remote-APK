@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ab Android 7 (API 24): Schnelleinstellungs-Kacheln aktiv (siehe values/bools.xml). -->
+<resources>
+    <bool name="quick_tiles_supported">true</bool>
+</resources>

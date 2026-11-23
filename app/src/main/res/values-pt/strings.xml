@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">As notificações do app estão desativadas.</string>
     <string name="quick_tiles_section">BLOCOS</string>
     <string name="quick_tiles_howto">Abra as configurações rápidas → Editar → arraste os blocos de TV. Os blocos também funcionam na tela de bloqueio.</string>
+    <string name="quick_tiles_unsupported">Os blocos exigem Android 7 ou mais recente. Neste aparelho, use o widget e a tela de bloqueio.</string>
     <string name="quick_add_tile">Adicionar bloco “%1$s”</string>
     <string name="quick_widget_section">WIDGET</string>
     <string name="quick_widget_howto">Toque e segure a tela inicial → Widgets → Controle remoto. Ao adicionar, você escolhe as teclas.</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">Qualquer pessoa com seu celular na mão poderá controlar a TV – nada mais.</string>
     <string name="quick_full_remote_howto">Para abrir, toque na notificação da tela de bloqueio ou no bloco “TV controle remoto”.</string>
     <string name="lock_tap_full_remote">Toque para o controle completo</string>
+    <string name="lock_full_hint">Completo</string>
     <string name="tile_remote">TV controle remoto</string>
     <string name="tile_enable_in_app">Ative no app</string>
     <string name="lock_no_remote">Ainda não há controle – abra o app</string>

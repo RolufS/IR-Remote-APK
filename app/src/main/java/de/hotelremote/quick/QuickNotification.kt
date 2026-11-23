@@ -6,6 +6,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,6 +20,7 @@ import de.hotelremote.sleeptimer.AndroidSleepTimerNotifier
  * zur Mini-Fernbedienung aufziehen. Wenn erlaubt, öffnet das Tippen auf die Benachrichtigung selbst die ganze
  * Fernbedienung über dem Sperrbildschirm ([LockScreenRemoteActivity]): nur den contentIntent startet SystemUI ohne
  * Entsperren (es prüft `showWhenLocked`), Klicks auf Activities aus eigenen Ansichten fragen immer nach dem Entsperren.
+ * Darauf weist dann ein Symbol ohne eigene Funktion hin ([bindFullRemoteHint]).
  * Kein Foreground-Service.
  */
 class QuickNotification(private val context: Context) {
@@ -34,10 +36,12 @@ class QuickNotification(private val context: Context) {
         ensureChannel()
         val views = RemoteViews(context.packageName, R.layout.notification_quick).apply {
             bindQuickButtons(context, prefs.notificationButtons, QuickButtons.MAX_NOTIFICATION, "notification")
+            bindFullRemoteHint(R.id.quick_full_hint, prefs.fullRemote, View.GONE)
         }
         val big = if (prefs.lockStyle == LockStyle.EXPANDED) {
             RemoteViews(context.packageName, R.layout.notification_quick_big).apply {
                 bindMiniRemote(context, remote, prefs.inputKey)
+                bindFullRemoteHint(R.id.mini_full_hint, prefs.fullRemote, View.INVISIBLE)
             }
         } else {
             null

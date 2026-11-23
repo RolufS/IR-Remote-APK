@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Sperrbildschirm-Benachrichtigung: kompakte Reihe mit bis zu 5 Knöpfen (Plätze quick_slot_1–5). Die ganze
-     Fernbedienung öffnet das Tippen auf die Benachrichtigung selbst (contentIntent), kein Knopf hier. -->
+     Fernbedienung öffnet das Tippen auf die Benachrichtigung selbst (contentIntent); wenn erlaubt, weist am Ende ein
+     kleines Symbol ohne eigene Funktion darauf hin. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -196,5 +197,29 @@
                 android:textStyle="bold"
                 android:visibility="gone" />
         </LinearLayout>
+    </FrameLayout>
+
+    <!-- Hinweis „Ganze Fernbedienung“ ohne eigene Funktion (nicht klickbar, kein PendingIntent): ein Tippen darauf ist
+         ein Tippen auf die Benachrichtigung → contentIntent. GONE, wenn nicht erlaubt. -->
+    <FrameLayout
+        android:id="@+id/quick_full_hint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:alpha="0.7"
+            android:background="@drawable/quick_key_bg"
+            android:clickable="false"
+            android:contentDescription="@string/lock_tap_full_remote"
+            android:focusable="false"
+            android:scaleType="center"
+            android:src="@drawable/ic_quick_expand" />
     </FrameLayout>
 </LinearLayout>

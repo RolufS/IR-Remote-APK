@@ -196,6 +196,7 @@
     <string name="quick_notif_blocked">الإشعارات متوقفة لهذا التطبيق.</string>
     <string name="quick_tiles_section">المربعات</string>
     <string name="quick_tiles_howto">افتح الإعدادات السريعة ← تعديل ← اسحب مربعات التلفاز. تعمل المربعات أيضًا على شاشة القفل.</string>
+    <string name="quick_tiles_unsupported">تتطلب المربعات Android 7 أو أحدث. على هذا الجهاز استخدم الأداة وشاشة القفل.</string>
     <string name="quick_add_tile">إضافة المربع «%1$s»</string>
     <string name="quick_widget_section">الأداة</string>
     <string name="quick_widget_howto">اضغط مطولًا على الشاشة الرئيسية ← الأدوات ← جهاز التحكم. تختار الأزرار عند الإضافة.</string>
@@ -228,6 +229,7 @@
     <string name="quick_full_remote_hint">عندها يستطيع أي شخص يحمل هاتفك التحكم في التلفاز – ولا شيء غير ذلك.</string>
     <string name="quick_full_remote_howto">لفتحه، انقر على إشعار شاشة القفل أو على مربع «جهاز تحكم التلفاز».</string>
     <string name="lock_tap_full_remote">انقر لفتح جهاز التحكم الكامل</string>
+    <string name="lock_full_hint">كامل</string>
     <string name="tile_remote">جهاز تحكم التلفاز</string>
     <string name="tile_enable_in_app">فعّله في التطبيق</string>
     <string name="lock_no_remote">لا يوجد جهاز تحكم بعد – افتح التطبيق</string>
