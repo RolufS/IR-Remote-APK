@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">أو اضغط مطولًا على الأداة وعدّلها من هناك.</string>
     <string name="quick_auto_missing">لا يحتوي جهاز التحكم هذا على هذه الأتمتة.</string>
     <string name="quick_auto_too_long">هذه الأتمتة طويلة جدًا (8 ثوانٍ كحد أقصى).</string>
+    <string name="quick_lock_small">صغير: صف الأزرار فقط</string>
+    <string name="quick_lock_expanded">موسّع: اسحب لأسفل لجهاز تحكم مصغّر</string>
+    <string name="quick_full_remote_switch">السماح بجهاز التحكم الكامل فوق شاشة القفل</string>
+    <string name="quick_full_remote_hint">عندها يستطيع أي شخص يحمل هاتفك التحكم في التلفاز – ولا شيء غير ذلك.</string>
+    <string name="lock_full_remote">جهاز التحكم الكامل</string>
+    <string name="tile_remote">جهاز تحكم التلفاز</string>
+    <string name="tile_enable_in_app">فعّله في التطبيق</string>
+    <string name="lock_no_remote">لا يوجد جهاز تحكم بعد – افتح التطبيق</string>
 </resources>

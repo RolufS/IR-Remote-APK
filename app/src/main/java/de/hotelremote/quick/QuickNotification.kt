@@ -15,21 +15,31 @@ import de.hotelremote.sleeptimer.AndroidSleepTimerNotifier
 
 /**
  * Steuerung auf dem Sperrbildschirm: dauerhafte, stille Benachrichtigung (Kanal „Schnellsteuerung“, öffentlich
- * sichtbar) mit 1–5 frei belegbaren Knöpfen, die per Broadcast ohne Entsperren senden. Kein Foreground-Service.
+ * sichtbar) mit 1–5 frei belegbaren Knöpfen, die per Broadcast ohne Entsperren senden. Bei „Erweitert“ lässt sie sich
+ * zur Mini-Fernbedienung aufziehen; wenn erlaubt, öffnet ein Knopf die ganze Fernbedienung über dem Sperrbildschirm
+ * ([LockScreenRemoteActivity]). Kein Foreground-Service.
  */
 class QuickNotification(private val context: Context) {
     private val manager = NotificationManagerCompat.from(context)
 
-    /** Zeigt die Benachrichtigung mit [buttons], wenn [enabled] und erlaubt; sonst entfernt sie sie. */
-    fun update(remote: SavedRemote?, enabled: Boolean, buttons: List<QuickButton>) {
-        if (enabled && AndroidSleepTimerNotifier.canPostNotifications(context)) show(remote, buttons) else manager.cancel(ID)
+    /** Zeigt die Benachrichtigung nach [prefs], wenn eingeschaltet und erlaubt; sonst entfernt sie sie. */
+    fun update(remote: SavedRemote?, prefs: QuickPrefs) {
+        if (prefs.lockScreen && AndroidSleepTimerNotifier.canPostNotifications(context)) show(remote, prefs) else manager.cancel(ID)
     }
 
     @SuppressLint("MissingPermission") // geprüft mit canPostNotifications()
-    private fun show(remote: SavedRemote?, buttons: List<QuickButton>) {
+    private fun show(remote: SavedRemote?, prefs: QuickPrefs) {
         ensureChannel()
         val views = RemoteViews(context.packageName, R.layout.notification_quick).apply {
-            bindQuickButtons(context, buttons, QuickButtons.MAX_NOTIFICATION, "notification")
+            bindQuickButtons(context, prefs.notificationButtons, QuickButtons.MAX_NOTIFICATION, "notification")
+            bindFullRemote(context, R.id.quick_full_remote, R.id.quick_full_remote_btn, prefs.fullRemote)
+        }
+        val big = if (prefs.lockStyle == LockStyle.EXPANDED) {
+            RemoteViews(context.packageName, R.layout.notification_quick_big).apply {
+                bindMiniRemote(context, remote, prefs.inputKey, prefs.fullRemote)
+            }
+        } else {
+            null
         }
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_quick_power)
@@ -37,6 +47,7 @@ class QuickNotification(private val context: Context) {
             .setSubText(remote?.title ?: context.getString(R.string.quick_no_remote))
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(views)
+            .setCustomBigContentView(big)
             .setOngoing(true)
             .setSilent(true)
             .setShowWhen(false)

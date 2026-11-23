@@ -3,7 +3,9 @@ package de.hotelremote.ui.quick
 import android.Manifest
 import android.app.Application
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -17,6 +19,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.hotelremote.Keys
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
+import de.hotelremote.quick.LockStyle
 import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickPrefs
 import de.hotelremote.quick.QuickWidgetEntry
@@ -138,5 +141,41 @@ class QuickControlsScreenTest {
     @Test fun addTileButtonsFromAndroid13() {
         show(remote(Keys.POWER))
         rule.onNodeWithText("Kachel „TV Eingang“ hinzufügen").performScrollTo().assertExists()
+    }
+
+    @Test fun lockStyleChoiceOnlyWhenLockScreenOn() {
+        show(remote(Keys.POWER))
+        rule.onNodeWithTag("quick_lock_small").assertDoesNotExist()
+        rule.onNodeWithTag("quick_lock_expanded").assertDoesNotExist()
+    }
+
+    @Test fun lockStyleChoice() {
+        shadowOf(ApplicationProvider.getApplicationContext<Application>()).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val styles = mutableListOf<LockStyle>()
+        rule.setContent {
+            HotelRemoteTheme {
+                QuickControlsScreen(remote(Keys.POWER), QuickPrefs(null, true), {}, {}, onBack = {}, onLockStyle = { styles += it })
+            }
+        }
+        rule.onNodeWithTag("quick_lock_expanded").performScrollTo().assertIsSelected()
+        rule.onNodeWithTag("quick_lock_small").performScrollTo().performClick()
+        assertEquals(listOf(LockStyle.SMALL), styles)
+    }
+
+    @Test fun fullRemoteSwitch() {
+        val full = mutableListOf<Boolean>()
+        rule.setContent {
+            HotelRemoteTheme {
+                QuickControlsScreen(remote(Keys.POWER), QuickPrefs(null, false), {}, {}, onBack = {}, onFullRemote = { full += it })
+            }
+        }
+        rule.onNodeWithText("Jeder, der dein Handy in der Hand hat, kann dann den Fernseher bedienen – sonst nichts.").performScrollTo().assertExists()
+        rule.onNodeWithTag("quick_full_remote").performScrollTo().assertIsOff().performClick()
+        assertEquals(listOf(true), full)
+    }
+
+    @Test fun addRemoteTileButton() {
+        show(remote(Keys.POWER))
+        rule.onNodeWithText("Kachel „TV Fernbedienung“ hinzufügen").performScrollTo().assertExists()
     }
 }

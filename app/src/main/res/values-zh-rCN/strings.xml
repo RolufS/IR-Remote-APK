@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">也可以长按小部件，在那里编辑。</string>
     <string name="quick_auto_missing">此遥控器没有这个自动化。</string>
     <string name="quick_auto_too_long">这个自动化太长（最多 8 秒）。</string>
+    <string name="quick_lock_small">小：仅一排按键</string>
+    <string name="quick_lock_expanded">展开：下拉显示迷你遥控器</string>
+    <string name="quick_full_remote_switch">允许在锁定屏幕上使用完整遥控器</string>
+    <string name="quick_full_remote_hint">拿到你手机的人都能控制电视，但仅此而已。</string>
+    <string name="lock_full_remote">完整遥控器</string>
+    <string name="tile_remote">电视遥控器</string>
+    <string name="tile_enable_in_app">请在应用中开启</string>
+    <string name="lock_no_remote">还没有遥控器，请打开应用</string>
 </resources>

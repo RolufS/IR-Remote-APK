@@ -172,6 +172,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 widgets = quickWidgets,
                 onEditWidget = { context.startActivity(WidgetConfigActivity.intent(context, it)) },
                 onNotificationButtons = vm::setNotificationButtons,
+                onLockStyle = vm::setLockStyle,
+                onFullRemote = vm::setFullRemote,
             )
             state.screen is Screen.AutomationEdit -> {
                 val edit = state.screen as Screen.AutomationEdit

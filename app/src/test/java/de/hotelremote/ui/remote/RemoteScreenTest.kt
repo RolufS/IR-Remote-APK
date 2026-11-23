@@ -70,6 +70,7 @@ class RemoteScreenTest {
         onQuick: () -> Unit = {},
         recording: RecordingBarState? = null,
         onMenu: (RemoteMenu) -> Unit = {},
+        locked: Boolean = false,
     ) {
         rule.setContent {
             HotelRemoteTheme {
@@ -83,6 +84,7 @@ class RemoteScreenTest {
                     onMenu = onMenu,
                     onQuick = onQuick,
                     recording = recording,
+                    locked = locked,
                 )
             }
         }
@@ -237,6 +239,26 @@ class RemoteScreenTest {
         rule.onNodeWithText("Automationen").assertDoesNotExist()
         rule.onNodeWithText("Weitere Tasten").performClick()
         assertEquals(listOf(RemoteMenu.EXTRA_KEYS), menus)
+    }
+
+    /** Über dem Sperrbildschirm: kein ☰, kein ⚡, kein Umschalten, ⋮ nur „Weitere Tasten“; Tasten senden. */
+    @Test
+    fun lockedHeaderIsRestricted() {
+        val menus = mutableListOf<RemoteMenu>()
+        val handler = FakeHandler()
+        show(remote("MUTE").copy(name = "Zimmer 412"), handler = handler, onMenu = { menus += it }, locked = true)
+        rule.onNodeWithTag("header_list").assertDoesNotExist()
+        rule.onNodeWithTag("header_quick").assertDoesNotExist()
+        rule.onNodeWithTag("header_title").assertTextEquals("Zimmer 412")
+        rule.onNodeWithTag("header_title").performClick()
+        rule.onNodeWithTag("switch_menu").assertDoesNotExist()
+        rule.onNodeWithTag("header_menu").performClick()
+        rule.onNodeWithText("Automationen").assertDoesNotExist()
+        rule.onNodeWithText("Schnellsteuerung").assertDoesNotExist()
+        rule.onNodeWithText("Weitere Tasten").performClick()
+        assertEquals(listOf(RemoteMenu.EXTRA_KEYS), menus)
+        rule.onNodeWithTag("key_MUTE").performClick()
+        assertEquals(listOf("MUTE"), handler.pressed)
     }
 
     @Test

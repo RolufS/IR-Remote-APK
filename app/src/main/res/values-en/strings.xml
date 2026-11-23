@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Or long-press the widget and edit it there.</string>
     <string name="quick_auto_missing">This remote doesn’t have this automation.</string>
     <string name="quick_auto_too_long">This automation is too long (8 s at most).</string>
+    <string name="quick_lock_small">Small: button row only</string>
+    <string name="quick_lock_expanded">Expanded: pull down for a mini remote</string>
+    <string name="quick_full_remote_switch">Allow the full remote over the lock screen</string>
+    <string name="quick_full_remote_hint">Anyone holding your phone can then control the TV – nothing else.</string>
+    <string name="lock_full_remote">Full remote</string>
+    <string name="tile_remote">TV remote</string>
+    <string name="tile_enable_in_app">Turn on in the app</string>
+    <string name="lock_no_remote">No remote yet – open the app</string>
 </resources>

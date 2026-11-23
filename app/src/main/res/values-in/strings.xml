@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Atau tekan lama widget dan ubah di sana.</string>
     <string name="quick_auto_missing">Remote ini tidak punya otomatisasi tersebut.</string>
     <string name="quick_auto_too_long">Otomatisasi ini terlalu panjang (maksimal 8 detik).</string>
+    <string name="quick_lock_small">Kecil: hanya deretan tombol</string>
+    <string name="quick_lock_expanded">Diperluas: tarik ke bawah untuk remote mini</string>
+    <string name="quick_full_remote_switch">Izinkan remote lengkap di atas layar kunci</string>
+    <string name="quick_full_remote_hint">Siapa pun yang memegang ponselmu bisa mengendalikan TV – tidak lebih.</string>
+    <string name="lock_full_remote">Remote lengkap</string>
+    <string name="tile_remote">Remote TV</string>
+    <string name="tile_enable_in_app">Aktifkan di aplikasi</string>
+    <string name="lock_no_remote">Belum ada remote – buka aplikasi</string>
 </resources>

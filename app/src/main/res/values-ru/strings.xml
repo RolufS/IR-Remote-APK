@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Или нажмите на виджет и удерживайте, чтобы изменить его.</string>
     <string name="quick_auto_missing">На этом пульте нет такой автоматизации.</string>
     <string name="quick_auto_too_long">Эта автоматизация слишком длинная (не более 8 с).</string>
+    <string name="quick_lock_small">Компактно: только ряд кнопок</string>
+    <string name="quick_lock_expanded">Развёрнуто: потяните вниз для мини-пульта</string>
+    <string name="quick_full_remote_switch">Разрешить полный пульт поверх экрана блокировки</string>
+    <string name="quick_full_remote_hint">Тогда любой, у кого в руках ваш телефон, сможет управлять телевизором – и больше ничем.</string>
+    <string name="lock_full_remote">Полный пульт</string>
+    <string name="tile_remote">ТВ-пульт</string>
+    <string name="tile_enable_in_app">Включите в приложении</string>
+    <string name="lock_no_remote">Пульта ещё нет – откройте приложение</string>
 </resources>

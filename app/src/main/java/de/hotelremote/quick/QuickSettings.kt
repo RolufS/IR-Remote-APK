@@ -4,11 +4,16 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.hotelremote.ir.ToggleStore
 
+/** Ansicht der Sperrbildschirm-Benachrichtigung: nur die Knopfreihe oder zusätzlich aufziehbar zur Mini-Fernbedienung. */
+enum class LockStyle { SMALL, EXPANDED }
+
 /** Stand der Einstellungen für den Bildschirm „Schnellsteuerung“. */
 data class QuickPrefs(
     val inputKey: String?,
     val lockScreen: Boolean,
     val notificationButtons: List<QuickButton> = QuickButtons.DEFAULT,
+    val lockStyle: LockStyle = LockStyle.EXPANDED,
+    val fullRemote: Boolean = false,
 )
 
 /**
@@ -27,6 +32,19 @@ class QuickSettings(private val prefs: SharedPreferences) {
         get() = prefs.getBoolean(LOCK_SCREEN, false)
         set(value) = prefs.edit { putBoolean(LOCK_SCREEN, value) }
 
+    /** Ansicht der Sperrbildschirm-Benachrichtigung (Standard „Erweitert“). */
+    var lockStyle: LockStyle
+        get() = LockStyle.entries.firstOrNull { it.name == prefs.getString(LOCK_STYLE, null) } ?: LockStyle.EXPANDED
+        set(value) = prefs.edit { putString(LOCK_STYLE, value.name) }
+
+    /**
+     * Ganze Fernbedienung über dem Sperrbildschirm (Standard aus): Knopf in der Benachrichtigung und Kachel
+     * „TV Fernbedienung“. Wer das Handy in der Hand hat, kann dann alle Tasten senden, sonst nichts.
+     */
+    var fullRemote: Boolean
+        get() = prefs.getBoolean(FULL_REMOTE, false)
+        set(value) = prefs.edit { putBoolean(FULL_REMOTE, value) }
+
     /** Knöpfe der Sperrbildschirm-Benachrichtigung (eine Belegung für alle, 1 bis 5). */
     var notificationButtons: List<QuickButton>
         get() = QuickButtons.normalize(QuickButtons.decodeList(prefs.getString(NOTIFICATION_BUTTONS, null)) ?: QuickButtons.DEFAULT, QuickButtons.MAX_NOTIFICATION)
@@ -42,7 +60,7 @@ class QuickSettings(private val prefs: SharedPreferences) {
     /** Widget vom Startbildschirm entfernt: Belegung löschen. */
     fun removeWidget(widgetId: Int) = prefs.edit { remove(widgetKey(widgetId)) }
 
-    fun load() = QuickPrefs(inputKey, lockScreen, notificationButtons)
+    fun load() = QuickPrefs(inputKey, lockScreen, notificationButtons, lockStyle, fullRemote)
 
     /**
      * Toggle-Zustand (RC5/RC6) der Schnellsteuerung, dauerhaft gespeichert: Kachel- und Widget-Tipps laufen oft in
@@ -63,6 +81,8 @@ class QuickSettings(private val prefs: SharedPreferences) {
         const val PREFS = "quick_controls"
         private const val INPUT_KEY = "input_key"
         private const val LOCK_SCREEN = "lock_screen"
+        private const val LOCK_STYLE = "lock_style"
+        private const val FULL_REMOTE = "full_remote"
         private const val TOGGLE_PREFIX = "toggle_"
         private const val NOTIFICATION_BUTTONS = "notification_buttons"
         private const val WIDGET_PREFIX = "widget_buttons_"

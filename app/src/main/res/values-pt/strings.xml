@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Ou toque e segure o widget para editá-lo.</string>
     <string name="quick_auto_missing">Este controle não tem essa automação.</string>
     <string name="quick_auto_too_long">Esta automação é longa demais (no máximo 8 s).</string>
+    <string name="quick_lock_small">Pequeno: só a fileira de botões</string>
+    <string name="quick_lock_expanded">Expandido: puxe para ver um minicontrole</string>
+    <string name="quick_full_remote_switch">Permitir o controle completo sobre a tela de bloqueio</string>
+    <string name="quick_full_remote_hint">Qualquer pessoa com seu celular na mão poderá controlar a TV – nada mais.</string>
+    <string name="lock_full_remote">Controle completo</string>
+    <string name="tile_remote">TV controle remoto</string>
+    <string name="tile_enable_in_app">Ative no app</string>
+    <string name="lock_no_remote">Ainda não há controle – abra o app</string>
 </resources>

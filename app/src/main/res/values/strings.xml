@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Oder lange auf das Widget drücken und es dort bearbeiten.</string>
     <string name="quick_auto_missing">Diese Automation fehlt der Fernbedienung.</string>
     <string name="quick_auto_too_long">Diese Automation ist zu lang (höchstens 8 s).</string>
+    <string name="quick_lock_small">Klein: nur die Knopfreihe</string>
+    <string name="quick_lock_expanded">Erweitert: zur Mini-Fernbedienung aufziehbar</string>
+    <string name="quick_full_remote_switch">Ganze Fernbedienung über dem Sperrbildschirm erlauben</string>
+    <string name="quick_full_remote_hint">Jeder, der dein Handy in der Hand hat, kann dann den Fernseher bedienen – sonst nichts.</string>
+    <string name="lock_full_remote">Ganze Fernbedienung</string>
+    <string name="tile_remote">TV Fernbedienung</string>
+    <string name="tile_enable_in_app">In der App aktivieren</string>
+    <string name="lock_no_remote">Noch keine Fernbedienung – App öffnen</string>
 </resources>

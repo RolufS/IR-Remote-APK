@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">Ou appui long sur le widget pour le modifier.</string>
     <string name="quick_auto_missing">Cette télécommande n’a pas cette automatisation.</string>
     <string name="quick_auto_too_long">Cette automatisation est trop longue (8 s maximum).</string>
+    <string name="quick_lock_small">Petit : rangée de boutons seulement</string>
+    <string name="quick_lock_expanded">Étendu : à déplier en mini-télécommande</string>
+    <string name="quick_full_remote_switch">Autoriser la télécommande complète sur l’écran de verrouillage</string>
+    <string name="quick_full_remote_hint">Toute personne ayant ton téléphone en main pourra alors piloter la TV – rien d’autre.</string>
+    <string name="lock_full_remote">Télécommande complète</string>
+    <string name="tile_remote">TV télécommande</string>
+    <string name="tile_enable_in_app">À activer dans l’appli</string>
+    <string name="lock_no_remote">Pas encore de télécommande – ouvre l’appli</string>
 </resources>

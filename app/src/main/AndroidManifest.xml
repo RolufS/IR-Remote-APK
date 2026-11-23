@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
     <!-- Handy-Sleep-Timer: genauer Alarm (ab Android 14 nur mit Zustimmung), Restzeit-Benachrichtigung,
@@ -42,7 +43,7 @@
             </intent-filter>
         </receiver>
         <!-- Schnellsteuerung: Knöpfe von Widget und Sperrbildschirm-Benachrichtigung, Widget mit Einrichten,
-             vier Kacheln (ab Android 7). Das Einrichten startet der Launcher, daher exportiert. -->
+             fünf Kacheln (ab Android 7). Das Einrichten startet der Launcher, daher exportiert. -->
         <activity
             android:name=".quick.WidgetConfigActivity"
             android:excludeFromRecents="true"
@@ -102,6 +103,28 @@
             android:exported="true"
             android:icon="@drawable/ic_quick_input"
             android:label="@string/tile_input"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <!-- Ganze Fernbedienung über dem Sperrbildschirm (nur wenn erlaubt): eigene Task, nicht in den letzten Apps,
+             kein Entsperren. Gestartet nur über eigene PendingIntents (Benachrichtigung, Kachel). -->
+        <activity
+            android:name=".quick.LockScreenRemoteActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:label="@string/tile_remote"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            tools:targetApi="27" />
+        <service
+            android:name=".quick.RemoteTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_quick_remote"
+            android:label="@string/tile_remote"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

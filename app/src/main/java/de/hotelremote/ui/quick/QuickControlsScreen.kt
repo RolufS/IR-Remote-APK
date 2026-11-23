@@ -54,12 +54,14 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.quick.InputTileService
+import de.hotelremote.quick.LockStyle
 import de.hotelremote.quick.PowerTileService
 import de.hotelremote.quick.QuickAction
 import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickPrefs
 import de.hotelremote.quick.QuickWidgetEntry
 import de.hotelremote.quick.QuickWidgetProvider
+import de.hotelremote.quick.RemoteTileService
 import de.hotelremote.quick.VolumeDownTileService
 import de.hotelremote.quick.VolumeUpTileService
 import de.hotelremote.quick.inputChoices
@@ -71,8 +73,9 @@ import de.hotelremote.ui.theme.RemoteColors
 
 /**
  * Einstellungen „Schnellsteuerung“: Eingangstaste, Sperrbildschirm-Benachrichtigung (fragt ab Android 13 nach der
- * Erlaubnis für Benachrichtigungen) mit eigener Tastenbelegung, Anleitung für Kacheln und Widget, ggf. mit Knöpfen
- * zum direkten Hinzufügen, und die Liste der Widgets ([widgets]) zum Bearbeiten ihrer Knöpfe.
+ * Erlaubnis für Benachrichtigungen) mit eigener Tastenbelegung und Ansicht (Klein/Erweitert), die ganze
+ * Fernbedienung über dem Sperrbildschirm (Benachrichtigungs-Knopf und Kachel), Anleitung für Kacheln und Widget,
+ * ggf. mit Knöpfen zum direkten Hinzufügen, und die Liste der Widgets ([widgets]) zum Bearbeiten ihrer Knöpfe.
  */
 @Composable
 fun QuickControlsScreen(
@@ -84,6 +87,8 @@ fun QuickControlsScreen(
     widgets: List<QuickWidgetEntry> = emptyList(),
     onEditWidget: (Int) -> Unit = {},
     onNotificationButtons: (List<QuickButton>) -> Unit = {},
+    onLockStyle: (LockStyle) -> Unit = {},
+    onFullRemote: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     var editNotification by rememberSaveable { mutableStateOf(false) }
@@ -168,10 +173,33 @@ fun QuickControlsScreen(
                 Switch(checked = prefs.lockScreen, onCheckedChange = ::setLockScreen, modifier = Modifier.testTag("quick_lock"))
             }
             Body(stringResource(R.string.quick_lock_hint))
+            if (prefs.lockScreen) {
+                Choice(
+                    stringResource(R.string.quick_lock_small),
+                    prefs.lockStyle == LockStyle.SMALL,
+                    Modifier.testTag("quick_lock_small"),
+                ) { onLockStyle(LockStyle.SMALL) }
+                Choice(
+                    stringResource(R.string.quick_lock_expanded),
+                    prefs.lockStyle == LockStyle.EXPANDED,
+                    Modifier.testTag("quick_lock_expanded"),
+                ) { onLockStyle(LockStyle.EXPANDED) }
+            }
             Action(stringResource(R.string.qb_edit_notification), Modifier.testTag("quick_notif_buttons")) { editNotification = true }
             if (denied || (prefs.lockScreen && !canPost)) {
                 Body(stringResource(R.string.quick_notif_blocked), Modifier.testTag("quick_notif_blocked"))
             }
+
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.quick_full_remote_switch),
+                    color = RemoteColors.KeyText,
+                    fontSize = 16.sp,
+                    modifier = Modifier.weight(1f).padding(end = 12.dp),
+                )
+                Switch(checked = prefs.fullRemote, onCheckedChange = onFullRemote, modifier = Modifier.testTag("quick_full_remote"))
+            }
+            Body(stringResource(R.string.quick_full_remote_hint))
 
             Section(stringResource(R.string.quick_tiles_section))
             Body(stringResource(R.string.quick_tiles_howto))
@@ -205,6 +233,7 @@ private fun tiles() = listOf(
     TileEntry(VolumeDownTileService::class.java, R.string.tile_vol_down, R.drawable.ic_quick_vol_down),
     TileEntry(VolumeUpTileService::class.java, R.string.tile_vol_up, R.drawable.ic_quick_vol_up),
     TileEntry(InputTileService::class.java, R.string.tile_input, R.drawable.ic_quick_input),
+    TileEntry(RemoteTileService::class.java, R.string.tile_remote, R.drawable.ic_quick_remote),
 )
 
 /** Systemdialog „Kachel hinzufügen“ (ab Android 13); das Ergebnis braucht die App nicht. */

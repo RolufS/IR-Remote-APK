@@ -222,4 +222,12 @@
     <string name="qb_widget_reconfigure">অথবা উইজেটে দীর্ঘক্ষণ চেপে সেখানেই বদলান।</string>
     <string name="quick_auto_missing">এই রিমোটে এই অটোমেশন নেই।</string>
     <string name="quick_auto_too_long">এই অটোমেশন খুব লম্বা (সর্বোচ্চ ৮ সেকেন্ড)।</string>
+    <string name="quick_lock_small">ছোট: শুধু বোতামের সারি</string>
+    <string name="quick_lock_expanded">বড়: টেনে নামালে মিনি রিমোট</string>
+    <string name="quick_full_remote_switch">লক স্ক্রিনের উপর পুরো রিমোট ব্যবহার করতে দিন</string>
+    <string name="quick_full_remote_hint">তখন আপনার ফোন হাতে পাওয়া যে কেউ টিভি চালাতে পারবে – আর কিছু নয়।</string>
+    <string name="lock_full_remote">পুরো রিমোট</string>
+    <string name="tile_remote">টিভি রিমোট</string>
+    <string name="tile_enable_in_app">অ্যাপে চালু করুন</string>
+    <string name="lock_no_remote">এখনো কোনো রিমোট নেই – অ্যাপ খুলুন</string>
 </resources>

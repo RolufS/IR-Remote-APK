@@ -14,6 +14,7 @@ import de.hotelremote.data.CodeRepository
 import de.hotelremote.data.RemoteStore
 import de.hotelremote.ir.AndroidIrTransmitter
 import de.hotelremote.ir.SignalSender
+import de.hotelremote.quick.LockStyle
 import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickControls
 import de.hotelremote.quick.QuickPrefs
@@ -100,6 +101,19 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
     fun setNotificationButtons(buttons: List<QuickButton>) {
         quickSettings.notificationButtons = buttons
         _quickPrefs.update { it.copy(notificationButtons = quickSettings.notificationButtons) }
+        refreshQuickControls()
+    }
+
+    fun setLockStyle(style: LockStyle) {
+        quickSettings.lockStyle = style
+        _quickPrefs.update { it.copy(lockStyle = style) }
+        refreshQuickControls()
+    }
+
+    /** Ganze Fernbedienung über dem Sperrbildschirm: Knopf in der Benachrichtigung und Kachel. */
+    fun setFullRemote(on: Boolean) {
+        quickSettings.fullRemote = on
+        _quickPrefs.update { it.copy(fullRemote = on) }
         refreshQuickControls()
     }
 

@@ -1,7 +1,10 @@
 package de.hotelremote.quick
 
+import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.service.quicksettings.Tile
+import android.service.quicksettings.TileService
 import androidx.annotation.VisibleForTesting
 import de.hotelremote.R
 import de.hotelremote.automation.runSteps
@@ -103,13 +106,35 @@ object QuickControls {
         return QuickTileModel(Tile.STATE_INACTIVE, remote.title)
     }
 
+    /**
+     * Kachel „TV Fernbedienung“: nur verfügbar, wenn die ganze Fernbedienung über dem Sperrbildschirm erlaubt ist
+     * (sonst Hinweis „In der App aktivieren“) und eine Fernbedienung gespeichert ist.
+     */
+    fun remoteTileModel(context: Context): QuickTileModel {
+        if (!settings(context).fullRemote) return QuickTileModel(Tile.STATE_UNAVAILABLE, context.getString(R.string.tile_enable_in_app))
+        return tileModel(context)
+    }
+
     /** Fernbedienung oder Einstellungen geändert (oder Neustart): Widget und Benachrichtigung neu aufbauen. */
     fun refresh(context: Context) {
         val app = context.applicationContext
         val remote = lastRemote(app)
         QuickWidgetProvider.updateAll(app, remote)
-        val settings = settings(app)
-        QuickNotification(app).update(remote, settings.lockScreen, settings.notificationButtons)
+        QuickNotification(app).update(remote, settings(app).load())
+        requestRemoteTileUpdate(app)
+    }
+
+    /**
+     * Option oder Fernbedienung geändert: das System soll die Kachel „TV Fernbedienung“ neu abfragen. Vor Android 7
+     * wird keine TileService-Klasse angefasst (nur das Klassenliteral, erst nach der Versionsprüfung).
+     */
+    private fun requestRemoteTileUpdate(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
+        try {
+            TileService.requestListeningState(context, ComponentName(context, RemoteTileService::class.java))
+        } catch (e: RuntimeException) {
+            // Kachel nicht hinzugefügt oder Hersteller lehnt ab: sie liest ihren Zustand beim nächsten Aufklappen.
+        }
     }
 
     /** Widgets dieser App in der Reihenfolge ihrer IDs (= Reihenfolge des Hinzufügens). */

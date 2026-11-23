@@ -90,6 +90,8 @@ fun RemoteScreen(
     onQuick: () -> Unit = {},
     /** Während einer Aufnahme: Leiste unter der Kopfzeile; ☰, ⚡ und Wechseln sind dann gesperrt. */
     recording: RecordingBarState? = null,
+    /** Über dem Sperrbildschirm: kein ☰, kein ⚡, kein Wechseln; ⋮ nur „Weitere Tasten“. */
+    locked: Boolean = false,
 ) {
     val keys = remote.keys.keys
     val inputRow = showInputRow(keys)
@@ -103,7 +105,7 @@ fun RemoteScreen(
         verticalArrangement = Arrangement.spacedBy(Gap),
     ) {
         if (!irAvailable) NoIrBanner()
-        Header(remote, remotes, recording != null, onSwitch, onOpenList, onMenu, onQuick)
+        Header(remote, remotes, recording != null, locked, onSwitch, onOpenList, onMenu, onQuick)
         recording?.let { RecordingBar(it) }
         // Tastenfeld immer LTR, auch bei Arabisch: links/rechts, Wippen und Steuerkreuz bleiben an ihrem Platz.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -313,6 +315,7 @@ private fun Header(
     remote: SavedRemote,
     remotes: List<SavedRemote>,
     recording: Boolean,
+    locked: Boolean,
     onSwitch: (String) -> Unit,
     onOpenList: () -> Unit,
     onMenu: (RemoteMenu) -> Unit,
@@ -329,8 +332,12 @@ private fun Header(
         // Links ein Platzhalter in Symbolbreite, damit links und rechts (⚡ + ⋮) gleich breit sind
         // und der Titel genau in der Bildschirmmitte steht.
         Row {
-            HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
-            Box(Modifier.height(40.dp).aspectRatio(1f))
+            if (locked) {
+                HeaderSpacer()
+            } else {
+                HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
+            }
+            HeaderSpacer()
         }
         // Titel nimmt den Platz zwischen den Symbolen und wird bei Bedarf gekürzt.
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -338,7 +345,7 @@ private fun Header(
             // die Namen darin sind ebenfalls zentriert.
             Box {
                 Text(
-                    remote.title + " ▾",
+                    if (locked) remote.title else remote.title + " ▾",
                     color = RemoteColors.KeyText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -348,7 +355,7 @@ private fun Header(
                         .testTag("header_title")
                         .onSizeChanged { titleWidth = it.width }
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable(enabled = !recording) { switchOpen = true }
+                        .clickable(enabled = !recording && !locked) { switchOpen = true }
                         .background(Color.White.copy(alpha = 0.06f))
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                 )
@@ -389,13 +396,18 @@ private fun Header(
                 }
             }
         }
-        HeaderButton(stringResource(R.string.cd_quick), "header_quick", enabled = !recording, onClick = onQuick) {
-            Icon(BoltIcon, null, Modifier.size(20.dp), tint = RemoteColors.KeyText.copy(alpha = 0.75f))
+        if (locked) {
+            HeaderSpacer()
+        } else {
+            HeaderButton(stringResource(R.string.cd_quick), "header_quick", enabled = !recording, onClick = onQuick) {
+                Icon(BoltIcon, null, Modifier.size(20.dp), tint = RemoteColors.KeyText.copy(alpha = 0.75f))
+            }
         }
         Box {
             HeaderIcon("⋮", stringResource(R.string.cd_more_menu), "header_menu") { menuOpen = true }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                 // Während der Aufnahme nur „Weitere Tasten“: die anderen Einträge verließen die Fernbedienung.
+                // Über dem Sperrbildschirm ebenso: dort ist nichts änderbar.
                 listOf(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
                     R.string.menu_automations to RemoteMenu.AUTOMATIONS,
@@ -403,7 +415,7 @@ private fun Header(
                     R.string.menu_wizard to RemoteMenu.WIZARD,
                     R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,
-                ).filter { !recording || it.second == RemoteMenu.EXTRA_KEYS }.forEach { (label, menu) ->
+                ).filter { !(recording || locked) || it.second == RemoteMenu.EXTRA_KEYS }.forEach { (label, menu) ->
                     DropdownMenuItem(
                         text = { Text(stringResource(label)) },
                         onClick = {
@@ -437,6 +449,10 @@ internal object CenteredBelowAnchor : PopupPositionProvider {
         return IntOffset(x, y)
     }
 }
+
+/** Leerer Platz in Symbolbreite, damit der Titel mittig bleibt. */
+@Composable
+private fun HeaderSpacer() = Box(Modifier.height(40.dp).aspectRatio(1f))
 
 @Composable
 private fun HeaderIcon(symbol: String, description: String, tag: String, enabled: Boolean = true, onClick: () -> Unit) {

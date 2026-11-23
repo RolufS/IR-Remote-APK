@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Breiter Knopf „Ganze Fernbedienung“ in der Farbe der SOURCE-Taste (RemoteColors). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <gradient
+                android:angle="270"
+                android:endColor="#FF2C5199"
+                android:startColor="#FF3A67B8" />
+        </shape>
+    </item>
+</ripple>
