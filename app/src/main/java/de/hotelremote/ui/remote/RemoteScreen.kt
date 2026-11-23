@@ -326,7 +326,12 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
+        // Links ein Platzhalter in Symbolbreite, damit links und rechts (⚡ + ⋮) gleich breit sind
+        // und der Titel genau in der Bildschirmmitte steht.
+        Row {
+            HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
+            Box(Modifier.height(40.dp).aspectRatio(1f))
+        }
         // Titel nimmt den Platz zwischen den Symbolen und wird bei Bedarf gekürzt.
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             // Anker ist der Titel selbst; das Menü (mindestens so breit wie der Titel) sitzt mittig darunter,

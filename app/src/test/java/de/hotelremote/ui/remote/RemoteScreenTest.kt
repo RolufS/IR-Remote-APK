@@ -290,6 +290,18 @@ class RemoteScreenTest {
     }
 
     @Test
+    fun titleSitsInTheMiddleOfTheScreen() {
+        show(remote("MUTE").copy(name = "Pattaya"))
+        val title = rule.onNodeWithTag("header_title").fetchSemanticsNode()
+        val list = rule.onNodeWithTag("header_list").fetchSemanticsNode()
+        val more = rule.onNodeWithTag("header_menu").fetchSemanticsNode()
+        val titleCenter = title.positionOnScreen.x + title.size.width / 2f
+        // Mitte zwischen dem linken Rand von ☰ und dem rechten Rand von ⋮ = Mitte der Kopfzeile.
+        val headerCenter = (list.positionOnScreen.x + more.positionOnScreen.x + more.size.width) / 2f
+        assertTrue("Titelmitte $titleCenter, Kopfzeilenmitte $headerCenter", kotlin.math.abs(titleCenter - headerCenter) < 2 * rule.density.density)
+    }
+
+    @Test
     fun centeredMenuOffsetCentersBothWays() {
         assertEquals(-50, centeredMenuOffset(anchor = 100, menu = 200))
         assertEquals(30, centeredMenuOffset(anchor = 160, menu = 100))
