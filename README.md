@@ -6,7 +6,8 @@ mit HDMI-Reihe und Zusatztasten bereit. Automationen senden mehrere Tasten
 nacheinander, ein Sleep-Timer schaltet den TV vom Handy aus (auch bei
 geschlossener App). Ein/Aus, Lautstärke und Eingang gehen auch ohne die App zu
 öffnen: über Kacheln in den Schnelleinstellungen (auch auf dem Sperrbildschirm),
-ein Widget und optional eine Benachrichtigung auf dem Sperrbildschirm.
+Widgets mit frei wählbaren Tasten und Automationen und optional eine
+Benachrichtigung auf dem Sperrbildschirm.
 Die App hat keine INTERNET-Berechtigung;
 die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
 
@@ -78,14 +79,30 @@ Handys keine Widgets auf dem Sperrbildschirm; deshalb drei Wege:
   Hersteller verlangen für Kacheln fremder Apps trotzdem das Entsperren.
 - **Widget** (4×1, skalierbar): lange auf den Startbildschirm drücken → Widgets →
   Fernbedienung → „Schnellsteuerung“; ab Android 8 (je nach Launcher) auch über
-  „Widget hinzufügen“. Zeigt den Namen der Fernbedienung und vier runde Knöpfe;
-  ein Tipp auf den Namen öffnet die App.
+  „Widget hinzufügen“. Zeigt den Namen der Fernbedienung und 1–6 runde Knöpfe;
+  ein Tipp auf den Namen öffnet die App. Beim Hinzufügen öffnet sich „Widget
+  einrichten“ (ab Android 12 optional, dann gilt sofort die Standardbelegung
+  Ein/Aus · leiser · lauter · Eingang). Jedes Widget hat eine eigene Belegung, z. B.
+  ein Lautstärke- und ein HDMI-Widget nebeneinander. Später ändern: ⋮ →
+  Schnellsteuerung → Abschnitt „Widget“ → „Bearbeiten“, ab Android 12 auch lange auf
+  das Widget drücken → bearbeiten.
 - **Sperrbildschirm-Benachrichtigung** (Standard aus): ⋮ → Schnellsteuerung →
   „Steuerung auf dem Sperrbildschirm anzeigen“. Stille, dauerhafte Benachrichtigung
-  im Kanal „Schnellsteuerung“ mit vier Knöpfen, die ohne Entsperren senden; ab
+  im Kanal „Schnellsteuerung“ mit 1–5 Knöpfen (eigene Belegung: „Tasten der
+  Benachrichtigung bearbeiten“), die ohne Entsperren senden; ab
   Android 13 fragt die App nach der Erlaubnis für Benachrichtigungen. Nach einem
   Neustart erscheint sie wieder. Ab Android 14 lässt sie sich entsperrt wegwischen;
   beim nächsten Öffnen der App kommt sie zurück.
+
+**Belegung** (Widget und Benachrichtigung): jede Taste der zuletzt benutzten
+Fernbedienung (Gruppen „Häufig“, „Alle Tasten“, „Weitere Tasten“ mit den Extra-Tasten
+wie „Netflix“), „Eingang“ oder eine Automation dieser Fernbedienung. Automationen laufen
+direkt im Hintergrund (wie beim Sleep-Timer) und dürfen höchstens 8 s Wartezeit haben;
+längere sind in der Auswahl gesperrt. Bekannte Tasten zeigen ein Symbol (Ein/Aus rot,
+Lautsprecher −/+, Stumm, Pfeile), HDMI und SOURCE sind blau, Farbtasten farbig, alle anderen
+tragen eine kurze Beschriftung (höchstens 6 Zeichen), Automationen einen Blitz mit Namen.
+Fehlt die Taste oder Automation bei der aktuellen Fernbedienung (andere Marke), erscheint ein
+kurzer Hinweis. Die Kacheln bleiben fest belegt.
 
 **Eingang** sendet die in ⋮ → Schnellsteuerung gewählte Taste (HDMI 1–4 oder SOURCE,
 angeboten werden nur Tasten der aktuellen Fernbedienung), sonst HDMI 1, sonst SOURCE.
@@ -94,14 +111,16 @@ Standard. **Ein/Aus** sendet wie ein kurzer Druck in der App den Umschalter POWE
 sonst „Einschalten“ bzw. „Ausschalten“.
 
 Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, Widget
-`QuickWidgetProvider.kt`, Benachrichtigung `QuickNotification.kt`, Knöpfe
-`QuickControlReceiver.kt`), Einstellungen `ui/quick/QuickControlsScreen.kt`, Layouts
-`res/layout/widget_quick.xml` und `notification_quick.xml`, Widget-Info
+`QuickWidgetProvider.kt`, Einrichten `WidgetConfigActivity.kt`, Benachrichtigung
+`QuickNotification.kt`, Knöpfe `QuickControlReceiver.kt`, Belegung `QuickButton.kt` und
+`QuickButtonLook.kt`), Einstellungen `ui/quick/QuickControlsScreen.kt` und
+`ui/quick/QuickButtonsEditor.kt`, Layouts `res/layout/widget_quick.xml` (bis 4 Knöpfe),
+`widget_quick_dense.xml` (5–6) und `notification_quick.xml`, Widget-Info
 `res/xml/quick_widget_info.xml`.
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.4.apk`
+- USB: `adb install -r dist/Fernbedienung-1.5.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -110,11 +129,11 @@ Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, 
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.4.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.5.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.4.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.5.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -131,7 +150,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.4.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.5.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -199,14 +218,28 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
     Schnelleinstellungen vom Sperrbildschirm aufklappen: Ein/Aus, leiser, lauter und Eingang
     wirken am TV ohne Entsperren, das Handy vibriert kurz.
 17. ⋮ → Schnellsteuerung → Eingangstaste z. B. HDMI 2: die Kachel „TV Eingang“ schaltet auf HDMI 2.
-18. Widget hinzufügen (lange auf den Startbildschirm drücken oder „Widget hinzufügen“): die vier
-    Knöpfe senden; in der App auf eine andere Fernbedienung wechseln oder sie umbenennen –
-    der Name im Widget ändert sich.
-19. ⋮ → Schnellsteuerung → „Steuerung auf dem Sperrbildschirm anzeigen“ (ab Android 13 mit
+18. Widget hinzufügen (lange auf den Startbildschirm drücken oder „Widget hinzufügen“): „Widget
+    einrichten“ öffnet sich (vor Android 12 immer). „Abbrechen“: vor Android 12 wird kein Widget
+    angelegt. „Speichern“ mit der Standardbelegung: die vier Knöpfe senden; in der App auf eine
+    andere Fernbedienung wechseln oder sie umbenennen – der Name im Widget ändert sich.
+19. Zweites Widget mit z. B. Stumm, HDMI 1, HDMI 2, „Netflix“ (Extra-Taste), OK und einer
+    Automation „Sleep 60“ (6 Knöpfe, Vorschau prüfen): das Widget zeigt sechs kleinere Knöpfe mit
+    Symbol bzw. Beschriftung, jeder sendet; die Automation läuft komplett, auch bei gesperrtem
+    Handy. Eine Automation mit mehr als 8 s Wartezeit ist in der Auswahl ausgegraut („zu lang
+    für das Widget“). Das erste Widget ist unverändert.
+20. ⋮ → Schnellsteuerung → „Widget“: beide Widgets stehen in der Liste („Widget 2 · Tasten: 6“);
+    „Bearbeiten“, Reihenfolge ändern, speichern: das Widget folgt sofort. Ab Android 12 auch
+    lange auf das Widget drücken → bearbeiten. Widget entfernen: es verschwindet aus der Liste.
+21. In der App auf eine Fernbedienung einer anderen Marke ohne HDMI 2 wechseln, im Widget HDMI 2
+    tippen: Hinweis „Diese Taste fehlt der Fernbedienung.“; fehlende Automation entsprechend.
+22. Philips-TV (RC5/RC6): Stumm im Widget zweimal tippen (dazwischen App aus „Zuletzt
+    verwendet“ wischen): der TV schaltet beide Male um.
+23. ⋮ → Schnellsteuerung → „Steuerung auf dem Sperrbildschirm anzeigen“ (ab Android 13 mit
     Erlaubnisfrage): stille Benachrichtigung mit vier Knöpfen; auf dem Sperrbildschirm senden
-    sie ohne Entsperren. Handy neu starten: die Benachrichtigung ist wieder da. Schalter aus:
-    sie verschwindet.
-20. Alle Fernbedienungen löschen: Kacheln sind ausgegraut („Keine Fernbedienung“), das Widget
+    sie ohne Entsperren. „Tasten der Benachrichtigung bearbeiten“ (höchstens 5): die
+    Benachrichtigung zeigt die neue Belegung. Handy neu starten: die Benachrichtigung ist wieder
+    da. Schalter aus: sie verschwindet.
+24. Alle Fernbedienungen löschen: Kacheln sind ausgegraut („Keine Fernbedienung“), das Widget
     zeigt „Keine Fernbedienung“.
 
 Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
