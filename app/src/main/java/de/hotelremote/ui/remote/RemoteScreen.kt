@@ -1,6 +1,18 @@
 package de.hotelremote.ui.remote
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,7 +61,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -309,7 +320,6 @@ private fun Header(
 ) {
     var switchOpen by remember { mutableStateOf(false) }
     var titleWidth by remember { mutableIntStateOf(0) }
-    var menuWidth by remember { mutableIntStateOf(0) }
     var menuOpen by remember { mutableStateOf(false) }
     Row(
         Modifier.fillMaxWidth().height(40.dp),
@@ -337,23 +347,39 @@ private fun Header(
                         .background(Color.White.copy(alpha = 0.06f))
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                 )
-                DropdownMenu(
-                    expanded = switchOpen,
-                    onDismissRequest = { switchOpen = false },
-                    offset = with(LocalDensity.current) { DpOffset(centeredMenuOffset(titleWidth, menuWidth).toDp(), 0.dp) },
-                    modifier = Modifier
-                        .testTag("switch_menu")
-                        .widthIn(min = with(LocalDensity.current) { titleWidth.toDp() })
-                        .onSizeChanged { menuWidth = it.width },
-                ) {
-                    remotes.forEach { r ->
-                        DropdownMenuItem(
-                            text = { Text(r.title, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
-                            onClick = {
-                                switchOpen = false
-                                onSwitch(r.id)
-                            },
-                        )
+                if (switchOpen) {
+                    // Eigenes Popup statt DropdownMenu: der Positionsgeber kennt die gemessene Menübreite schon beim
+                    // ersten Bild, das Menü öffnet daher sofort mittig (kein Messen-und-Verschieben).
+                    Popup(
+                        popupPositionProvider = CenteredBelowAnchor,
+                        onDismissRequest = { switchOpen = false },
+                        properties = PopupProperties(focusable = true),
+                    ) {
+                        Surface(
+                            shape = MenuDefaults.shape,
+                            color = MenuDefaults.containerColor,
+                            tonalElevation = MenuDefaults.TonalElevation,
+                            shadowElevation = MenuDefaults.ShadowElevation,
+                        ) {
+                            Column(
+                                Modifier
+                                    .testTag("switch_menu")
+                                    .widthIn(min = maxOf(112.dp, with(LocalDensity.current) { titleWidth.toDp() }), max = 280.dp)
+                                    .width(IntrinsicSize.Max)
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(vertical = 8.dp),
+                            ) {
+                                remotes.forEach { r ->
+                                    DropdownMenuItem(
+                                        text = { Text(r.title, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
+                                        onClick = {
+                                            switchOpen = false
+                                            onSwitch(r.id)
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -387,6 +413,24 @@ private fun Header(
 
 /** Waagerechter Versatz (px), der ein Menü der Breite [menu] mittig unter einen Anker der Breite [anchor] setzt. */
 internal fun centeredMenuOffset(anchor: Int, menu: Int): Int = (anchor - menu) / 2
+
+/** Setzt ein Popup mittig unter den Anker, im Fenster gehalten; passt es unten nicht hin, darüber. */
+internal object CenteredBelowAnchor : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val x = (anchorBounds.left + centeredMenuOffset(anchorBounds.width, popupContentSize.width))
+            .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
+        val below = anchorBounds.bottom
+        val y = if (below + popupContentSize.height <= windowSize.height) below else {
+            (anchorBounds.top - popupContentSize.height).coerceAtLeast(0)
+        }
+        return IntOffset(x, y)
+    }
+}
 
 @Composable
 private fun HeaderIcon(symbol: String, description: String, tag: String, enabled: Boolean = true, onClick: () -> Unit) {

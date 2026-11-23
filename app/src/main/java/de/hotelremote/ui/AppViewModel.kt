@@ -3,6 +3,7 @@ package de.hotelremote.ui
 import android.app.Application
 import android.content.Context
 import android.content.res.Resources
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
@@ -44,6 +45,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         irAvailable = transmitter.available,
         languageChosen = !languageChoice.needed,
         hold = sender::hold,
+        recorderClock = SystemClock::elapsedRealtime,
     )
 
     private val timerScheduler = SleepTimerGraph.scheduler(app)

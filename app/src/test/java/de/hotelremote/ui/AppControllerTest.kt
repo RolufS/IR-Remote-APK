@@ -80,6 +80,7 @@ class AppControllerTest {
         store: RemoteStorage,
         languageChosen: Boolean = true,
         hold: ((IrSignal) -> Job?)? = null,
+        recorderClock: () -> Long = { 0L },
         catalog: () -> CodeCatalog = { FakeCatalog() },
     ): AppController {
         val d = StandardTestDispatcher(testScheduler)
@@ -93,6 +94,7 @@ class AppControllerTest {
             clock = { 1000L },
             languageChosen = languageChosen,
             hold = hold ?: { sent += it; null },
+            recorderClock = recorderClock,
         ).also { runCurrent() }
     }
 
@@ -358,6 +360,17 @@ class AppControllerTest {
         lastUsed = 1,
         automations = automations,
     )
+
+    @Test fun recordingPausesUseTheMonotonicClockNotTheWallClock() = runTest {
+        // Wanduhr steht (clock = 1000), die monotone Uhr läuft 3 s weiter: die Pause wird 3 s.
+        var t = 0L
+        val c = controller(FakeStorage(listOf(recordingRemote())), recorderClock = { t })
+        c.recordNew(returnTo = Screen.Remote)
+        c.press(Keys.MENU)
+        t = 3_000
+        c.press(Keys.OK)
+        assertEquals(3_000L, c.recordedSteps.value.first().delayAfterMs)
+    }
 
     @Test fun pressWhileRecordingSendsAndRecords() = runTest {
         val c = controller(FakeStorage(listOf(recordingRemote())))

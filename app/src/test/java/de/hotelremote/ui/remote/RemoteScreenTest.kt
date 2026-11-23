@@ -18,6 +18,10 @@ import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import kotlinx.coroutines.Job
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -289,5 +293,19 @@ class RemoteScreenTest {
     fun centeredMenuOffsetCentersBothWays() {
         assertEquals(-50, centeredMenuOffset(anchor = 100, menu = 200))
         assertEquals(30, centeredMenuOffset(anchor = 160, menu = 100))
+    }
+
+    @Test
+    fun centeredPopupPositionIsKnownFromTheMeasuredSize() {
+        val window = IntSize(1000, 2000)
+        val anchor = IntRect(left = 400, top = 100, right = 600, bottom = 150)
+        // Breiter als der Anker: mittig darunter.
+        assertEquals(IntOffset(350, 150), CenteredBelowAnchor.calculatePosition(anchor, window, LayoutDirection.Ltr, IntSize(300, 400)))
+        // Am Rand: im Fenster gehalten.
+        val edge = IntRect(left = 0, top = 100, right = 100, bottom = 150)
+        assertEquals(IntOffset(0, 150), CenteredBelowAnchor.calculatePosition(edge, window, LayoutDirection.Ltr, IntSize(300, 400)))
+        // Passt unten nicht hin: darüber.
+        val low = IntRect(left = 400, top = 1900, right = 600, bottom = 1950)
+        assertEquals(IntOffset(350, 1500), CenteredBelowAnchor.calculatePosition(low, window, LayoutDirection.Ltr, IntSize(300, 400)))
     }
 }

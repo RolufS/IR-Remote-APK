@@ -93,6 +93,8 @@ class AppController(
     languageChosen: Boolean = true,
     /** Gedrückt halten (wiederholt bis zum Abbrechen des Jobs); Standard: einmal senden. */
     private val hold: (IrSignal) -> Job? = { send(it); null },
+    /** Monotone Uhr (ms) für die Pausen der Aufnahme; unabhängig von Änderungen der Uhrzeit. */
+    recorderClock: () -> Long = { System.nanoTime() / 1_000_000 },
 ) {
     private val _state = MutableStateFlow(
         AppUiState(
@@ -112,7 +114,7 @@ class AppController(
     /** Laufende Automation (null = keine). */
     val automationProgress: StateFlow<AutomationProgress?> = automationRunner.progress
 
-    private val recorder = AutomationRecorder(clock)
+    private val recorder = AutomationRecorder(recorderClock)
 
     /** Schritte der laufenden Aufnahme (vorhandene und aufgenommene). */
     val recordedSteps: StateFlow<List<AutomationStep>> = recorder.steps
