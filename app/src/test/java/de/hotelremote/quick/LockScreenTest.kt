@@ -37,7 +37,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 private const val ANDROID = "http://schemas.android.com/apk/res/android"
 
-/** Sperrbildschirm: Einstellungen, aufziehbare Mini-Fernbedienung, Knopf „Ganze Fernbedienung“, Kachel. */
+/** Sperrbildschirm: Einstellungen, aufziehbare Mini-Fernbedienung, Tippen für die ganze Fernbedienung, Kachel. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class LockScreenTest {
@@ -181,18 +181,48 @@ class LockScreenTest {
         assertEquals(listOf(2), tx.sent)
     }
 
-    @Test fun fullRemoteButtonOnlyWhenAllowed() {
+    private fun Notification.tapTarget(): ComponentName? = shadowOf(contentIntent ?: error("kein contentIntent")).savedIntent.component
+
+    /**
+     * Nur das Tippen auf die Benachrichtigung selbst (contentIntent) darf die ganze Fernbedienung öffnen: SystemUI
+     * startet nur ihn ohne Entsperren über dem Sperrbildschirm, Klicks in der eigenen Ansicht fragen immer nach.
+     */
+    @Test fun notificationTapOpensFullRemoteOnlyWhenAllowed() {
         addRemote(Keys.POWER)
         var n = show()
-        assertEquals(View.GONE, n.small().findViewById<View>(R.id.quick_full_remote).visibility)
-        assertEquals(View.GONE, n.big().findViewById<View>(R.id.mini_full_remote).visibility)
+        assertEquals(ComponentName(app, de.hotelremote.MainActivity::class.java), n.tapTarget())
+        assertEquals("Zimmer 412", n.extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString())
         settings.fullRemote = true
         n = show()
-        assertEquals(View.VISIBLE, n.small().findViewById<View>(R.id.quick_full_remote).visibility)
-        assertEquals(View.VISIBLE, n.big().findViewById<View>(R.id.mini_full_remote).visibility)
-        // Auch bei „Klein“ als letzter Knopf der Reihe.
+        assertEquals(ComponentName(app, LockScreenRemoteActivity::class.java), n.tapTarget())
+        assertTrue(shadowOf(n.contentIntent).isActivity)
+        assertTrue(shadowOf(n.contentIntent).flags and android.app.PendingIntent.FLAG_IMMUTABLE != 0)
+        assertEquals(
+            "Zimmer 412 · " + app.getString(R.string.lock_tap_full_remote),
+            n.extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString(),
+        )
+        // Auch bei „Klein“.
         settings.lockStyle = LockStyle.SMALL
-        assertEquals(View.VISIBLE, show().small().findViewById<View>(R.id.quick_full_remote).visibility)
+        assertEquals(ComponentName(app, LockScreenRemoteActivity::class.java), show().tapTarget())
+    }
+
+    private fun View.clickables(): List<View> = buildList {
+        if (hasOnClickListeners()) add(this@clickables)
+        if (this@clickables is android.view.ViewGroup) for (i in 0 until childCount) addAll(getChildAt(i).clickables())
+    }
+
+    /** Keine Taste der eingeklappten Reihe oder der Mini-Fernbedienung startet eine Activity (nur Broadcasts). */
+    @Test fun notificationKeysNeverStartActivity() {
+        addRemote(*MINI_REMOTE.mapNotNull { (it.second as? QuickButton.Key)?.key }.toTypedArray(), Keys.HDMI1)
+        settings.fullRemote = true
+        val n = show()
+        val clickables = n.small().clickables() + n.big().clickables()
+        assertEquals(settings.notificationButtons.size + MINI_REMOTE.size, clickables.size)
+        for (view in clickables) {
+            view.performClick()
+            assertNull("${view.contentDescription} startet eine Activity", shadowOf(app).nextStartedActivity)
+        }
+        assertTrue(shadowOf(app).broadcastIntents.isNotEmpty())
     }
 
     @Test fun fullRemoteIntentOpensLockActivity() {
@@ -231,6 +261,35 @@ class LockScreenTest {
         val ready = QuickControls.remoteTileModel(app)
         assertEquals(Tile.STATE_INACTIVE, ready.state)
         assertEquals("Zimmer 412", ready.subtitle)
+    }
+
+    private fun RemoteTileService.listen(): Tile = also { it.onStartListening() }.qsTile
+
+    /** Ab Android 14 startet SystemUI die Activity selbst (über dem Sperrbildschirm), ohne onClick. */
+    @Config(sdk = [34, 35])
+    @Test fun remoteTileLaunchesActivityDirectly() {
+        addRemote(Keys.POWER)
+        settings.fullRemote = true
+        val launch = Robolectric.setupService(RemoteTileService::class.java).listen().activityLaunchForClick
+        assertNotNull(launch)
+        assertTrue(shadowOf(launch).isActivity)
+        assertEquals(ComponentName(app, LockScreenRemoteActivity::class.java), shadowOf(launch).savedIntent.component)
+    }
+
+    @Config(sdk = [34, 35])
+    @Test fun remoteTileNoDirectLaunchWhenUnavailable() {
+        val service = Robolectric.setupService(RemoteTileService::class.java)
+        addRemote(Keys.POWER)
+        var tile = service.listen()
+        assertEquals(Tile.STATE_UNAVAILABLE, tile.state)
+        assertNull(tile.activityLaunchForClick)
+        // Erst erlaubt, dann wieder aus: der gesetzte PendingIntent wird entfernt.
+        settings.fullRemote = true
+        assertNotNull(service.listen().activityLaunchForClick)
+        settings.fullRemote = false
+        tile = service.listen()
+        assertEquals(Tile.STATE_UNAVAILABLE, tile.state)
+        assertNull(tile.activityLaunchForClick)
     }
 
     @Config(sdk = [33])

@@ -200,6 +200,7 @@ fun QuickControlsScreen(
                 Switch(checked = prefs.fullRemote, onCheckedChange = onFullRemote, modifier = Modifier.testTag("quick_full_remote"))
             }
             Body(stringResource(R.string.quick_full_remote_hint))
+            Body(stringResource(R.string.quick_full_remote_howto))
 
             Section(stringResource(R.string.quick_tiles_section))
             Body(stringResource(R.string.quick_tiles_howto))

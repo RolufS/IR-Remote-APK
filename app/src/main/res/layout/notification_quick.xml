@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Sperrbildschirm-Benachrichtigung: kompakte Reihe mit bis zu 5 Knöpfen (Plätze quick_slot_1–5) und, wenn
-     erlaubt, „Ganze Fernbedienung“ als letztem Knopf. -->
+<!-- Sperrbildschirm-Benachrichtigung: kompakte Reihe mit bis zu 5 Knöpfen (Plätze quick_slot_1–5). Die ganze
+     Fernbedienung öffnet das Tippen auf die Benachrichtigung selbst (contentIntent), kein Knopf hier. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -196,23 +196,5 @@
                 android:textStyle="bold"
                 android:visibility="gone" />
         </LinearLayout>
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/quick_full_remote"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/quick_full_remote_btn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:background="@drawable/quick_input_bg"
-            android:contentDescription="@string/lock_full_remote"
-            android:scaleType="center"
-            android:src="@drawable/ic_quick_remote" />
     </FrameLayout>
 </LinearLayout>

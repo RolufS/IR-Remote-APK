@@ -43,6 +43,11 @@ class InputTileService : QuickTileService(QuickAction.INPUT)
 /**
  * Fünfte Kachel „TV Fernbedienung“: öffnet die ganze Fernbedienung über dem Sperrbildschirm
  * ([LockScreenRemoteActivity]). Nur verfügbar, wenn das in „Schnellsteuerung“ erlaubt ist.
+ *
+ * Ab Android 14 hängt die Kachel den PendingIntent per `Tile.setActivityLaunchForClick` an: dann ruft SystemUI
+ * [onClick] nicht auf, sondern startet die Activity selbst und zeigt sie über dem Sperrbildschirm, ohne Entsperren.
+ * `startActivityAndCollapse` aus [onClick] fragt dagegen immer nach dem Entsperren; das bleibt der Weg vor Android 14
+ * (und die Reserve, falls ein System den angehängten PendingIntent ignoriert).
  */
 @RequiresApi(Build.VERSION_CODES.N)
 class RemoteTileService : TileService() {
@@ -70,6 +75,13 @@ class RemoteTileService : TileService() {
         val model = QuickControls.remoteTileModel(this)
         tile.state = model.state
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) tile.subtitle = model.subtitle
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) setLaunch(tile, model.state != Tile.STATE_UNAVAILABLE)
         tile.updateTile()
+    }
+
+    /** Nur verfügbar mit PendingIntent; sonst entfernen, damit ein Tippen nichts startet. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun setLaunch(tile: Tile, available: Boolean) {
+        tile.activityLaunchForClick = if (available) LockScreenRemoteActivity.pendingIntent(this) else null
     }
 }

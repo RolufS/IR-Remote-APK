@@ -226,7 +226,8 @@
     <string name="quick_lock_expanded">Erweitert: zur Mini-Fernbedienung aufziehbar</string>
     <string name="quick_full_remote_switch">Ganze Fernbedienung über dem Sperrbildschirm erlauben</string>
     <string name="quick_full_remote_hint">Jeder, der dein Handy in der Hand hat, kann dann den Fernseher bedienen – sonst nichts.</string>
-    <string name="lock_full_remote">Ganze Fernbedienung</string>
+    <string name="quick_full_remote_howto">Zum Öffnen tippe auf die Sperrbildschirm-Benachrichtigung oder die Kachel „TV Fernbedienung“.</string>
+    <string name="lock_tap_full_remote">Tippen für die ganze Fernbedienung</string>
     <string name="tile_remote">TV Fernbedienung</string>
     <string name="tile_enable_in_app">In der App aktivieren</string>
     <string name="lock_no_remote">Noch keine Fernbedienung – App öffnen</string>

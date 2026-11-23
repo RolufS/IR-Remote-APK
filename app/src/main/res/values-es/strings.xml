@@ -226,7 +226,8 @@
     <string name="quick_lock_expanded">Ampliado: desliza para ver un minimando</string>
     <string name="quick_full_remote_switch">Permitir el control completo sobre la pantalla de bloqueo</string>
     <string name="quick_full_remote_hint">Cualquiera que tenga tu móvil podrá manejar la TV, nada más.</string>
-    <string name="lock_full_remote">Control completo</string>
+    <string name="quick_full_remote_howto">Para abrirlo, toca la notificación de la pantalla de bloqueo o el icono «TV control remoto».</string>
+    <string name="lock_tap_full_remote">Toca para el control completo</string>
     <string name="tile_remote">TV control remoto</string>
     <string name="tile_enable_in_app">Actívalo en la app</string>
     <string name="lock_no_remote">Aún no hay control remoto: abre la app</string>

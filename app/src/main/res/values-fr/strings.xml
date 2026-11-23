@@ -226,7 +226,8 @@
     <string name="quick_lock_expanded">Étendu : à déplier en mini-télécommande</string>
     <string name="quick_full_remote_switch">Autoriser la télécommande complète sur l’écran de verrouillage</string>
     <string name="quick_full_remote_hint">Toute personne ayant ton téléphone en main pourra alors piloter la TV – rien d’autre.</string>
-    <string name="lock_full_remote">Télécommande complète</string>
+    <string name="quick_full_remote_howto">Pour l’ouvrir, touche la notification de l’écran de verrouillage ou la vignette « TV télécommande ».</string>
+    <string name="lock_tap_full_remote">Touche pour la télécommande complète</string>
     <string name="tile_remote">TV télécommande</string>
     <string name="tile_enable_in_app">À activer dans l’appli</string>
     <string name="lock_no_remote">Pas encore de télécommande – ouvre l’appli</string>

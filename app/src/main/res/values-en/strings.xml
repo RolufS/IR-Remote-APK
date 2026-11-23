@@ -226,7 +226,8 @@
     <string name="quick_lock_expanded">Expanded: pull down for a mini remote</string>
     <string name="quick_full_remote_switch">Allow the full remote over the lock screen</string>
     <string name="quick_full_remote_hint">Anyone holding your phone can then control the TV – nothing else.</string>
-    <string name="lock_full_remote">Full remote</string>
+    <string name="quick_full_remote_howto">To open it, tap the lock screen notification or the “TV remote” tile.</string>
+    <string name="lock_tap_full_remote">Tap for the full remote</string>
     <string name="tile_remote">TV remote</string>
     <string name="tile_enable_in_app">Turn on in the app</string>
     <string name="lock_no_remote">No remote yet – open the app</string>

@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
 /**
- * Ganze Fernbedienung über dem Sperrbildschirm (Knopf in der Benachrichtigung, Kachel „TV Fernbedienung“): die
+ * Ganze Fernbedienung über dem Sperrbildschirm (Tippen auf die Benachrichtigung, Kachel „TV Fernbedienung“): die
  * zuletzt benutzte Fernbedienung, eingeschränkt auf Tasten und „Weitere Tasten“. Nichts ist änderbar, außer Name
  * und Tasten der Fernbedienung wird nichts gezeigt. Bewusst kein `requestDismissKeyguard` und kein
  * `setTurnScreenOn`; eigene Task (leere taskAffinity), damit die App-Task nicht über den Sperrbildschirm kommt.

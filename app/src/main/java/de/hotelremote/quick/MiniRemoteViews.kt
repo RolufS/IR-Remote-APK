@@ -48,9 +48,9 @@ internal fun miniRemoteSlot(button: QuickButton): String = when (button) {
 /**
  * Belegt die Mini-Fernbedienung: Tasten, die [remote] fehlt, sind unsichtbar (Platz bleibt, das Steuerkreuz behält
  * seine Form); ohne Fernbedienung bleiben alle sichtbar und melden beim Tippen „Keine Fernbedienung“.
- * [fullRemote] zeigt oben rechts im Steuerkreuz das Symbol „Ganze Fernbedienung“ (ohne eigene Zeile).
+ * Alle Tasten senden per Broadcast (ohne Entsperren); die ganze Fernbedienung öffnet nur der contentIntent.
  */
-internal fun RemoteViews.bindMiniRemote(context: Context, remote: SavedRemote?, inputKey: String?, fullRemote: Boolean) {
+internal fun RemoteViews.bindMiniRemote(context: Context, remote: SavedRemote?, inputKey: String?) {
     val keys = remote?.keys?.keys
     for ((id, button) in MINI_REMOTE) {
         val present = keys == null || buttonKey(button, keys, inputKey) != null
@@ -59,11 +59,4 @@ internal fun RemoteViews.bindMiniRemote(context: Context, remote: SavedRemote?, 
         setContentDescription(id, quickButtonName(context.resources, button))
         setOnClickPendingIntent(id, QuickControlReceiver.pendingIntent(context, button, miniRemoteSlot(button)))
     }
-    bindFullRemote(context, R.id.mini_full_remote, R.id.mini_full_remote, fullRemote)
-}
-
-/** Knopf „Ganze Fernbedienung“ ([root] mit dem Knopf [button]): sichtbar und verknüpft nur, wenn erlaubt. */
-internal fun RemoteViews.bindFullRemote(context: Context, root: Int, button: Int, allowed: Boolean) {
-    setViewVisibility(root, if (allowed) View.VISIBLE else View.GONE)
-    if (allowed) setOnClickPendingIntent(button, LockScreenRemoteActivity.pendingIntent(context))
 }

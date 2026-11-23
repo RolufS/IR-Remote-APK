@@ -16,8 +16,10 @@ import de.hotelremote.sleeptimer.AndroidSleepTimerNotifier
 /**
  * Steuerung auf dem Sperrbildschirm: dauerhafte, stille Benachrichtigung (Kanal „Schnellsteuerung“, öffentlich
  * sichtbar) mit 1–5 frei belegbaren Knöpfen, die per Broadcast ohne Entsperren senden. Bei „Erweitert“ lässt sie sich
- * zur Mini-Fernbedienung aufziehen; wenn erlaubt, öffnet ein Knopf die ganze Fernbedienung über dem Sperrbildschirm
- * ([LockScreenRemoteActivity]). Kein Foreground-Service.
+ * zur Mini-Fernbedienung aufziehen. Wenn erlaubt, öffnet das Tippen auf die Benachrichtigung selbst die ganze
+ * Fernbedienung über dem Sperrbildschirm ([LockScreenRemoteActivity]): nur den contentIntent startet SystemUI ohne
+ * Entsperren (es prüft `showWhenLocked`), Klicks auf Activities aus eigenen Ansichten fragen immer nach dem Entsperren.
+ * Kein Foreground-Service.
  */
 class QuickNotification(private val context: Context) {
     private val manager = NotificationManagerCompat.from(context)
@@ -32,11 +34,10 @@ class QuickNotification(private val context: Context) {
         ensureChannel()
         val views = RemoteViews(context.packageName, R.layout.notification_quick).apply {
             bindQuickButtons(context, prefs.notificationButtons, QuickButtons.MAX_NOTIFICATION, "notification")
-            bindFullRemote(context, R.id.quick_full_remote, R.id.quick_full_remote_btn, prefs.fullRemote)
         }
         val big = if (prefs.lockStyle == LockStyle.EXPANDED) {
             RemoteViews(context.packageName, R.layout.notification_quick_big).apply {
-                bindMiniRemote(context, remote, prefs.inputKey, prefs.fullRemote)
+                bindMiniRemote(context, remote, prefs.inputKey)
             }
         } else {
             null
@@ -44,7 +45,7 @@ class QuickNotification(private val context: Context) {
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_quick_power)
             .setContentTitle(context.getString(R.string.menu_quick))
-            .setSubText(remote?.title ?: context.getString(R.string.quick_no_remote))
+            .setSubText(subText(remote, prefs.fullRemote))
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(views)
             .setCustomBigContentView(big)
@@ -53,13 +54,19 @@ class QuickNotification(private val context: Context) {
             .setShowWhen(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setContentIntent(openAppIntent(context))
+            .setContentIntent(if (prefs.fullRemote) LockScreenRemoteActivity.pendingIntent(context) else openAppIntent(context))
             .build()
         try {
             manager.notify(ID, n)
         } catch (e: SecurityException) {
             // Erlaubnis gerade entzogen: keine Steuerung auf dem Sperrbildschirm.
         }
+    }
+
+    /** Kopfzeile: Fernbedienung, und wenn erlaubt der Hinweis aufs Tippen (eigene Ansichten zeigen keinen Text). */
+    private fun subText(remote: SavedRemote?, fullRemote: Boolean): String {
+        val name = remote?.title ?: context.getString(R.string.quick_no_remote)
+        return if (fullRemote) "$name · ${context.getString(R.string.lock_tap_full_remote)}" else name
     }
 
     private fun ensureChannel() {

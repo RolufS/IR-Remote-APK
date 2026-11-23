@@ -226,7 +226,8 @@
     <string name="quick_lock_expanded">বড়: টেনে নামালে মিনি রিমোট</string>
     <string name="quick_full_remote_switch">লক স্ক্রিনের উপর পুরো রিমোট ব্যবহার করতে দিন</string>
     <string name="quick_full_remote_hint">তখন আপনার ফোন হাতে পাওয়া যে কেউ টিভি চালাতে পারবে – আর কিছু নয়।</string>
-    <string name="lock_full_remote">পুরো রিমোট</string>
+    <string name="quick_full_remote_howto">খুলতে লক স্ক্রিনের বিজ্ঞপ্তি বা „টিভি রিমোট“ টাইলে ট্যাপ করুন।</string>
+    <string name="lock_tap_full_remote">পুরো রিমোটের জন্য ট্যাপ করুন</string>
     <string name="tile_remote">টিভি রিমোট</string>
     <string name="tile_enable_in_app">অ্যাপে চালু করুন</string>
     <string name="lock_no_remote">এখনো কোনো রিমোট নেই – অ্যাপ খুলুন</string>
