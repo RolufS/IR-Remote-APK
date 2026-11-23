@@ -85,7 +85,7 @@ import java.io.File
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
- * Rendert Screenshots (1080 x 1920) aus den echten Compose-Bildschirmen: die vier Play-Store-Bilder nach
+ * Rendert Screenshots (1080 x 1920) aus den echten Compose-Bildschirmen: die acht Play-Store-Bilder nach
  * `docs/play-store/` (Eigenschaft [DIR_PROPERTY]) und die Bilder der GitHub-Seite nach `docs/screenshots/` (daneben).
  * Läuft nur mit `-Pscreenshots`, sonst übersprungen:
  * `./gradlew :app:testDebugUnitTest --tests de.hotelremote.StoreScreenshots -Pscreenshots`
@@ -168,7 +168,7 @@ class StoreScreenshots {
         Wizard(WizardState.TestInputs(samsung.id, codeSetId = 0, variantIndex = 0, variantCount = 2))
     }
 
-    // --- Nur GitHub-Seite ---
+    // --- GitHub-Seite; mit `store` auch Play Store (Bilder 5 bis 8) ---
 
     /** ⚡-Sheet über der Fernbedienung; nachgebildet ohne ModalBottomSheet (eigenes Fenster, Animation). */
     @Test fun quickSheet() = shoot("05-quick-menu.png") {
@@ -202,14 +202,14 @@ class StoreScreenshots {
         }
     }
 
-    @Test fun automations() = shoot("06-automations.png") {
+    @Test fun automations() = shoot("06-automations.png", store = "screenshot-5-automations.png") {
         AutomationListScreen(
             automations = remote.automations, progress = null, onRun = {}, onCancelRun = {}, onEdit = {}, onDelete = {},
             onBack = {}, templates = SleepTemplates.forRemote(remote.brand, remote.keys.keys),
         )
     }
 
-    @Test fun recording() = shoot("07-recording.png") {
+    @Test fun recording() = shoot("07-recording.png", store = "screenshot-6-recording.png") {
         Remote(recording = RecordingBarState(recordedCount = 3, hint = false, onUndo = {}, onDone = {}, onCancel = {}))
     }
 
@@ -228,7 +228,7 @@ class StoreScreenshots {
         )
     }
 
-    @Test fun widgetSetup() = shoot("10-widget-setup.png") {
+    @Test fun widgetSetup() = shoot("10-widget-setup.png", store = "screenshot-7-widget-setup.png") {
         QuickButtonsEditor(
             target = QuickButtonsTarget.WIDGET, remote = remote, inputKey = Keys.HDMI1,
             initial = denseWidgetButtons(), onSave = {}, onCancel = {},
@@ -265,7 +265,7 @@ class StoreScreenshots {
         column.addView(card, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(40) })
         screen.addView(column, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         screen.addView(caption(), captionParams())
-        save(render(screen), "13-lockscreen-mini-remote.png")
+        save(render(screen), "13-lockscreen-mini-remote.png", store = "screenshot-8-lockscreen.png")
     }
 
     /** Zwei Widgets auf dem Startbildschirm: echte Layouts aus [QuickWidgetProvider], Rahmen nachgebildet. */
@@ -344,8 +344,7 @@ class StoreScreenshots {
         }
         assertEquals("Breite", 1080, bitmap.width)
         assertEquals("Höhe", 1920, bitmap.height)
-        save(bitmap, name)
-        if (store != null) File(storeDir, store).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        save(bitmap, name, store)
     }
 
     /** Alle Fenster der App in Reihenfolge (Activity, dann Dialoge) aus WindowManagerGlobal. */
@@ -356,8 +355,11 @@ class StoreScreenshots {
         return list<View>("mViews").zip(list<WindowManager.LayoutParams>("mParams"))
     }
 
-    private fun save(bitmap: Bitmap, name: String) =
+    /** Speichert nach `docs/screenshots/[name]` und, falls [store] gesetzt, zusätzlich als Play-Store-Bild. */
+    private fun save(bitmap: Bitmap, name: String, store: String? = null) {
         File(docsDir, name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        if (store != null) File(storeDir, store).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    }
 
     // --- Rahmen für Sperrbildschirm und Startbildschirm (einfache Views, 360 x 640 dp) ---
 
