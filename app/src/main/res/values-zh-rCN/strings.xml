@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">放弃录制？</string>
     <string name="rec_discard">放弃</string>
     <string name="rec_continue">继续录制</string>
+    <string name="tpl_section">模板</string>
+    <string name="tpl_section_hint">用于设置电视的睡眠定时。未经验证：酒店模式下菜单常被锁定，Sleep 键最可能有效。</string>
+    <string name="tpl_none">没有适合此遥控器的模板。</string>
+    <string name="tpl_more">更多模板（其他品牌）</string>
+    <string name="tpl_sleep_title">Sleep 键 %1$d 次（≈ %2$d 分钟）</string>
+    <string name="tpl_sleep_assumption">假设档位：%1$s 分钟</string>
+    <string name="tpl_menu_title">%1$s：菜单路径（≈ %2$d 分钟）</string>
+    <string name="tpl_untested">未经验证 – 请先试一次</string>
+    <string name="tpl_name">睡眠定时 %1$d 分钟</string>
+    <string name="tpl_conf_manual_path">路径来自说明书，按键次数为估计 – 请用“测试”检查。</string>
+    <string name="tpl_conf_forum_path">路径来自论坛，按键次数为估计 – 请用“测试”检查。</string>
+    <string name="tpl_conf_manual_steps">档位来自说明书，未经验证 – 请用“测试”检查。</string>
+    <string name="tpl_conf_guess">估计值，未经验证 – 请用“测试”检查。</string>
+    <string name="tpl_note_display">电视会显示设置的值 – 第一次请核对。</string>
+    <string name="tpl_note_position">菜单因型号和版本而异 – 如有需要请调整方向键次数。</string>
+    <string name="tpl_show">查看睡眠定时模板</string>
 </resources>

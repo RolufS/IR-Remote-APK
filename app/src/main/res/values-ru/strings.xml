@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Удалить запись?</string>
     <string name="rec_discard">Удалить</string>
     <string name="rec_continue">Продолжить запись</string>
+    <string name="tpl_section">Шаблоны</string>
+    <string name="tpl_section_hint">Ставят таймер сна на телевизоре. Не проверено: в гостиничном режиме меню часто заблокировано, надёжнее всего кнопка Sleep.</string>
+    <string name="tpl_none">Для этого пульта подходящих шаблонов нет.</string>
+    <string name="tpl_more">Другие шаблоны (другие марки)</string>
+    <string name="tpl_sleep_title">Кнопка Sleep %1$d× (≈ %2$d мин)</string>
+    <string name="tpl_sleep_assumption">Предполагаемые шаги: %1$s мин</string>
+    <string name="tpl_menu_title">%1$s: путь через меню (≈ %2$d мин)</string>
+    <string name="tpl_untested">Не проверено – попробуйте один раз</string>
+    <string name="tpl_name">Таймер сна %1$d мин</string>
+    <string name="tpl_conf_manual_path">Путь по инструкции, число нажатий оценено – проверьте кнопкой «Проверить».</string>
+    <string name="tpl_conf_forum_path">Путь по данным форума, число нажатий оценено – проверьте кнопкой «Проверить».</string>
+    <string name="tpl_conf_manual_steps">Шаги по инструкции, не проверено – проверьте кнопкой «Проверить».</string>
+    <string name="tpl_conf_guess">Оценка, не проверено – проверьте кнопкой «Проверить».</string>
+    <string name="tpl_note_display">Телевизор показывает установленное значение – проверьте в первый раз.</string>
+    <string name="tpl_note_position">Меню различаются по модели и версии – при необходимости измените число нажатий стрелок.</string>
+    <string name="tpl_show">Шаблоны таймера сна</string>
 </resources>

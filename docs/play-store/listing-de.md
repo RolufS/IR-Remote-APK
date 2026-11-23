@@ -44,6 +44,7 @@ Mehrere Fernbedienungen lassen sich speichern und benennen, etwa „Zimmer 412�
 AUTOMATIONEN UND SLEEP-TIMER
 • Automationen: mehrere Tasten nacheinander mit einem Tipp, z. B. Menü → Pfeil runter → OK, mit eigener Wartezeit pro Schritt
 • Aufnehmen statt zusammenklicken: einfach die Tasten wie gewohnt drücken – die App merkt sich Reihenfolge und Pausen
+• Vorlagen für den Sleep-Timer des Fernsehers: per Sleep-Taste oder Menüweg gängiger Marken – ungeprüft, einmal testen und bei Bedarf anpassen
 • Sleep-Timer im Handy: nach 15 bis 120 Minuten (oder eigenem Wert) schaltet das Handy den Fernseher aus oder startet eine Automation – auch wenn die App geschlossen ist. Das Handy muss dafür auf den Fernseher zeigen.
 
 WERBEFREI UND OFFLINE
@@ -174,6 +175,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 2280 | 4000 |
+| Vollständige Beschreibung | 2423 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Abandonner l’enregistrement ?</string>
     <string name="rec_discard">Abandonner</string>
     <string name="rec_continue">Continuer</string>
+    <string name="tpl_section">Modèles</string>
+    <string name="tpl_section_hint">Règlent la mise en veille programmée du téléviseur. Non testés : en mode hôtel, les menus sont souvent bloqués ; la touche Sleep reste le plus sûr.</string>
+    <string name="tpl_none">Aucun modèle adapté à cette télécommande.</string>
+    <string name="tpl_more">Autres modèles (autres marques)</string>
+    <string name="tpl_sleep_title">Touche Sleep %1$d× (≈ %2$d min)</string>
+    <string name="tpl_sleep_assumption">Paliers supposés : %1$s min</string>
+    <string name="tpl_menu_title">%1$s : chemin de menu (≈ %2$d min)</string>
+    <string name="tpl_untested">Non testé – essayez une fois</string>
+    <string name="tpl_name">Mise en veille %1$d min</string>
+    <string name="tpl_conf_manual_path">Chemin selon le manuel, nombre d’appuis estimé – vérifiez avec « Tester ».</string>
+    <string name="tpl_conf_forum_path">Chemin selon un forum, nombre d’appuis estimé – vérifiez avec « Tester ».</string>
+    <string name="tpl_conf_manual_steps">Paliers selon le manuel, non testé – vérifiez avec « Tester ».</string>
+    <string name="tpl_conf_guess">Estimé, non testé – vérifiez avec « Tester ».</string>
+    <string name="tpl_note_display">Le téléviseur affiche la valeur réglée – vérifiez la première fois.</string>
+    <string name="tpl_note_position">Les menus varient selon le modèle et la version – ajustez le nombre de flèches si besoin.</string>
+    <string name="tpl_show">Voir les modèles de mise en veille</string>
 </resources>

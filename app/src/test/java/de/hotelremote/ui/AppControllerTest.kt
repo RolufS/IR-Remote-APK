@@ -1,6 +1,7 @@
 package de.hotelremote.ui
 
 import de.hotelremote.Keys
+import de.hotelremote.automation.SleepTemplates
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
@@ -360,6 +361,20 @@ class AppControllerTest {
         lastUsed = 1,
         automations = automations,
     )
+
+    @Test fun templateOpensEditorWithItsStepsAndSavesANormalAutomation() = runTest {
+        val remote = recordingRemote().copy(brand = "Vestel", keys = recordingRemote().keys + ("X:Sleep" to sig(9)))
+        val c = controller(FakeStorage(listOf(remote)))
+        val template = SleepTemplates.forRemote(remote.brand, remote.keys.keys).matching.first { it.minutes == 60 }
+        c.openTemplate(template, "Sleep-Timer 60 min")
+        val screen = c.state.value.screen as Screen.AutomationEdit
+        assertNull(screen.automationId)
+        assertEquals(template, screen.template)
+        assertEquals(AutomationDraft("Sleep-Timer 60 min", template.steps), screen.draft)
+        assertEquals(List(6) { "X:Sleep" }, screen.draft!!.steps.map { it.key })
+        assertTrue(c.saveAutomation(Automation("a1", "Sleep-Timer 60 min", screen.draft!!.steps)))
+        assertEquals(listOf("Sleep-Timer 60 min"), c.state.value.current?.automations?.map { it.name })
+    }
 
     @Test fun recordingPausesUseTheMonotonicClockNotTheWallClock() = runTest {
         // Wanduhr steht (clock = 1000), die monotone Uhr läuft 3 s weiter: die Pause wird 3 s.

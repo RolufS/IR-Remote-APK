@@ -42,6 +42,25 @@ jedem Schritt (0,5–10 s). Anlegen geht auf zwei Wegen:
 
 Ausgeführt wird eine Automation über ⚡ oder ▶ in der Liste.
 
+## Sleep-Timer-Vorlagen
+
+Unter den Automationen stehen fertige Vorlagen, die den Sleep-Timer **des Fernsehers**
+stellen (unabhängig vom Sleep-Timer im Handy):
+
+- **Sleep-Taste** (zuerst, klappt im Hotelmodus am ehesten): für jede Fernbedienung mit
+  eigener Sleep-Taste, ≈ 30 / 60 / 90 min. Die Zahl der Drücke richtet sich nach der Marke
+  (z. B. Vestel-Familie 10-min-Schritte: 6× für 60 min; LG, Sony, Philips 4×; Samsung 2×).
+- **Menüweg** der Marke (Samsung Tizen/TOOLS, LG webOS, Sony Bravia/Google TV, Philips Saphi,
+  Panasonic Viera, Hisense VIDAA, TCL Google TV), nur wenn alle nötigen Tasten vorhanden sind.
+  „Weitere Vorlagen (andere Marken)“ zeigt die Menüwege anderer Marken.
+
+Ein Tipp öffnet den Editor mit Schritten und Namen; gespeichert wird eine normale Automation.
+**Alle Vorlagen sind ungeprüft:** Menüpfade stammen aus Handbüchern oder Foren, die Zahl der
+Tastendrücke ist geschätzt – bitte einmal mit „Testen“ prüfen und bei Bedarf anpassen.
+Recherche und Quellen: [docs/sleep-timer-research.md](docs/sleep-timer-research.md).
+Rückmeldungen (klappt / klappt nicht, mit Marke und Baujahr) gerne als
+[Issue](https://github.com/RolufS/IR-Remote-APK/issues).
+
 ## APK installieren
 
 - USB: `adb install -r dist/Fernbedienung-1.3.apk`

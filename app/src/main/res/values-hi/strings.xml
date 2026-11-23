@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">रिकॉर्डिंग हटाएँ?</string>
     <string name="rec_discard">हटाएँ</string>
     <string name="rec_continue">रिकॉर्डिंग जारी रखें</string>
+    <string name="tpl_section">टेम्पलेट</string>
+    <string name="tpl_section_hint">टीवी का स्लीप टाइमर सेट करते हैं। जाँचे नहीं गए – होटल मोड में मेनू अक्सर बंद रहते हैं, Sleep बटन सबसे भरोसेमंद है।</string>
+    <string name="tpl_none">इस रिमोट के लिए कोई टेम्पलेट नहीं है।</string>
+    <string name="tpl_more">और टेम्पलेट (दूसरे ब्रांड)</string>
+    <string name="tpl_sleep_title">Sleep बटन %1$d× (≈ %2$d मिनट)</string>
+    <string name="tpl_sleep_assumption">माने गए चरण: %1$s मिनट</string>
+    <string name="tpl_menu_title">%1$s: मेनू का रास्ता (≈ %2$d मिनट)</string>
+    <string name="tpl_untested">जाँचा नहीं गया – एक बार आज़माएँ</string>
+    <string name="tpl_name">स्लीप टाइमर %1$d मिनट</string>
+    <string name="tpl_conf_manual_path">रास्ता मैनुअल से, दबाने की गिनती अनुमानित – “आज़माएँ” से जाँचें।</string>
+    <string name="tpl_conf_forum_path">रास्ता फ़ोरम से, दबाने की गिनती अनुमानित – “आज़माएँ” से जाँचें।</string>
+    <string name="tpl_conf_manual_steps">चरण मैनुअल से, जाँचे नहीं गए – “आज़माएँ” से जाँचें।</string>
+    <string name="tpl_conf_guess">अनुमानित, जाँचा नहीं गया – “आज़माएँ” से जाँचें।</string>
+    <string name="tpl_note_display">टीवी सेट किया गया मान दिखाता है – पहली बार ज़रूर देखें।</string>
+    <string name="tpl_note_position">मेनू मॉडल और वर्ज़न के हिसाब से अलग होते हैं – ज़रूरत हो तो तीर बटनों की गिनती बदलें।</string>
+    <string name="tpl_show">स्लीप टाइमर टेम्पलेट देखें</string>
 </resources>

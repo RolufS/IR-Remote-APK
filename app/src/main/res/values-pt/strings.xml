@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Descartar gravação?</string>
     <string name="rec_discard">Descartar</string>
     <string name="rec_continue">Continuar gravando</string>
+    <string name="tpl_section">Modelos</string>
+    <string name="tpl_section_hint">Ajustam o timer de desligamento da TV. Não testados: no modo hotel os menus costumam estar bloqueados; a tecla Sleep é a aposta mais segura.</string>
+    <string name="tpl_none">Nenhum modelo para este controle.</string>
+    <string name="tpl_more">Mais modelos (outras marcas)</string>
+    <string name="tpl_sleep_title">Tecla Sleep %1$d× (≈ %2$d min)</string>
+    <string name="tpl_sleep_assumption">Etapas supostas: %1$s min</string>
+    <string name="tpl_menu_title">%1$s: caminho no menu (≈ %2$d min)</string>
+    <string name="tpl_untested">Não testado – teste uma vez</string>
+    <string name="tpl_name">Desligar em %1$d min</string>
+    <string name="tpl_conf_manual_path">Caminho segundo o manual, número de toques estimado – confira com “Testar”.</string>
+    <string name="tpl_conf_forum_path">Caminho segundo um fórum, número de toques estimado – confira com “Testar”.</string>
+    <string name="tpl_conf_manual_steps">Etapas segundo o manual, não testado – confira com “Testar”.</string>
+    <string name="tpl_conf_guess">Estimado, não testado – confira com “Testar”.</string>
+    <string name="tpl_note_display">A TV mostra o valor ajustado – confira na primeira vez.</string>
+    <string name="tpl_note_position">Os menus variam conforme modelo e versão – ajuste o número de setas se preciso.</string>
+    <string name="tpl_show">Ver modelos de timer da TV</string>
 </resources>

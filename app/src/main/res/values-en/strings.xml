@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Discard recording?</string>
     <string name="rec_discard">Discard</string>
     <string name="rec_continue">Keep recording</string>
+    <string name="tpl_section">Templates</string>
+    <string name="tpl_section_hint">Set the sleep timer on the TV. Untested – menus are often locked in hotel mode; the sleep key is the best bet.</string>
+    <string name="tpl_none">No matching template for this remote.</string>
+    <string name="tpl_more">More templates (other brands)</string>
+    <string name="tpl_sleep_title">Sleep key %1$d× (≈ %2$d min)</string>
+    <string name="tpl_sleep_assumption">Assumed steps: %1$s min</string>
+    <string name="tpl_menu_title">%1$s: menu path (≈ %2$d min)</string>
+    <string name="tpl_untested">Untested – please try it once</string>
+    <string name="tpl_name">Sleep timer %1$d min</string>
+    <string name="tpl_conf_manual_path">Path from the manual, key count estimated – please check with “Test”.</string>
+    <string name="tpl_conf_forum_path">Path from a forum, key count estimated – please check with “Test”.</string>
+    <string name="tpl_conf_manual_steps">Steps from the manual, untested – please check with “Test”.</string>
+    <string name="tpl_conf_guess">Estimated, untested – please check with “Test”.</string>
+    <string name="tpl_note_display">The TV shows the value it set – please check the first time.</string>
+    <string name="tpl_note_position">Menus differ by model and version – adjust the number of arrow presses if needed.</string>
+    <string name="tpl_show">View sleep timer templates</string>
 </resources>

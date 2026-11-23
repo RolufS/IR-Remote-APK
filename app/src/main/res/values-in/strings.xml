@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Buang rekaman?</string>
     <string name="rec_discard">Buang</string>
     <string name="rec_continue">Lanjut merekam</string>
+    <string name="tpl_section">Templat</string>
+    <string name="tpl_section_hint">Mengatur timer tidur TV. Belum diuji – di mode hotel menu sering terkunci; tombol Sleep paling mungkin berhasil.</string>
+    <string name="tpl_none">Tidak ada templat yang cocok untuk remote ini.</string>
+    <string name="tpl_more">Templat lain (merek lain)</string>
+    <string name="tpl_sleep_title">Tombol Sleep %1$d× (≈ %2$d mnt)</string>
+    <string name="tpl_sleep_assumption">Langkah yang diasumsikan: %1$s mnt</string>
+    <string name="tpl_menu_title">%1$s: jalur menu (≈ %2$d mnt)</string>
+    <string name="tpl_untested">Belum diuji – coba sekali dulu</string>
+    <string name="tpl_name">Timer tidur %1$d mnt</string>
+    <string name="tpl_conf_manual_path">Jalur menurut manual, jumlah tekan diperkirakan – periksa dengan “Coba”.</string>
+    <string name="tpl_conf_forum_path">Jalur menurut forum, jumlah tekan diperkirakan – periksa dengan “Coba”.</string>
+    <string name="tpl_conf_manual_steps">Langkah menurut manual, belum diuji – periksa dengan “Coba”.</string>
+    <string name="tpl_conf_guess">Perkiraan, belum diuji – periksa dengan “Coba”.</string>
+    <string name="tpl_note_display">TV menampilkan nilai yang disetel – periksa saat pertama kali.</string>
+    <string name="tpl_note_position">Menu berbeda per model dan versi – sesuaikan jumlah tombol panah bila perlu.</string>
+    <string name="tpl_show">Lihat templat timer tidur</string>
 </resources>

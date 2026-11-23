@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">Aufnahme verwerfen?</string>
     <string name="rec_discard">Verwerfen</string>
     <string name="rec_continue">Weiter aufnehmen</string>
+    <string name="tpl_section">Vorlagen</string>
+    <string name="tpl_section_hint">Stellen den Sleep-Timer des Fernsehers. Ungeprüft – im Hotelmodus sind Menüs oft gesperrt, die Sleep-Taste klappt am ehesten.</string>
+    <string name="tpl_none">Keine passende Vorlage für diese Fernbedienung.</string>
+    <string name="tpl_more">Weitere Vorlagen (andere Marken)</string>
+    <string name="tpl_sleep_title">Sleep-Taste %1$d× (≈ %2$d min)</string>
+    <string name="tpl_sleep_assumption">Angenommene Stufen: %1$s min</string>
+    <string name="tpl_menu_title">%1$s: Menüweg (≈ %2$d min)</string>
+    <string name="tpl_untested">Ungeprüft – bitte einmal testen</string>
+    <string name="tpl_name">Sleep-Timer %1$d min</string>
+    <string name="tpl_conf_manual_path">Pfad laut Handbuch, Tastenzahl geschätzt – bitte mit „Testen“ prüfen.</string>
+    <string name="tpl_conf_forum_path">Pfad laut Forum, Tastenzahl geschätzt – bitte mit „Testen“ prüfen.</string>
+    <string name="tpl_conf_manual_steps">Stufen laut Handbuch, ungeprüft – bitte mit „Testen“ prüfen.</string>
+    <string name="tpl_conf_guess">Geschätzt, ungeprüft – bitte mit „Testen“ prüfen.</string>
+    <string name="tpl_note_display">Der Fernseher zeigt den eingestellten Wert an – bitte beim ersten Mal prüfen.</string>
+    <string name="tpl_note_position">Menüs unterscheiden sich je nach Modell und Version – Zahl der Pfeiltasten bei Bedarf anpassen.</string>
+    <string name="tpl_show">Sleep-Timer-Vorlagen ansehen</string>
 </resources>

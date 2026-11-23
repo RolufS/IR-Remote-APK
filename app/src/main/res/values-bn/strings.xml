@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">রেকর্ডিং বাদ দেবেন?</string>
     <string name="rec_discard">বাদ দিন</string>
     <string name="rec_continue">রেকর্ড চালিয়ে যান</string>
+    <string name="tpl_section">টেমপ্লেট</string>
+    <string name="tpl_section_hint">টিভির স্লিপ টাইমার সেট করে। যাচাই করা হয়নি – হোটেল মোডে মেনু প্রায়ই লক থাকে, Sleep বোতামই সবচেয়ে ভরসাযোগ্য।</string>
+    <string name="tpl_none">এই রিমোটের জন্য কোনো টেমপ্লেট নেই।</string>
+    <string name="tpl_more">আরও টেমপ্লেট (অন্য ব্র্যান্ড)</string>
+    <string name="tpl_sleep_title">Sleep বোতাম %1$d× (≈ %2$d মিনিট)</string>
+    <string name="tpl_sleep_assumption">ধরে নেওয়া ধাপ: %1$s মিনিট</string>
+    <string name="tpl_menu_title">%1$s: মেনুর পথ (≈ %2$d মিনিট)</string>
+    <string name="tpl_untested">যাচাই করা হয়নি – একবার চেষ্টা করুন</string>
+    <string name="tpl_name">স্লিপ টাইমার %1$d মিনিট</string>
+    <string name="tpl_conf_manual_path">পথ ম্যানুয়াল অনুযায়ী, চাপের সংখ্যা আনুমানিক – “পরীক্ষা” দিয়ে যাচাই করুন।</string>
+    <string name="tpl_conf_forum_path">পথ ফোরাম অনুযায়ী, চাপের সংখ্যা আনুমানিক – “পরীক্ষা” দিয়ে যাচাই করুন।</string>
+    <string name="tpl_conf_manual_steps">ধাপ ম্যানুয়াল অনুযায়ী, যাচাই করা হয়নি – “পরীক্ষা” দিয়ে যাচাই করুন।</string>
+    <string name="tpl_conf_guess">আনুমানিক, যাচাই করা হয়নি – “পরীক্ষা” দিয়ে যাচাই করুন।</string>
+    <string name="tpl_note_display">টিভি সেট করা মান দেখায় – প্রথমবার মিলিয়ে নিন।</string>
+    <string name="tpl_note_position">মডেল ও সংস্করণভেদে মেনু আলাদা – দরকার হলে তীর বোতামের সংখ্যা বদলান।</string>
+    <string name="tpl_show">স্লিপ টাইমার টেমপ্লেট দেখুন</string>
 </resources>

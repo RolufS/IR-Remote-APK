@@ -39,6 +39,7 @@ Save and name several remotes, such as “Room 412”. Next time, the one you us
 AUTOMATIONS AND SLEEP TIMER
 • Automations: several keys in a row with one tap, e.g. Menu → Arrow down → OK, with its own wait time per step
 • Record instead of building by hand: just press the keys as usual – the app remembers the order and the pauses
+• Templates for the TV's own sleep timer: via the sleep key or the menu path of common brands – untested, try once and adjust if needed
 • Sleep timer on the phone: after 15 to 120 minutes (or a custom value) the phone turns the TV off or runs an automation – even when the app is closed. The phone has to point at the TV.
 
 AD-FREE AND OFFLINE
@@ -63,6 +64,6 @@ Brand names belong to their owners. The app is not affiliated with the manufactu
 |---|---|---|
 | App name | 20 | 30 |
 | Short description | 67 | 80 |
-| Full description | 1994 | 4000 |
+| Full description | 2130 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

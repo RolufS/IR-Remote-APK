@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">¿Descartar la grabación?</string>
     <string name="rec_discard">Descartar</string>
     <string name="rec_continue">Seguir grabando</string>
+    <string name="tpl_section">Plantillas</string>
+    <string name="tpl_section_hint">Ajustan el temporizador de apagado del televisor. Sin probar: en modo hotel los menús suelen estar bloqueados; la tecla Sleep es lo más fiable.</string>
+    <string name="tpl_none">No hay ninguna plantilla para este control.</string>
+    <string name="tpl_more">Más plantillas (otras marcas)</string>
+    <string name="tpl_sleep_title">Tecla Sleep %1$d× (≈ %2$d min)</string>
+    <string name="tpl_sleep_assumption">Pasos supuestos: %1$s min</string>
+    <string name="tpl_menu_title">%1$s: ruta de menú (≈ %2$d min)</string>
+    <string name="tpl_untested">Sin probar: pruébala una vez</string>
+    <string name="tpl_name">Apagado en %1$d min</string>
+    <string name="tpl_conf_manual_path">Ruta según el manual, número de pulsaciones estimado: compruébalo con «Probar».</string>
+    <string name="tpl_conf_forum_path">Ruta según un foro, número de pulsaciones estimado: compruébalo con «Probar».</string>
+    <string name="tpl_conf_manual_steps">Pasos según el manual, sin probar: compruébalo con «Probar».</string>
+    <string name="tpl_conf_guess">Estimado, sin probar: compruébalo con «Probar».</string>
+    <string name="tpl_note_display">El televisor muestra el valor ajustado: compruébalo la primera vez.</string>
+    <string name="tpl_note_position">Los menús cambian según modelo y versión: ajusta el número de flechas si hace falta.</string>
+    <string name="tpl_show">Ver plantillas de apagado</string>
 </resources>

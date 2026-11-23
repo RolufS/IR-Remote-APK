@@ -4,6 +4,7 @@ import de.hotelremote.automation.AutomationProgress
 import de.hotelremote.automation.AutomationRecorder
 import de.hotelremote.automation.AutomationResult
 import de.hotelremote.automation.AutomationRunner
+import de.hotelremote.automation.AutomationTemplate
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
@@ -36,8 +37,15 @@ sealed interface Screen {
     data object Language : Screen
     data object Automations : Screen
 
-    /** Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme). */
-    data class AutomationEdit(val automationId: String?, val draft: AutomationDraft? = null) : Screen
+    /**
+     * Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme).
+     * [template]: Vorlage, aus der der Entwurf stammt (der Editor zeigt deren Hinweis).
+     */
+    data class AutomationEdit(
+        val automationId: String?,
+        val draft: AutomationDraft? = null,
+        val template: AutomationTemplate? = null,
+    ) : Screen
 }
 
 /** Ungespeicherter Stand im Editor. */
@@ -274,6 +282,11 @@ class AppController(
     fun deleteAutomation(id: String) {
         val current = _state.value.current ?: return
         writeAutomations(current.id, current.automations.filterNot { it.id == id })
+    }
+
+    /** Öffnet den Editor mit den Schritten der Vorlage als neue Automation namens [name]. */
+    fun openTemplate(template: AutomationTemplate, name: String) {
+        show(Screen.AutomationEdit(null, AutomationDraft(name, template.steps), template))
     }
 
     private fun writeAutomations(remoteId: String, list: List<Automation>): Boolean {

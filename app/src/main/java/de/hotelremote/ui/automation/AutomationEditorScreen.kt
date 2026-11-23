@@ -42,12 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.hotelremote.R
 import de.hotelremote.automation.AutomationProgress
+import de.hotelremote.automation.AutomationTemplate
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.ui.AutomationDraft
 import de.hotelremote.ui.remote.KeyBrush
 import de.hotelremote.ui.remote.PowerBrush
 import de.hotelremote.ui.remote.SourceBrush
+import de.hotelremote.ui.sleeptimer.Hint
 import de.hotelremote.ui.theme.RemoteColors
 import java.text.NumberFormat
 import java.util.UUID
@@ -70,7 +72,8 @@ internal fun changeDelay(ms: Long, up: Boolean): Long =
 /**
  * Editor einer Automation: Name (Pflicht) und Schritte (Taste, Wartezeit danach, verschieben, entfernen).
  * „Testen“ führt die ungespeicherte Folge aus, „Per Fernbedienung aufnehmen“ hängt weitere Schritte an.
- * [draft] (z. B. nach einer Aufnahme) ersetzt Name und Schritte von [initial].
+ * [draft] (z. B. nach einer Aufnahme) ersetzt Name und Schritte von [initial]; stammt er aus [template],
+ * stehen oben deren Hinweise (Vertrauensstufe, Quelle).
  */
 @Composable
 fun AutomationEditorScreen(
@@ -83,6 +86,7 @@ fun AutomationEditorScreen(
     onCancel: () -> Unit,
     onRecord: (String, List<AutomationStep>) -> Unit = { _, _ -> },
     draft: AutomationDraft? = null,
+    template: AutomationTemplate? = null,
 ) {
     val res = LocalContext.current.resources
     val locale = LocalConfiguration.current.locales[0]
@@ -117,7 +121,10 @@ fun AutomationEditorScreen(
             modifier = Modifier.fillMaxWidth().testTag("auto_name"),
         )
         if (progress != null) AutomationProgressBar(progress, onCancelRun)
-        LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        LazyColumn(Modifier.weight(1f).testTag("editor_steps"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (template != null) {
+                itemsIndexed(templateNotices(res, template)) { i, text -> Hint(text, "template_notice_$i") }
+            }
             if (steps.isEmpty()) {
                 item {
                     Text(

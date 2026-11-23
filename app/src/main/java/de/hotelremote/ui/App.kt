@@ -31,12 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.hotelremote.R
+import de.hotelremote.automation.SleepTemplates
 import de.hotelremote.ui.about.AboutScreen
 import de.hotelremote.ui.automation.AutomationEditorScreen
 import de.hotelremote.ui.automation.AutomationListScreen
 import de.hotelremote.ui.automation.AutomationProgressBar
 import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.automation.keyName
+import de.hotelremote.ui.automation.templateName
 import de.hotelremote.ui.language.AppLanguages
 import de.hotelremote.ui.language.LanguageScreen
 import de.hotelremote.ui.remote.ExtraKeysScreen
@@ -154,6 +156,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onDelete = c::deleteAutomation,
                 onBack = { c.show(Screen.Remote) },
                 onRecord = { c.recordNew(returnTo = Screen.Automations) },
+                templates = remember(current.brand, current.keys) { SleepTemplates.forRemote(current.brand, current.keys.keys) },
+                onTemplate = { c.openTemplate(it, templateName(context.resources, it)) },
             )
             state.screen is Screen.AutomationEdit -> {
                 val edit = state.screen as Screen.AutomationEdit
@@ -168,6 +172,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onCancel = { c.show(Screen.Automations) },
                     onRecord = { name, steps -> c.recordInto(id, name, steps) },
                     draft = edit.draft,
+                    template = edit.template,
                 )
             }
             else -> RemoteScreen(

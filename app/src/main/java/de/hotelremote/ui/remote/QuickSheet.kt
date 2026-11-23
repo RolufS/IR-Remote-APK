@@ -105,6 +105,8 @@ fun QuickSheetContent(
         automations.forEach { a ->
             SheetItem("▶  ${a.name}", "quick_run_${a.id}") { onRun(a) }
         }
+        // Noch keine eigene Automation: auf die Sleep-Timer-Vorlagen (in den Automationen) hinweisen.
+        if (automations.isEmpty()) SheetItem(stringResource(R.string.tpl_show), "quick_templates", onClick = onEdit)
         SheetItem(stringResource(R.string.rec_new_quick), "quick_record", onClick = onRecord)
         if (timer == null) {
             SheetItem(stringResource(R.string.timer_title), "quick_timer", onClick = onTimer)

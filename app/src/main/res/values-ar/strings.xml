@@ -164,4 +164,20 @@
     <string name="rec_discard_confirm">تجاهل التسجيل؟</string>
     <string name="rec_discard">تجاهل</string>
     <string name="rec_continue">متابعة التسجيل</string>
+    <string name="tpl_section">قوالب</string>
+    <string name="tpl_section_hint">تضبط مؤقّت النوم في التلفاز. غير مُختبرة: القوائم غالبًا مقفلة في وضع الفندق، وزر Sleep هو الأرجح نجاحًا.</string>
+    <string name="tpl_none">لا يوجد قالب مناسب لجهاز التحكم هذا.</string>
+    <string name="tpl_more">قوالب أخرى (علامات تجارية أخرى)</string>
+    <string name="tpl_sleep_title">زر Sleep ‏%1$d مرة (≈ %2$d دقيقة)</string>
+    <string name="tpl_sleep_assumption">الدرجات المفترضة: %1$s دقيقة</string>
+    <string name="tpl_menu_title">%1$s: مسار القائمة (≈ %2$d دقيقة)</string>
+    <string name="tpl_untested">غير مُختبر – جرّبه مرة واحدة</string>
+    <string name="tpl_name">مؤقّت النوم %1$d دقيقة</string>
+    <string name="tpl_conf_manual_path">المسار حسب الدليل، وعدد الضغطات تقديري – تحقّق عبر «تجربة».</string>
+    <string name="tpl_conf_forum_path">المسار حسب منتدى، وعدد الضغطات تقديري – تحقّق عبر «تجربة».</string>
+    <string name="tpl_conf_manual_steps">الدرجات حسب الدليل، غير مُختبرة – تحقّق عبر «تجربة».</string>
+    <string name="tpl_conf_guess">تقديري وغير مُختبر – تحقّق عبر «تجربة».</string>
+    <string name="tpl_note_display">يعرض التلفاز القيمة المضبوطة – تحقّق منها في المرة الأولى.</string>
+    <string name="tpl_note_position">تختلف القوائم حسب الطراز والإصدار – عدّل عدد ضغطات الأسهم عند الحاجة.</string>
+    <string name="tpl_show">عرض قوالب مؤقّت النوم</string>
 </resources>
