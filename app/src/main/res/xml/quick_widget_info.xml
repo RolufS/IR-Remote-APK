@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget 4×1, skalierbar; kein periodisches Update (die App aktualisiert bei Wechsel der Fernbedienung). -->
+<!-- Widget 4×1, skalierbar; kein periodisches Update (die App aktualisiert bei Wechsel der Fernbedienung).
+     Beim Hinzufügen öffnet sich das Einrichten der Knöpfe; ab Android 12 optional (Standardbelegung sofort aktiv)
+     und später über „Widget bearbeiten“ erneut aufrufbar. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="de.hotelremote.quick.WidgetConfigActivity"
     android:description="@string/widget_description"
     android:initialLayout="@layout/widget_quick"
     android:minWidth="250dp"
     android:minHeight="40dp"
-    android:minResizeWidth="180dp"
+    android:minResizeWidth="110dp"
     android:minResizeHeight="40dp"
     android:previewImage="@drawable/quick_widget_preview"
     android:previewLayout="@layout/widget_quick"
@@ -13,4 +16,5 @@
     android:targetCellWidth="4"
     android:targetCellHeight="1"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen" />
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

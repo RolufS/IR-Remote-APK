@@ -15,26 +15,28 @@ import de.hotelremote.sleeptimer.AndroidSleepTimerNotifier
 
 /**
  * Steuerung auf dem Sperrbildschirm: dauerhafte, stille Benachrichtigung (Kanal „Schnellsteuerung“, öffentlich
- * sichtbar) mit vier Knöpfen, die per Broadcast ohne Entsperren senden. Kein Foreground-Service.
+ * sichtbar) mit 1–5 frei belegbaren Knöpfen, die per Broadcast ohne Entsperren senden. Kein Foreground-Service.
  */
 class QuickNotification(private val context: Context) {
     private val manager = NotificationManagerCompat.from(context)
 
-    /** Zeigt die Benachrichtigung, wenn [enabled] und erlaubt; sonst entfernt sie sie. */
-    fun update(remote: SavedRemote?, enabled: Boolean) {
-        if (enabled && AndroidSleepTimerNotifier.canPostNotifications(context)) show(remote) else manager.cancel(ID)
+    /** Zeigt die Benachrichtigung mit [buttons], wenn [enabled] und erlaubt; sonst entfernt sie sie. */
+    fun update(remote: SavedRemote?, enabled: Boolean, buttons: List<QuickButton>) {
+        if (enabled && AndroidSleepTimerNotifier.canPostNotifications(context)) show(remote, buttons) else manager.cancel(ID)
     }
 
     @SuppressLint("MissingPermission") // geprüft mit canPostNotifications()
-    private fun show(remote: SavedRemote?) {
+    private fun show(remote: SavedRemote?, buttons: List<QuickButton>) {
         ensureChannel()
-        val buttons = RemoteViews(context.packageName, R.layout.notification_quick).apply { bindQuickButtons(context) }
+        val views = RemoteViews(context.packageName, R.layout.notification_quick).apply {
+            bindQuickButtons(context, buttons, QuickButtons.MAX_NOTIFICATION, "notification")
+        }
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_quick_power)
             .setContentTitle(context.getString(R.string.menu_quick))
             .setSubText(remote?.title ?: context.getString(R.string.quick_no_remote))
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(buttons)
+            .setCustomContentView(views)
             .setOngoing(true)
             .setSilent(true)
             .setShowWhen(false)

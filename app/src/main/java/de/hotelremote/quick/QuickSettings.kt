@@ -5,7 +5,11 @@ import androidx.core.content.edit
 import de.hotelremote.ir.ToggleStore
 
 /** Stand der Einstellungen für den Bildschirm „Schnellsteuerung“. */
-data class QuickPrefs(val inputKey: String?, val lockScreen: Boolean)
+data class QuickPrefs(
+    val inputKey: String?,
+    val lockScreen: Boolean,
+    val notificationButtons: List<QuickButton> = QuickButtons.DEFAULT,
+)
 
 /**
  * Einstellungen der Schnellsteuerung. Die Eingangstaste gilt global für alle Fernbedienungen: fehlt sie einer
@@ -23,7 +27,22 @@ class QuickSettings(private val prefs: SharedPreferences) {
         get() = prefs.getBoolean(LOCK_SCREEN, false)
         set(value) = prefs.edit { putBoolean(LOCK_SCREEN, value) }
 
-    fun load() = QuickPrefs(inputKey, lockScreen)
+    /** Knöpfe der Sperrbildschirm-Benachrichtigung (eine Belegung für alle, 1 bis 5). */
+    var notificationButtons: List<QuickButton>
+        get() = QuickButtons.normalize(QuickButtons.decodeList(prefs.getString(NOTIFICATION_BUTTONS, null)) ?: QuickButtons.DEFAULT, QuickButtons.MAX_NOTIFICATION)
+        set(value) = prefs.edit { putString(NOTIFICATION_BUTTONS, QuickButtons.encodeList(QuickButtons.normalize(value, QuickButtons.MAX_NOTIFICATION))) }
+
+    /** Knöpfe des Widgets [widgetId] (1 bis 6); ohne eigene Belegung die Standardbelegung. */
+    fun widgetButtons(widgetId: Int): List<QuickButton> =
+        QuickButtons.normalize(QuickButtons.decodeList(prefs.getString(widgetKey(widgetId), null)) ?: QuickButtons.DEFAULT, QuickButtons.MAX_WIDGET)
+
+    fun setWidgetButtons(widgetId: Int, buttons: List<QuickButton>) =
+        prefs.edit { putString(widgetKey(widgetId), QuickButtons.encodeList(QuickButtons.normalize(buttons, QuickButtons.MAX_WIDGET))) }
+
+    /** Widget vom Startbildschirm entfernt: Belegung löschen. */
+    fun removeWidget(widgetId: Int) = prefs.edit { remove(widgetKey(widgetId)) }
+
+    fun load() = QuickPrefs(inputKey, lockScreen, notificationButtons)
 
     /**
      * Toggle-Zustand (RC5/RC6) der Schnellsteuerung, dauerhaft gespeichert: Kachel- und Widget-Tipps laufen oft in
@@ -38,10 +57,14 @@ class QuickSettings(private val prefs: SharedPreferences) {
 
     private fun toggleKey(frame: List<Int>) = TOGGLE_PREFIX + frame.hashCode()
 
+    private fun widgetKey(widgetId: Int) = WIDGET_PREFIX + widgetId
+
     companion object {
         const val PREFS = "quick_controls"
         private const val INPUT_KEY = "input_key"
         private const val LOCK_SCREEN = "lock_screen"
         private const val TOGGLE_PREFIX = "toggle_"
+        private const val NOTIFICATION_BUTTONS = "notification_buttons"
+        private const val WIDGET_PREFIX = "widget_buttons_"
     }
 }

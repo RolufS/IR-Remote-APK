@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Blitz für Automationen (wie BoltIcon in der App), klein über dem Namen. Einfarbig. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="14dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M13.5,2L4.5,13.5H11L9.5,22L19.5,9.5H13z" />
+</vector>

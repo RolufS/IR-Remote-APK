@@ -41,7 +41,18 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <!-- Schnellsteuerung: Knöpfe von Widget und Sperrbildschirm-Benachrichtigung, Widget, vier Kacheln (ab Android 7). -->
+        <!-- Schnellsteuerung: Knöpfe von Widget und Sperrbildschirm-Benachrichtigung, Widget mit Einrichten,
+             vier Kacheln (ab Android 7). Das Einrichten startet der Launcher, daher exportiert. -->
+        <activity
+            android:name=".quick.WidgetConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/qb_widget_title"
+            android:taskAffinity="">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <receiver
             android:name=".quick.QuickControlReceiver"
             android:exported="false" />

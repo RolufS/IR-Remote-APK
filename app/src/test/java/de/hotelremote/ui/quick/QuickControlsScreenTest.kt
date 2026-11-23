@@ -17,7 +17,9 @@ import androidx.test.core.app.ApplicationProvider
 import de.hotelremote.Keys
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
+import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickPrefs
+import de.hotelremote.quick.QuickWidgetEntry
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -88,6 +90,49 @@ class QuickControlsScreenTest {
         rule.runOnIdle { owner.registry.currentState = Lifecycle.State.STARTED }
         rule.runOnIdle { owner.registry.currentState = Lifecycle.State.RESUMED }
         rule.onNodeWithTag("quick_notif_blocked").assertDoesNotExist()
+    }
+
+    @Test fun widgetListWithEdit() {
+        val edited = mutableListOf<Int>()
+        rule.setContent {
+            HotelRemoteTheme {
+                QuickControlsScreen(
+                    remote(Keys.POWER),
+                    QuickPrefs(null, false),
+                    {},
+                    {},
+                    onBack = {},
+                    widgets = listOf(QuickWidgetEntry(12, 4), QuickWidgetEntry(15, 2)),
+                    onEditWidget = { edited += it },
+                )
+            }
+        }
+        rule.onNodeWithText("Widget 2 · Tasten: 2").performScrollTo().assertExists()
+        rule.onNodeWithTag("quick_widget_1_edit").performClick()
+        assertEquals(listOf(15), edited)
+        rule.onNodeWithTag("quick_widgets_none").assertDoesNotExist()
+    }
+
+    @Test fun withoutWidgetsShowsHint() {
+        show(remote(Keys.POWER))
+        rule.onNodeWithTag("quick_widgets_none").performScrollTo().assertExists()
+    }
+
+    @Test fun editNotificationButtons() {
+        val saved = mutableListOf<List<QuickButton>>()
+        rule.setContent {
+            HotelRemoteTheme {
+                QuickControlsScreen(remote(Keys.POWER, Keys.MUTE), QuickPrefs(null, true), {}, {}, onBack = {}, onNotificationButtons = { saved += it })
+            }
+        }
+        rule.onNodeWithTag("quick_notif_buttons").performScrollTo().performClick()
+        rule.onNodeWithText("Tasten der Benachrichtigung").assertExists()
+        rule.onNodeWithTag("qb_row_0").performClick()
+        rule.onNodeWithTag("pick_common_key_${Keys.MUTE}").performClick()
+        rule.onNodeWithTag("qb_save").performClick()
+        assertEquals(listOf(QuickButton.Key(Keys.MUTE), QuickButton.Key(Keys.VOL_DOWN), QuickButton.Key(Keys.VOL_UP), QuickButton.Input), saved.single())
+        // Zurück auf „Schnellsteuerung“.
+        rule.onNodeWithTag("quick_lock").assertExists()
     }
 
     @Test fun addTileButtonsFromAndroid13() {

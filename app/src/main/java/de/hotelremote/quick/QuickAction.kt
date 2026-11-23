@@ -3,11 +3,11 @@ package de.hotelremote.quick
 import de.hotelremote.Keys
 import de.hotelremote.ui.remote.powerAction
 
-/** Die vier Tasten der Schnellsteuerung (Kacheln, Widget, Sperrbildschirm-Benachrichtigung). */
+/** Die vier Kacheln der Schnellsteuerung (und die Standardbelegung von Widget und Benachrichtigung). */
 enum class QuickAction { POWER, VOL_DOWN, VOL_UP, INPUT }
 
 /** Ergebnis eines Tastendrucks außerhalb der App. */
-enum class QuickResult { SENT, NO_REMOTE, KEY_MISSING, SEND_FAILED }
+enum class QuickResult { SENT, NO_REMOTE, KEY_MISSING, AUTOMATION_MISSING, TOO_LONG, BUSY, SEND_FAILED }
 
 /** Mögliche Eingangstasten in fester Reihenfolge. */
 private val INPUT_KEYS = Keys.HDMI + Keys.SOURCE

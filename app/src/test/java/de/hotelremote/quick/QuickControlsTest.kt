@@ -96,10 +96,10 @@ class QuickControlsTest {
     }
 
     @Test fun receiverSendsAndToastsErrors() {
-        QuickControlReceiver().onReceive(app, QuickControlReceiver.intent(app, QuickAction.POWER))
+        QuickControlReceiver().onReceive(app, QuickControlReceiver.intent(app, QuickAction.POWER.button, "test/0"))
         assertEquals(app.getString(R.string.quick_no_remote), ShadowToast.getTextOfLatestToast())
         store.add(remote("r1", 1, Keys.POWER to 7))
-        QuickControlReceiver().onReceive(app, QuickControlReceiver.intent(app, QuickAction.POWER))
+        QuickControlReceiver().onReceive(app, QuickControlReceiver.intent(app, QuickAction.POWER.button, "test/0"))
         assertEquals(listOf(7), tx.sent)
         // Unbekannte Aktion wird ignoriert.
         QuickControlReceiver().onReceive(app, Intent(app, QuickControlReceiver::class.java).setAction("x"))

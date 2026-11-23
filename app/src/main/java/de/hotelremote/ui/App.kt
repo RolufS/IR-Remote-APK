@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.hotelremote.R
 import de.hotelremote.automation.SleepTemplates
+import de.hotelremote.quick.WidgetConfigActivity
 import de.hotelremote.ui.about.AboutScreen
 import de.hotelremote.ui.automation.AutomationEditorScreen
 import de.hotelremote.ui.automation.AutomationListScreen
@@ -64,6 +65,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val progress by c.automationProgress.collectAsStateWithLifecycle()
     val sleepTimer by vm.sleepTimer.collectAsStateWithLifecycle()
     val quickPrefs by vm.quickPrefs.collectAsStateWithLifecycle()
+    val quickWidgets by vm.quickWidgets.collectAsStateWithLifecycle()
     val recordedSteps by c.recordedSteps.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     val recording = state.recording?.let { r ->
@@ -167,6 +169,9 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onInputKey = vm::setQuickInputKey,
                 onLockScreen = vm::setLockScreenControls,
                 onBack = { c.show(Screen.Remote) },
+                widgets = quickWidgets,
+                onEditWidget = { context.startActivity(WidgetConfigActivity.intent(context, it)) },
+                onNotificationButtons = vm::setNotificationButtons,
             )
             state.screen is Screen.AutomationEdit -> {
                 val edit = state.screen as Screen.AutomationEdit

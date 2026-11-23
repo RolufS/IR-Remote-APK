@@ -56,7 +56,9 @@ import de.hotelremote.data.SavedRemote
 import de.hotelremote.quick.InputTileService
 import de.hotelremote.quick.PowerTileService
 import de.hotelremote.quick.QuickAction
+import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickPrefs
+import de.hotelremote.quick.QuickWidgetEntry
 import de.hotelremote.quick.QuickWidgetProvider
 import de.hotelremote.quick.VolumeDownTileService
 import de.hotelremote.quick.VolumeUpTileService
@@ -69,7 +71,8 @@ import de.hotelremote.ui.theme.RemoteColors
 
 /**
  * Einstellungen „Schnellsteuerung“: Eingangstaste, Sperrbildschirm-Benachrichtigung (fragt ab Android 13 nach der
- * Erlaubnis für Benachrichtigungen) und Anleitung für Kacheln und Widget, ggf. mit Knöpfen zum direkten Hinzufügen.
+ * Erlaubnis für Benachrichtigungen) mit eigener Tastenbelegung, Anleitung für Kacheln und Widget, ggf. mit Knöpfen
+ * zum direkten Hinzufügen, und die Liste der Widgets ([widgets]) zum Bearbeiten ihrer Knöpfe.
  */
 @Composable
 fun QuickControlsScreen(
@@ -78,8 +81,26 @@ fun QuickControlsScreen(
     onInputKey: (String) -> Unit,
     onLockScreen: (Boolean) -> Unit,
     onBack: () -> Unit,
+    widgets: List<QuickWidgetEntry> = emptyList(),
+    onEditWidget: (Int) -> Unit = {},
+    onNotificationButtons: (List<QuickButton>) -> Unit = {},
 ) {
     val context = LocalContext.current
+    var editNotification by rememberSaveable { mutableStateOf(false) }
+    if (editNotification) {
+        QuickButtonsEditor(
+            target = QuickButtonsTarget.NOTIFICATION,
+            remote = remote,
+            inputKey = prefs.inputKey,
+            initial = prefs.notificationButtons,
+            onSave = {
+                onNotificationButtons(it)
+                editNotification = false
+            },
+            onCancel = { editNotification = false },
+        )
+        return
+    }
     var denied by rememberSaveable { mutableStateOf(false) }
     // Bei jeder Rückkehr neu prüfen (z. B. aus den Systemeinstellungen), sonst bliebe der Hinweis stehen.
     var canPost by remember { mutableStateOf(AndroidSleepTimerNotifier.canPostNotifications(context)) }
@@ -147,6 +168,7 @@ fun QuickControlsScreen(
                 Switch(checked = prefs.lockScreen, onCheckedChange = ::setLockScreen, modifier = Modifier.testTag("quick_lock"))
             }
             Body(stringResource(R.string.quick_lock_hint))
+            Action(stringResource(R.string.qb_edit_notification), Modifier.testTag("quick_notif_buttons")) { editNotification = true }
             if (denied || (prefs.lockScreen && !canPost)) {
                 Body(stringResource(R.string.quick_notif_blocked), Modifier.testTag("quick_notif_blocked"))
             }
@@ -165,6 +187,11 @@ fun QuickControlsScreen(
             if (widgetPinSupported(context)) {
                 Action(stringResource(R.string.quick_add_widget), Modifier.testTag("quick_add_widget")) { requestPinWidget(context) }
             }
+            if (widgets.isEmpty()) Body(stringResource(R.string.qb_widgets_none), Modifier.testTag("quick_widgets_none"))
+            widgets.forEachIndexed { i, widget ->
+                WidgetRow(stringResource(R.string.qb_widget_entry, i + 1, widget.buttonCount), "quick_widget_$i") { onEditWidget(widget.id) }
+            }
+            if (widgets.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Body(stringResource(R.string.qb_widget_reconfigure))
         }
     }
 }
@@ -241,6 +268,34 @@ private fun Choice(text: String, selected: Boolean, modifier: Modifier = Modifie
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(text, color = RemoteColors.KeyText, fontSize = 16.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
+    }
+}
+
+/** Widget in der Liste mit „Bearbeiten“. */
+@Composable
+private fun WidgetRow(text: String, tag: String, onEdit: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.verticalGradient(listOf(RemoteColors.KeyTop, RemoteColors.KeyBottom)))
+            .testTag(tag)
+            .padding(start = 16.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text, color = RemoteColors.KeyText, fontSize = 16.sp, modifier = Modifier.weight(1f).padding(vertical = 12.dp))
+        Box(
+            Modifier
+                .heightIn(min = 48.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .testTag("${tag}_edit")
+                .clickable(role = Role.Button, onClick = onEdit)
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.qb_edit), color = RemoteColors.KeyText, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 

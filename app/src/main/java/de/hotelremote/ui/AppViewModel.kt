@@ -14,8 +14,10 @@ import de.hotelremote.data.CodeRepository
 import de.hotelremote.data.RemoteStore
 import de.hotelremote.ir.AndroidIrTransmitter
 import de.hotelremote.ir.SignalSender
+import de.hotelremote.quick.QuickButton
 import de.hotelremote.quick.QuickControls
 import de.hotelremote.quick.QuickPrefs
+import de.hotelremote.quick.QuickWidgetEntry
 import de.hotelremote.sleeptimer.AndroidAlarmScheduler
 import de.hotelremote.sleeptimer.SleepTimer
 import de.hotelremote.sleeptimer.SleepTimerGraph
@@ -90,6 +92,17 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         _quickPrefs.update { it.copy(inputKey = key) }
     }
 
+    private val _quickWidgets = MutableStateFlow<List<QuickWidgetEntry>>(emptyList())
+
+    /** Widgets auf dem Startbildschirm (neu gelesen bei jeder Rückkehr in die App). */
+    val quickWidgets: StateFlow<List<QuickWidgetEntry>> = _quickWidgets.asStateFlow()
+
+    fun setNotificationButtons(buttons: List<QuickButton>) {
+        quickSettings.notificationButtons = buttons
+        _quickPrefs.update { it.copy(notificationButtons = quickSettings.notificationButtons) }
+        refreshQuickControls()
+    }
+
     fun setLockScreenControls(on: Boolean) {
         quickSettings.lockScreen = on
         _quickPrefs.update { it.copy(lockScreen = on) }
@@ -101,7 +114,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
      * Benachrichtigung (ab Android 14 möglich) oder eine inzwischen erteilte Erlaubnis kommt so zurück.
      */
     fun refreshQuickControls() {
-        viewModelScope.launch(Dispatchers.IO) { QuickControls.refresh(getApplication()) }
+        viewModelScope.launch(Dispatchers.IO) {
+            QuickControls.refresh(getApplication())
+            _quickWidgets.value = QuickControls.widgetEntries(getApplication())
+        }
     }
 
     init {

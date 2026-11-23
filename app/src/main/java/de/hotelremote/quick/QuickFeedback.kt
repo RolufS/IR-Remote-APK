@@ -17,6 +17,9 @@ fun reportQuickResult(context: Context, result: QuickResult) {
         }
         QuickResult.NO_REMOTE -> R.string.quick_no_remote
         QuickResult.KEY_MISSING -> R.string.quick_key_missing
+        QuickResult.AUTOMATION_MISSING -> R.string.quick_auto_missing
+        QuickResult.TOO_LONG -> R.string.quick_auto_too_long
+        QuickResult.BUSY -> R.string.auto_busy
         QuickResult.SEND_FAILED -> R.string.send_failed
     }
     Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT).show()
