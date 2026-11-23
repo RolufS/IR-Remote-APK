@@ -29,7 +29,7 @@ Die App erhebt keine Daten, hat keinen Internetzugang und gibt nichts weiter.
   - „Wecker und Erinnerungen“ (`android.permission.SCHEDULE_EXACT_ALARM`),
     damit der Sleep-Timer pünktlich auslöst.
   - „Benachrichtigungen“ (`android.permission.POST_NOTIFICATIONS`) für die
-    Restzeit des Sleep-Timers.
+    Restzeit des Sleep-Timers und die (optionale) Steuerung auf dem Sperrbildschirm.
   - „Nach dem Start ausführen“ (`android.permission.RECEIVE_BOOT_COMPLETED`),
     um einen laufenden Sleep-Timer nach einem Neustart wieder zu planen und die
     Steuerung auf dem Sperrbildschirm (falls eingeschaltet) wieder anzuzeigen.

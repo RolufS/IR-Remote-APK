@@ -10,6 +10,16 @@ Den Store-Eintrag gibt es auf Deutsch (diese Datei) und Englisch
 Übersetzungen verwalten“ Englisch (en-US) hinzufügen und die englischen Texte
 einfügen. Die Screenshots sind die deutschen und gelten für alle Sprachen.
 
+**Nur Handys mit Infrarot-Sender (ab Version 1.7.0):** Das Manifest verlangt
+`android.hardware.consumerir` (`required="true"`). Google Play zeigt die App
+deshalb nur auf Handys mit IR-Sender an; auf anderen Geräten ist sie im Store
+nicht sichtbar bzw. als „nicht kompatibel“ markiert. Die APK von GitHub lässt
+sich weiterhin überall installieren und zeigt ohne IR-Sender einen Hinweis.
+
+Weitere Dateien: [release-notes.md](release-notes.md) („Neu in dieser Version“),
+[console-guide.md](console-guide.md) (Schritte in der Play Console),
+[production-access.md](production-access.md) (Antrag auf Produktionszugriff).
+
 ## App-Name (max. 30 Zeichen)
 
 ```
@@ -48,7 +58,7 @@ AUTOMATIONEN UND SLEEP-TIMER
 • Sleep-Timer im Handy: nach 15 bis 120 Minuten (oder eigenem Wert) schaltet das Handy den Fernseher aus oder startet eine Automation – auch wenn die App geschlossen ist. Das Handy muss dafür auf den Fernseher zeigen.
 
 SCHNELLSTEUERUNG OHNE APP
-• Kacheln in den Schnelleinstellungen für Ein/Aus, leiser, lauter und Eingang – funktionieren auch auf dem Sperrbildschirm
+• Kacheln in den Schnelleinstellungen für Ein/Aus, leiser, lauter und Eingang (ab Android 7) – funktionieren auch auf dem Sperrbildschirm
 • Widgets für den Startbildschirm mit 1 bis 6 frei wählbaren Tasten – jede Taste der Fernbedienung oder eine Automation, z. B. ein Lautstärke- und ein HDMI-Widget
 • Auf Wunsch eine stille Benachrichtigung mit frei wählbaren Tasten auf dem Sperrbildschirm – herunterziehen öffnet eine Mini-Fernbedienung mit Steuerkreuz
 • Optional die ganze Fernbedienung über dem Sperrbildschirm, ohne Entsperren (Tippen auf die Benachrichtigung oder Kachel „TV Fernbedienung“) – nur die Tasten, sonst nichts
@@ -64,7 +74,7 @@ WERBEFREI UND OFFLINE
 Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch und Indonesisch. Die Sprache wählst du beim ersten Start, später jederzeit im Menü.
 
 WICHTIG
-Benötigt ein Handy mit Infrarot-Sender. Viele Handys haben keinen; die App zeigt dann einen Hinweis. Fernseher, die nur per WLAN oder Bluetooth gesteuert werden, lassen sich nicht bedienen.
+Benötigt ein Handy mit Infrarot-Sender (IR-Blaster) und Android 6 oder neuer. Viele Handys haben keinen IR-Sender; im Play Store wird die App deshalb nur für Handys mit IR-Sender angeboten. Fernseher, die nur per WLAN oder Bluetooth gesteuert werden, lassen sich nicht bedienen.
 
 Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den Herstellern.
 ```
@@ -81,14 +91,31 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
 - Damit entfallen die Fragen zu Verschlüsselung und Löschanfragen; Ergebnis im
   Store: „Keine Daten erhoben“, „Keine Daten an Dritte weitergegeben“.
 
-### Berechtigungen (ab Version 1.2)
+### Berechtigungen (Stand Version 1.7.0)
 
 - `TRANSMIT_IR` – Infrarot senden.
 - `SCHEDULE_EXACT_ALARM` – Sleep-Timer löst pünktlich aus (ab Android 14 nur
   nach Zustimmung des Nutzers; ohne sie ein ungenauer Alarm). Bewusst **kein**
-  `USE_EXACT_ALARM`. Falls die Play Console fragt: Die App ist kein Wecker;
-  der genaue Alarm ist eine vom Nutzer gestartete Zeitschaltung (Sleep-Timer).
-- `POST_NOTIFICATIONS` – laufende Benachrichtigung mit Restzeit und „Abbrechen“.
+  `USE_EXACT_ALARM`. Die App ist kein Wecker; der genaue Alarm ist eine vom
+  Nutzer gestartete Zeitschaltung (Sleep-Timer). Falls die Play Console unter
+  „App-Inhalte“ eine Erklärung zu „Alarme und Erinnerungen“ (exakte Alarme)
+  verlangt, diesen Text verwenden:
+
+  > Die App nutzt exakte Alarme ausschließlich für einen vom Nutzer selbst
+  > gestarteten Sleep-Timer: Nach der gewählten Zeit (15 bis 120 Minuten oder
+  > eigener Wert) sendet das Handy per Infrarot den Ausschalt-Befehl an den
+  > Fernseher oder startet eine vom Nutzer angelegte Automation. Ein ungenauer
+  > Alarm würde den Fernseher spürbar zu spät ausschalten. Ohne Zustimmung des
+  > Nutzers (ab Android 14) verwendet die App einen ungenauen Alarm.
+
+  Englisch: „The app uses exact alarms only for a sleep timer that the user
+  starts: after the chosen time (15 to 120 minutes or a custom value) the phone
+  sends the infrared power-off command to the TV or runs an automation the user
+  created. An inexact alarm would turn the TV off noticeably late. Without the
+  user's consent (Android 14+) the app falls back to an inexact alarm.“
+- `POST_NOTIFICATIONS` – laufende Benachrichtigung des Sleep-Timers mit Restzeit
+  und „Abbrechen“ sowie die (optionale, standardmäßig aus) Steuerung auf dem
+  Sperrbildschirm.
 - `RECEIVE_BOOT_COMPLETED` – einen laufenden Sleep-Timer nach einem Neustart
   wieder planen und die Sperrbildschirm-Steuerung (falls eingeschaltet) wieder anzeigen.
 - `VIBRATE` (ab Version 1.4) – kurzes Vibrieren als Bestätigung, wenn eine Kachel,
@@ -138,6 +165,13 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
 - Kostenlos: **ja** (kann später nicht mehr auf kostenpflichtig umgestellt werden)
 - Website (optional): https://github.com/RolufS/IR-Remote-APK
 
+### Geräte
+
+- Durch `android.hardware.consumerir` (erforderlich) filtert Play alle Geräte
+  ohne IR-Sender aus. Im Gerätekatalog der Play Console erscheinen die meisten
+  Geräte deshalb als „nicht unterstützt“ – das ist so gewollt, nichts ausschließen
+  oder hinzufügen.
+
 ## Grafiken
 
 | Datei | Größe | Verwendung |
@@ -148,12 +182,21 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
 | `screenshot-2-wizard-brand.png` | 1080 × 1920 | Telefon-Screenshot: Markenwahl |
 | `screenshot-3-wizard-test.png` | 1080 × 1920 | Telefon-Screenshot: Code-Test |
 | `screenshot-4-inputs.png` | 1080 × 1920 | Telefon-Screenshot: Eingangs-Test |
+| `screenshot-5-automations.png` | 1080 × 1920 | Telefon-Screenshot: Automationen mit Vorlagen |
+| `screenshot-6-recording.png` | 1080 × 1920 | Telefon-Screenshot: Aufnahme-Modus |
+| `screenshot-7-widget-setup.png` | 1080 × 1920 | Telefon-Screenshot: Widget einrichten |
+| `screenshot-8-lockscreen.png` | 1080 × 1920 | Telefon-Screenshot: Mini-Fernbedienung auf dem Sperrbildschirm (Darstellung) |
 
 Icon und Vorstellungsgrafik erzeugt `tools/make_graphics.py`, die Screenshots
 der Robolectric-Test `StoreScreenshots` (siehe README, Abschnitt „Play Store“).
-Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zulässt.
+Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zulässt;
+Play erlaubt bis zu 8 Telefon-Screenshots, alle 8 in der Reihenfolge 1 bis 8
+hochladen. Bild 8 ist eine Darstellung: die echten Layouts der Benachrichtigung
+in einem nachgebildeten Sperrbildschirm (im Bild vermerkt).
 
 ## Checkliste: Schritte, die nur du machen kannst
+
+Ausführliche Reihenfolge mit Dateien: [console-guide.md](console-guide.md).
 
 1. Entwicklerkonto anlegen (https://play.google.com/console): einmalig 25 US$,
    Identitätsprüfung mit Ausweis; bei privaten Konten auch Bestätigung eines
@@ -168,13 +211,14 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.6.3.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.7.0.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
-   dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
-8. Danach in der Play Console den Produktionszugriff beantragen (Fragen zum
-   Test beantworten), dann Release in „Produktion“ erstellen und zur Prüfung
-   einreichen.
+   dabeibleiben. Tester brauchen ein Handy mit IR-Sender – ohne sehen sie die
+   App im Play Store nicht.
+8. Danach in der Play Console den Produktionszugriff beantragen (vorbereitete
+   Antworten: [production-access.md](production-access.md)), dann Release in
+   „Produktion“ erstellen und zur Prüfung einreichen.
 9. Für jedes spätere Update `versionCode` erhöhen und neu signiert hochladen.
 
 ## Zeichenzahlen
@@ -183,6 +227,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 3063 | 4000 |
+| Vollständige Beschreibung | 3169 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.
