@@ -168,7 +168,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.6.2.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.6.3.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.

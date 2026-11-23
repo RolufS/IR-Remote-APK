@@ -115,7 +115,9 @@ Wege, beide ohne Entsperren:
   zuletzt benutzten Fernbedienung über dem Sperrbildschirm, ohne zu entsperren. Einen eigenen
   Knopf dafür gibt es nicht: Android verlangt bei Knöpfen in der Benachrichtigung immer das
   Entsperren, nur das Tippen auf die Benachrichtigung selbst darf über dem Sperrbildschirm
-  öffnen. Die Kachel öffnet ab Android 14 ohne Entsperren; vor Android 14 fragt das System
+  öffnen. Als Hinweis zeigt die Benachrichtigung dann ein Symbol „Groß“ (⤢) ohne eigene
+  Funktion – oben rechts im Steuerkreuz und klein am Ende der Knopfreihe; ein Tippen darauf ist
+  ein Tippen auf die Benachrichtigung. Die Kachel öffnet ab Android 14 ohne Entsperren; vor Android 14 fragt das System
   dort zuerst nach dem Entsperren. Dort gibt es nur Tasten und ⋮ → „Weitere
   Tasten“: kein ☰, kein Wechseln, kein ⚡, keine Automationen, kein Assistent, keine
   Einstellungen. Zurück oder die Ein/Aus-Taste des Handys schließt sie; wer dabei entsperrt,
@@ -151,7 +153,7 @@ Widget-Info
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.6.2.apk`
+- USB: `adb install -r dist/Fernbedienung-1.6.3.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -160,11 +162,11 @@ Widget-Info
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.2.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.3.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.6.2.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.6.3.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -181,7 +183,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.2.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.3.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
