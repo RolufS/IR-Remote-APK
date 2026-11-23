@@ -10,9 +10,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Schnellsteuerung: kurzes Vibrieren als Bestätigung (normale Berechtigung, keine Rückfrage). -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Nur Handys mit Infrarot-Sender: Google Play blendet die App auf Geräten ohne IR aus. Per APK-Sideload
+         installiert sie weiterhin überall (Android prüft uses-feature beim Installieren nicht); ohne IR-Sender
+         zeigt sie wie bisher den Hinweis. -->
     <uses-feature
         android:name="android.hardware.consumerir"
-        android:required="false" />
+        android:required="true" />
 
     <application
         android:allowBackup="false"
