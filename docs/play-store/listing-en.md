@@ -46,7 +46,7 @@ QUICK CONTROLS WITHOUT THE APP
 • Quick Settings tiles for power, volume down, volume up and input – they work on the lock screen too
 • Home screen widgets with 1 to 6 keys of your choice – any key of the remote or an automation, e.g. one widget for volume and one for HDMI
 • Optionally a silent notification with keys of your choice on the lock screen – pull it down for a mini remote with arrow keys
-• Optionally the full remote over the lock screen, without unlocking (button in the notification or the "TV remote" tile) – just the keys, nothing else
+• Optionally the full remote over the lock screen, without unlocking (tap the notification or the "TV remote" tile) – just the keys, nothing else
 
 AD-FREE AND OFFLINE
 • No ads, no in-app purchases, no account

@@ -109,11 +109,14 @@ Wege, beide ohne Entsperren:
   zuletzt benutzten Fernbedienung fehlen, sind ausgeblendet. Eingeklappt bleibt die frei
   gewählte Knopfreihe.
 - **Ganze Fernbedienung über dem Sperrbildschirm** (Standard aus): Schalter „Ganze
-  Fernbedienung über dem Sperrbildschirm erlauben“. Dann öffnet der Knopf „Ganze
-  Fernbedienung“ (aufgezogen als kleines Symbol oben rechts im Steuerkreuz, eingeklappt als
-  letzter Knopf der Reihe) oder die
-  Kachel „TV Fernbedienung“ die normale Fernbedienung der zuletzt benutzten Fernbedienung
-  über dem Sperrbildschirm, ohne zu entsperren. Dort gibt es nur Tasten und ⋮ → „Weitere
+  Fernbedienung über dem Sperrbildschirm erlauben“. Dann öffnet das Tippen auf die
+  Sperrbildschirm-Benachrichtigung selbst (Kopfzeile oder freie Fläche, Hinweis „Tippen für die
+  ganze Fernbedienung“) oder die Kachel „TV Fernbedienung“ die normale Fernbedienung der
+  zuletzt benutzten Fernbedienung über dem Sperrbildschirm, ohne zu entsperren. Einen eigenen
+  Knopf dafür gibt es nicht: Android verlangt bei Knöpfen in der Benachrichtigung immer das
+  Entsperren, nur das Tippen auf die Benachrichtigung selbst darf über dem Sperrbildschirm
+  öffnen. Die Kachel öffnet ab Android 14 ohne Entsperren; vor Android 14 fragt das System
+  dort zuerst nach dem Entsperren. Dort gibt es nur Tasten und ⋮ → „Weitere
   Tasten“: kein ☰, kein Wechseln, kein ⚡, keine Automationen, kein Assistent, keine
   Einstellungen. Zurück oder die Ein/Aus-Taste des Handys schließt sie; wer dabei entsperrt,
   kann weiter bedienen, die volle App öffnet sich wie gewohnt über den Launcher. Wer das
@@ -148,7 +151,7 @@ Widget-Info
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.6.1.apk`
+- USB: `adb install -r dist/Fernbedienung-1.6.2.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -157,11 +160,11 @@ Widget-Info
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.1.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.2.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.6.1.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.6.2.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -178,7 +181,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.1.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.2.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -275,17 +278,19 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
     Eingang, −/+, CH ▲/▼, Pfeile, OK, BACK, HOME senden ohne Entsperren. Bei einer
     Fernbedienung ohne z. B. HOME fehlt der Knopf. Ansicht „Klein“: nur die Knopfreihe, kein
     Aufziehen.
-26. „Ganze Fernbedienung über dem Sperrbildschirm erlauben“ an: in der Benachrichtigung
-    erscheint „Ganze Fernbedienung“ (eingeklappt als letzter Knopf, aufgezogen als Symbol oben
-    rechts im Steuerkreuz). Handy sperren, tippen: die
+26. „Ganze Fernbedienung über dem Sperrbildschirm erlauben“ an: die Kopfzeile der
+    Benachrichtigung zeigt „Tippen für die ganze Fernbedienung“, ein eigener Knopf ist nicht mehr
+    da. Handy sperren, auf die Benachrichtigung (Kopfzeile oder freie Fläche, nicht auf eine
+    Taste) tippen: keine Entsperr-Abfrage, die
     Fernbedienung öffnet sich über dem Sperrbildschirm ohne Entsperren, nur mit ⋮ → „Weitere
     Tasten“; VOL halten zählt hoch. Zurück: der Sperrbildschirm ist wieder da. Erneut öffnen,
     Ein/Aus-Taste des Handys: Bildschirm aus, nach dem Einschalten der Sperrbildschirm. Ohne
     gespeicherte Fernbedienung: Hinweis „Noch keine Fernbedienung – App öffnen“.
 27. Kachel „TV Fernbedienung“ hinzufügen (ab Android 13 auch über ⋮ → Schnellsteuerung): bei
     ausgeschalteter Option ausgegraut mit „In der App aktivieren“; eingeschaltet öffnet ein Tipp
-    auf dem Sperrbildschirm die ganze Fernbedienung. Option wieder aus: Knopf und Kachel sind
-    weg bzw. ausgegraut.
+    auf dem Sperrbildschirm die ganze Fernbedienung (ab Android 14 ohne Entsperr-Abfrage, vorher
+    mit). Die Tasten der Mini-Fernbedienung senden weiter ohne Entsperren. Option wieder aus:
+    Tippen auf die Benachrichtigung öffnet die App (nach dem Entsperren), die Kachel ist ausgegraut.
 
 Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
 Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt
