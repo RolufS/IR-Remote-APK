@@ -16,6 +16,7 @@ import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.sleeptimer.SleepAction
 import de.hotelremote.sleeptimer.SleepTimer
+import de.hotelremote.ui.AutomationDraft
 import de.hotelremote.ui.remote.QuickSheetContent
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import org.junit.Assert.assertEquals
@@ -124,7 +125,13 @@ class AutomationUiTest {
         assertEquals(2_000L, changeDelay(1_500, up = true))
     }
 
-    private fun sheet(timer: SleepTimer?, progress: AutomationProgress? = null, onRun: (Automation) -> Unit = {}, onTimer: () -> Unit = {}) {
+    private fun sheet(
+        timer: SleepTimer?,
+        progress: AutomationProgress? = null,
+        onRun: (Automation) -> Unit = {},
+        onTimer: () -> Unit = {},
+        onRecord: () -> Unit = {},
+    ) {
         rule.setContent {
             HotelRemoteTheme {
                 QuickSheetContent(
@@ -137,6 +144,7 @@ class AutomationUiTest {
                     onTimer = onTimer,
                     onCancelTimer = {},
                     onEdit = {},
+                    onRecord = onRecord,
                 )
             }
         }
@@ -165,5 +173,51 @@ class AutomationUiTest {
         rule.onNodeWithTag("quick_timer_inexact").assertExists()
         rule.onNodeWithText("Einschlafen · Schritt 2 von 3").assertExists()
         rule.onNodeWithTag("quick_timer").assertDoesNotExist()
+    }
+
+    @Test fun sheetStartsRecording() {
+        var recorded = 0
+        sheet(timer = null, onRecord = { recorded++ })
+        rule.onNodeWithTag("quick_record").assertTextEquals("● Neue Automation aufnehmen").performClick()
+        assertEquals(1, recorded)
+    }
+
+    @Test fun listStartsRecording() {
+        var recorded = 0
+        var edited = false
+        rule.setContent {
+            HotelRemoteTheme {
+                AutomationListScreen(emptyList(), null, {}, {}, { edited = true }, {}, {}, onRecord = { recorded++ })
+            }
+        }
+        rule.onNodeWithText("● Aufnehmen").performClick()
+        assertEquals(1, recorded)
+        assertEquals(false, edited)
+    }
+
+    @Test fun editorRecordsWithCurrentNameAndStepsAndShowsDraft() {
+        var recordedWith: Pair<String, List<AutomationStep>>? = null
+        val draft = AutomationDraft("Abend", listOf(AutomationStep(Keys.MENU, 2_500), AutomationStep(Keys.OK)))
+        rule.setContent {
+            HotelRemoteTheme {
+                AutomationEditorScreen(
+                    initial = Automation("a1", "Alt", listOf(AutomationStep(Keys.MENU))),
+                    keys = keys,
+                    progress = null,
+                    onTest = { _, _ -> },
+                    onCancelRun = {},
+                    onSave = { saved = it },
+                    onCancel = {},
+                    onRecord = { name, steps -> recordedWith = name to steps },
+                    draft = draft,
+                )
+            }
+        }
+        rule.onNodeWithTag("step_key_1").assertTextEquals("2. OK")
+        rule.onNodeWithTag("step_wait_0").assertTextEquals("Danach warten: 2,5 s")
+        rule.onNodeWithTag("auto_record").performClick()
+        assertEquals("Abend" to draft.steps, recordedWith)
+        rule.onNodeWithTag("auto_save").performClick()
+        assertEquals(Automation("a1", "Abend", draft.steps), saved)
     }
 }

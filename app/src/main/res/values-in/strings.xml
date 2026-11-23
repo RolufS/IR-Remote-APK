@@ -154,4 +154,14 @@
     <string name="timer_fail_action">Tindakan sudah tidak ada atau tombolnya tidak ada.</string>
     <string name="timer_fail_incomplete">Otomatisasi berjalan terlalu lama dan dihentikan.</string>
     <string name="timer_keys_skipped">Tombol dilewati (tidak ada di remote ini): %1$d</string>
+    <string name="rec_start">● Rekam</string>
+    <string name="rec_new_quick">● Rekam otomatisasi baru</string>
+    <string name="rec_into">● Rekam dengan remote</string>
+    <string name="rec_status">● Merekam · Langkah: %1$d</string>
+    <string name="rec_hint">Tekan tombol seperti biasa – jeda akan menjadi waktu tunggu.</string>
+    <string name="rec_undo">Urungkan</string>
+    <string name="rec_done">Selesai</string>
+    <string name="rec_discard_confirm">Buang rekaman?</string>
+    <string name="rec_discard">Buang</string>
+    <string name="rec_continue">Lanjut merekam</string>
 </resources>

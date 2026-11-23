@@ -154,4 +154,14 @@
     <string name="timer_fail_action">A ação não existe mais ou falta a tecla.</string>
     <string name="timer_fail_incomplete">A automação demorou demais e foi interrompida.</string>
     <string name="timer_keys_skipped">Teclas ignoradas (ausentes neste controle): %1$d</string>
+    <string name="rec_start">● Gravar</string>
+    <string name="rec_new_quick">● Gravar nova automação</string>
+    <string name="rec_into">● Gravar com o controle</string>
+    <string name="rec_status">● Gravando · Passos: %1$d</string>
+    <string name="rec_hint">Toque nas teclas como de costume – as pausas viram tempo de espera.</string>
+    <string name="rec_undo">Desfazer</string>
+    <string name="rec_done">Concluir</string>
+    <string name="rec_discard_confirm">Descartar gravação?</string>
+    <string name="rec_discard">Descartar</string>
+    <string name="rec_continue">Continuar gravando</string>
 </resources>

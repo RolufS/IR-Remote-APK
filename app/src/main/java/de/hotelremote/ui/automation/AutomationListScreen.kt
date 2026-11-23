@@ -35,10 +35,11 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.R
 import de.hotelremote.automation.AutomationProgress
 import de.hotelremote.data.Automation
+import de.hotelremote.ui.remote.PowerBrush
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.RemoteColors
 
-/** Automationen der aktuellen Fernbedienung: Tippen bearbeitet, ▶ führt aus, × löscht nach Rückfrage. */
+/** Automationen der aktuellen Fernbedienung: Tippen bearbeitet, ▶ führt aus, × löscht nach Rückfrage; neu anlegen oder aufnehmen. */
 @Composable
 fun AutomationListScreen(
     automations: List<Automation>,
@@ -48,6 +49,7 @@ fun AutomationListScreen(
     onEdit: (String?) -> Unit,
     onDelete: (String) -> Unit,
     onBack: () -> Unit,
+    onRecord: () -> Unit = {},
 ) {
     var deleteFor by rememberSaveable { mutableStateOf<String?>(null) }
     Column(
@@ -93,7 +95,10 @@ fun AutomationListScreen(
                 }
             }
         }
-        WideButton(stringResource(R.string.auto_new), "automation_new", SourceBrush, Modifier.fillMaxWidth()) { onEdit(null) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WideButton(stringResource(R.string.auto_new), "automation_new", SourceBrush, Modifier.weight(1.3f)) { onEdit(null) }
+            WideButton(stringResource(R.string.rec_start), "automation_record", PowerBrush, Modifier.weight(1f), onClick = onRecord)
+        }
     }
 
     automations.firstOrNull { it.id == deleteFor }?.let { a ->

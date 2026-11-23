@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -51,6 +52,8 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.ui.automation.RecordingBar
+import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.theme.RemoteColors
 
 enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, WIZARD, LANGUAGE, ABOUT }
@@ -69,6 +72,8 @@ fun RemoteScreen(
     onOpenList: () -> Unit,
     onMenu: (RemoteMenu) -> Unit,
     onQuick: () -> Unit = {},
+    /** Während einer Aufnahme: Leiste unter der Kopfzeile; ☰, ⚡ und Wechseln sind dann gesperrt. */
+    recording: RecordingBarState? = null,
 ) {
     val keys = remote.keys.keys
     val inputRow = showInputRow(keys)
@@ -82,7 +87,8 @@ fun RemoteScreen(
         verticalArrangement = Arrangement.spacedBy(Gap),
     ) {
         if (!irAvailable) NoIrBanner()
-        Header(remote, remotes, onSwitch, onOpenList, onMenu, onQuick)
+        Header(remote, remotes, recording != null, onSwitch, onOpenList, onMenu, onQuick)
+        recording?.let { RecordingBar(it) }
         // Tastenfeld immer LTR, auch bei Arabisch: links/rechts, Wippen und Steuerkreuz bleiben an ihrem Platz.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             KeyRow(1.25f) {
@@ -290,6 +296,7 @@ internal fun NoIrBanner() {
 private fun Header(
     remote: SavedRemote,
     remotes: List<SavedRemote>,
+    recording: Boolean,
     onSwitch: (String) -> Unit,
     onOpenList: () -> Unit,
     onMenu: (RemoteMenu) -> Unit,
@@ -302,7 +309,7 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", onOpenList)
+        HeaderIcon("☰", stringResource(R.string.cd_open_list), "header_list", enabled = !recording, onClick = onOpenList)
         // Titel nimmt den Platz zwischen den Symbolen und wird bei Bedarf gekürzt.
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             Text(
@@ -315,7 +322,7 @@ private fun Header(
                 modifier = Modifier
                     .testTag("header_title")
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { switchOpen = true }
+                    .clickable(enabled = !recording) { switchOpen = true }
                     .background(Color.White.copy(alpha = 0.06f))
                     .padding(horizontal = 10.dp, vertical = 6.dp),
             )
@@ -331,19 +338,20 @@ private fun Header(
                 }
             }
         }
-        HeaderButton(stringResource(R.string.cd_quick), "header_quick", onQuick) {
+        HeaderButton(stringResource(R.string.cd_quick), "header_quick", enabled = !recording, onClick = onQuick) {
             Icon(BoltIcon, null, Modifier.size(20.dp), tint = RemoteColors.KeyText.copy(alpha = 0.75f))
         }
         Box {
             HeaderIcon("⋮", stringResource(R.string.cd_more_menu), "header_menu") { menuOpen = true }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                // Während der Aufnahme nur „Weitere Tasten“: die anderen Einträge verließen die Fernbedienung.
                 listOf(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
                     R.string.menu_automations to RemoteMenu.AUTOMATIONS,
                     R.string.menu_wizard to RemoteMenu.WIZARD,
                     R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,
-                ).forEach { (label, menu) ->
+                ).filter { !recording || it.second == RemoteMenu.EXTRA_KEYS }.forEach { (label, menu) ->
                     DropdownMenuItem(
                         text = { Text(stringResource(label)) },
                         onClick = {
@@ -358,20 +366,27 @@ private fun Header(
 }
 
 @Composable
-private fun HeaderIcon(symbol: String, description: String, tag: String, onClick: () -> Unit) {
-    HeaderButton(description, tag, onClick) {
+private fun HeaderIcon(symbol: String, description: String, tag: String, enabled: Boolean = true, onClick: () -> Unit) {
+    HeaderButton(description, tag, enabled, onClick) {
         Text(symbol, color = RemoteColors.KeyText.copy(alpha = 0.75f), fontSize = 18.sp)
     }
 }
 
 @Composable
-private fun HeaderButton(description: String, tag: String, onClick: () -> Unit, content: @Composable () -> Unit) {
+private fun HeaderButton(
+    description: String,
+    tag: String,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
     Box(
         Modifier
             .testTag(tag)
             .height(40.dp)
             .aspectRatio(1f)
-            .clickable(onClick = onClick)
+            .alpha(if (enabled) 1f else 0.3f)
+            .clickable(enabled = enabled, onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {

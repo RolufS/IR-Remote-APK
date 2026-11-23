@@ -154,4 +154,14 @@
     <string name="timer_fail_action">Die Aktion gibt es nicht mehr oder die Taste fehlt.</string>
     <string name="timer_fail_incomplete">Die Automation dauerte zu lange und wurde abgebrochen.</string>
     <string name="timer_keys_skipped">Übersprungene Tasten (fehlen dieser Fernbedienung): %1$d</string>
+    <string name="rec_start">● Aufnehmen</string>
+    <string name="rec_new_quick">● Neue Automation aufnehmen</string>
+    <string name="rec_into">● Per Fernbedienung aufnehmen</string>
+    <string name="rec_status">● Aufnahme · Schritte: %1$d</string>
+    <string name="rec_hint">Drücke die Tasten wie gewohnt – Pausen werden als Wartezeit übernommen.</string>
+    <string name="rec_undo">Rückgängig</string>
+    <string name="rec_done">Fertig</string>
+    <string name="rec_discard_confirm">Aufnahme verwerfen?</string>
+    <string name="rec_discard">Verwerfen</string>
+    <string name="rec_continue">Weiter aufnehmen</string>
 </resources>

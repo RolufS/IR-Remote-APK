@@ -154,4 +154,14 @@
     <string name="timer_fail_action">The action no longer exists or the key is missing.</string>
     <string name="timer_fail_incomplete">The automation took too long and was stopped.</string>
     <string name="timer_keys_skipped">Skipped keys (missing on this remote): %1$d</string>
+    <string name="rec_start">● Record</string>
+    <string name="rec_new_quick">● Record new automation</string>
+    <string name="rec_into">● Record with the remote</string>
+    <string name="rec_status">● Recording · Steps: %1$d</string>
+    <string name="rec_hint">Press the keys as usual – pauses become wait times.</string>
+    <string name="rec_undo">Undo</string>
+    <string name="rec_done">Done</string>
+    <string name="rec_discard_confirm">Discard recording?</string>
+    <string name="rec_discard">Discard</string>
+    <string name="rec_continue">Keep recording</string>
 </resources>

@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +26,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.hotelremote.R
@@ -30,6 +35,7 @@ import de.hotelremote.ui.about.AboutScreen
 import de.hotelremote.ui.automation.AutomationEditorScreen
 import de.hotelremote.ui.automation.AutomationListScreen
 import de.hotelremote.ui.automation.AutomationProgressBar
+import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.automation.keyName
 import de.hotelremote.ui.language.AppLanguages
 import de.hotelremote.ui.language.LanguageScreen
@@ -54,6 +60,18 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val wizardBack = { if (!c.wizardBack()) onExit() }
     val progress by c.automationProgress.collectAsStateWithLifecycle()
     val sleepTimer by vm.sleepTimer.collectAsStateWithLifecycle()
+    val recordedSteps by c.recordedSteps.collectAsStateWithLifecycle()
+    var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    val recording = state.recording?.let { r ->
+        val count = recordedSteps.size - r.existingCount
+        RecordingBarState(
+            recordedCount = count,
+            hint = r.hint,
+            onUndo = c::undoRecording,
+            onDone = c::finishRecording,
+            onCancel = { if (count > 0) confirmDiscard = true else c.cancelRecording() },
+        )
+    }
     var quickOpen by rememberSaveable { mutableStateOf(false) }
     var timerDialog by rememberSaveable { mutableStateOf(false) }
     var timerRequest by rememberSaveable(stateSaver = TimerRequestSaver) { mutableStateOf<TimerRequest?>(null) }
@@ -81,6 +99,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
         c.show(Screen.Remote)
     }
     BackHandler(enabled = state.screen is Screen.AutomationEdit) { c.show(Screen.Automations) }
+    // Systemzurück auf der Fernbedienung während einer Aufnahme = Abbrechen (mit Rückfrage).
+    BackHandler(enabled = recording != null && state.screen == Screen.Remote) { recording?.onCancel?.invoke() }
     Box(Modifier.fillMaxSize().background(RemoteColors.BackgroundBottom)) {
         val current = state.current
         when {
@@ -124,7 +144,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
             )
             state.screen == Screen.About -> AboutScreen(meta = state.meta, dbError = state.dbError, onBack = { c.show(Screen.Remote) })
             current == null -> Unit
-            state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { c.show(Screen.Remote) })
+            state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { c.show(Screen.Remote) }, recording = recording)
             state.screen == Screen.Automations -> AutomationListScreen(
                 automations = current.automations,
                 progress = progress,
@@ -133,9 +153,11 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onEdit = { c.show(Screen.AutomationEdit(it)) },
                 onDelete = c::deleteAutomation,
                 onBack = { c.show(Screen.Remote) },
+                onRecord = { c.recordNew(returnTo = Screen.Automations) },
             )
             state.screen is Screen.AutomationEdit -> {
-                val id = (state.screen as Screen.AutomationEdit).automationId
+                val edit = state.screen as Screen.AutomationEdit
+                val id = edit.automationId
                 AutomationEditorScreen(
                     initial = current.automations.firstOrNull { it.id == id },
                     keys = current.keys.keys,
@@ -144,6 +166,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onCancelRun = c::cancelAutomation,
                     onSave = { if (c.saveAutomation(it)) c.show(Screen.Automations) },
                     onCancel = { c.show(Screen.Automations) },
+                    onRecord = { name, steps -> c.recordInto(id, name, steps) },
+                    draft = edit.draft,
                 )
             }
             else -> RemoteScreen(
@@ -163,6 +187,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     }
                 },
                 onQuick = { quickOpen = true },
+                recording = recording,
             )
         }
         if (current != null && state.screen == Screen.Remote && !state.loading) {
@@ -181,6 +206,10 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onEdit = {
                         quickOpen = false
                         c.show(Screen.Automations)
+                    },
+                    onRecord = {
+                        quickOpen = false
+                        c.recordNew(returnTo = Screen.Remote)
                     },
                     onTimerExpired = vm::reloadSleepTimer,
                     onDismiss = { quickOpen = false },
@@ -204,6 +233,24 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onDismiss = { timerDialog = false },
                 )
             }
+        }
+        if (confirmDiscard && state.recording != null) {
+            AlertDialog(
+                onDismissRequest = { confirmDiscard = false },
+                text = { Text(stringResource(R.string.rec_discard_confirm)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            confirmDiscard = false
+                            c.cancelRecording()
+                        },
+                        modifier = Modifier.testTag("recording_discard"),
+                    ) { Text(stringResource(R.string.rec_discard)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(R.string.rec_continue)) }
+                },
+            )
         }
         timerRequest?.let { request ->
             SleepTimerStartFlow(request, vm) { notificationsDenied ->

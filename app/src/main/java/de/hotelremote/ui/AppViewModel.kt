@@ -43,6 +43,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         io = Dispatchers.IO,
         irAvailable = transmitter.available,
         languageChosen = !languageChoice.needed,
+        hold = sender::hold,
     )
 
     private val timerScheduler = SleepTimerGraph.scheduler(app)
@@ -92,11 +93,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
 
     private fun LocaleListCompat.tags(): List<String> = (0 until size()).mapNotNull { get(it)?.toLanguageTag() }
 
-    override fun press(key: String) {
-        controller.state.value.current?.keys?.get(key)?.let(sender::press)
-    }
+    // Tasten laufen über den Controller, damit eine Aufnahme jeden Druck genau einmal sieht.
+    override fun press(key: String) = controller.press(key)
 
-    override fun hold(key: String): Job? = controller.state.value.current?.keys?.get(key)?.let(sender::hold)
+    override fun hold(key: String): Job? = controller.hold(key)
 
     override fun onCleared() {
         controller.close()

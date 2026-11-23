@@ -154,4 +154,14 @@
     <string name="timer_fail_action">Действие больше не существует или нет кнопки.</string>
     <string name="timer_fail_incomplete">Автоматизация шла слишком долго и была остановлена.</string>
     <string name="timer_keys_skipped">Пропущено кнопок (нет на этом пульте): %1$d</string>
+    <string name="rec_start">● Записать</string>
+    <string name="rec_new_quick">● Записать автоматизацию</string>
+    <string name="rec_into">● Записать с пульта</string>
+    <string name="rec_status">● Запись · Шагов: %1$d</string>
+    <string name="rec_hint">Нажимайте кнопки как обычно – паузы станут временем ожидания.</string>
+    <string name="rec_undo">Отменить шаг</string>
+    <string name="rec_done">Готово</string>
+    <string name="rec_discard_confirm">Удалить запись?</string>
+    <string name="rec_discard">Удалить</string>
+    <string name="rec_continue">Продолжить запись</string>
 </resources>

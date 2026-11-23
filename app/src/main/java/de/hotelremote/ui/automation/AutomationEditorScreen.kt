@@ -44,7 +44,9 @@ import de.hotelremote.R
 import de.hotelremote.automation.AutomationProgress
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
+import de.hotelremote.ui.AutomationDraft
 import de.hotelremote.ui.remote.KeyBrush
+import de.hotelremote.ui.remote.PowerBrush
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.RemoteColors
 import java.text.NumberFormat
@@ -67,7 +69,8 @@ internal fun changeDelay(ms: Long, up: Boolean): Long =
 
 /**
  * Editor einer Automation: Name (Pflicht) und Schritte (Taste, Wartezeit danach, verschieben, entfernen).
- * „Testen“ führt die ungespeicherte Folge aus.
+ * „Testen“ führt die ungespeicherte Folge aus, „Per Fernbedienung aufnehmen“ hängt weitere Schritte an.
+ * [draft] (z. B. nach einer Aufnahme) ersetzt Name und Schritte von [initial].
  */
 @Composable
 fun AutomationEditorScreen(
@@ -78,14 +81,16 @@ fun AutomationEditorScreen(
     onCancelRun: () -> Unit,
     onSave: (Automation) -> Unit,
     onCancel: () -> Unit,
+    onRecord: (String, List<AutomationStep>) -> Unit = { _, _ -> },
+    draft: AutomationDraft? = null,
 ) {
     val res = LocalContext.current.resources
     val locale = LocalConfiguration.current.locales[0]
     val seconds = remember(locale) { NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 } }
     // Saveable: Eingaben überstehen das Neuerzeugen der Activity (z. B. Sprachwechsel, Prozess-Ende im Hintergrund).
-    var name by rememberSaveable(initial?.id) { mutableStateOf(initial?.name.orEmpty()) }
-    val steps = rememberSaveable(initial?.id, saver = StepsSaver) {
-        mutableStateListOf<AutomationStep>().apply { addAll(initial?.steps.orEmpty()) }
+    var name by rememberSaveable(initial?.id, draft) { mutableStateOf(draft?.name ?: initial?.name.orEmpty()) }
+    val steps = rememberSaveable(initial?.id, draft, saver = StepsSaver) {
+        mutableStateListOf<AutomationStep>().apply { addAll(draft?.steps ?: initial?.steps.orEmpty()) }
     }
     var picking by rememberSaveable { mutableStateOf(false) }
     val canSave = name.isNotBlank() && steps.isNotEmpty()
@@ -166,6 +171,11 @@ fun AutomationEditorScreen(
             item {
                 WideButton(stringResource(R.string.auto_add_step), "auto_add_step", KeyBrush, Modifier.fillMaxWidth()) {
                     picking = true
+                }
+            }
+            item {
+                WideButton(stringResource(R.string.rec_into), "auto_record", PowerBrush, Modifier.fillMaxWidth()) {
+                    onRecord(name, steps.toList())
                 }
             }
         }

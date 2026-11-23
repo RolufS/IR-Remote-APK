@@ -1,6 +1,7 @@
 package de.hotelremote.ui
 
 import de.hotelremote.automation.AutomationProgress
+import de.hotelremote.automation.AutomationRecorder
 import de.hotelremote.automation.AutomationResult
 import de.hotelremote.automation.AutomationRunner
 import de.hotelremote.data.Automation
@@ -16,6 +17,7 @@ import de.hotelremote.wizard.WizardState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,9 +36,24 @@ sealed interface Screen {
     data object Language : Screen
     data object Automations : Screen
 
-    /** Editor; [automationId] null = neue Automation. */
-    data class AutomationEdit(val automationId: String?) : Screen
+    /** Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme). */
+    data class AutomationEdit(val automationId: String?, val draft: AutomationDraft? = null) : Screen
 }
+
+/** Ungespeicherter Stand im Editor. */
+data class AutomationDraft(val name: String, val steps: List<AutomationStep>)
+
+/**
+ * Laufende Aufnahme. „Fertig“ öffnet den Editor für [automationId] mit [name], „Abbrechen“ kehrt zu
+ * [returnTo] zurück. Die ersten [existingCount] Schritte waren schon vorhanden; [hint] bis zum ersten Tastendruck.
+ */
+data class Recording(
+    val automationId: String?,
+    val name: String,
+    val existingCount: Int,
+    val returnTo: Screen,
+    val hint: Boolean = true,
+)
 
 /** Snackbar-Meldungen; App.kt setzt sie in Texte der aktuellen Sprache um. */
 enum class UiMessage { SAVE_FAILED, LOAD_FAILED, SEND_FAILED, KEYS_MISSING, AUTOMATION_BUSY, TIMER_NO_NOTIFICATIONS }
@@ -57,6 +74,8 @@ data class AppUiState(
     val missingKeys: List<String> = emptyList(),
     /** Erststart: „Sprache wählen“ kommt vor allem anderen und hat kein Zurück. */
     val languageFirstStart: Boolean = false,
+    /** Aufnahme einer Automation läuft (null = keine). */
+    val recording: Recording? = null,
 )
 
 /**
@@ -72,6 +91,8 @@ class AppController(
     irAvailable: Boolean,
     private val clock: () -> Long = System::currentTimeMillis,
     languageChosen: Boolean = true,
+    /** Gedrückt halten (wiederholt bis zum Abbrechen des Jobs); Standard: einmal senden. */
+    private val hold: (IrSignal) -> Job? = { send(it); null },
 ) {
     private val _state = MutableStateFlow(
         AppUiState(
@@ -90,6 +111,11 @@ class AppController(
 
     /** Laufende Automation (null = keine). */
     val automationProgress: StateFlow<AutomationProgress?> = automationRunner.progress
+
+    private val recorder = AutomationRecorder(clock)
+
+    /** Schritte der laufenden Aufnahme (vorhandene und aufgenommene). */
+    val recordedSteps: StateFlow<List<AutomationStep>> = recorder.steps
 
     /** Bildschirm, zu dem „Sprache wählen“ zurückkehrt. */
     private var languageReturn: Screen = Screen.Remote
@@ -138,6 +164,28 @@ class AppController(
         }
     }
 
+    // ---- Tasten ----
+
+    /** Sendet die Taste der aktuellen Fernbedienung einmal; während einer Aufnahme wird sie auch Schritt. */
+    fun press(key: String) {
+        val signal = _state.value.current?.keys?.get(key) ?: return
+        send(signal)
+        recordKey(key)
+    }
+
+    /** Wie [press], aber wiederholt bis zum Abbrechen des Jobs; aufgenommen wird ein Schritt pro Druck. */
+    fun hold(key: String): Job? {
+        val signal = _state.value.current?.keys?.get(key) ?: return null
+        recordKey(key)
+        return hold(signal)
+    }
+
+    private fun recordKey(key: String) {
+        if (_state.value.recording == null) return
+        recorder.record(key)
+        _state.update { s -> s.copy(recording = s.recording?.copy(hint = false)) }
+    }
+
     // ---- Fernbedienungen ----
 
     fun show(screen: Screen) {
@@ -154,6 +202,7 @@ class AppController(
 
     /** Wechselt auch dann, wenn das Merken der Nutzung scheitert. */
     fun switchTo(id: String) {
+        if (_state.value.recording != null) return
         val remotes = storing {
             store.markUsed(id, clock())
             store.all()
@@ -196,6 +245,7 @@ class AppController(
 
     /** Führt eine (auch ungespeicherte) Folge mit den Tasten der aktuellen Fernbedienung aus. */
     fun runAutomation(name: String, steps: List<AutomationStep>) {
+        if (_state.value.recording != null) return
         val keys = _state.value.current?.keys ?: return
         if (!automationRunner.start(name, keys, steps) && automationProgress.value != null) {
             showMessage(UiMessage.AUTOMATION_BUSY)
@@ -231,6 +281,47 @@ class AppController(
         } ?: return false
         _state.update { s -> s.copy(remotes = remotes, current = s.current?.let { c -> remotes.firstOrNull { it.id == c.id } }) }
         return true
+    }
+
+    // ---- Aufnahme ----
+
+    /** Neue Automation per Fernbedienung aufnehmen; „Abbrechen“ führt zurück zu [returnTo]. */
+    fun recordNew(returnTo: Screen) = startRecording(Recording(null, "", 0, returnTo), emptyList())
+
+    /** Aus dem Editor: an [existing] anhängen; „Abbrechen“ führt zum Editor mit diesem Stand zurück. */
+    fun recordInto(automationId: String?, name: String, existing: List<AutomationStep>) = startRecording(
+        Recording(automationId, name, existing.size, Screen.AutomationEdit(automationId, AutomationDraft(name, existing))),
+        existing,
+    )
+
+    /** Zeigt die Fernbedienung im Aufnahmemodus; eine laufende Automation bzw. ein Suchlauf hält an. */
+    private fun startRecording(recording: Recording, existing: List<AutomationStep>) {
+        if (_state.value.current == null) return
+        automationRunner.cancel()
+        if (scanRunner?.running?.value == true) stopScan()
+        recorder.start(existing)
+        _state.update { it.copy(recording = recording, screen = Screen.Remote) }
+    }
+
+    fun undoRecording() = recorder.undo()
+
+    /** Öffnet den Editor mit allen Schritten (vorhandene und aufgenommene). */
+    fun finishRecording() {
+        val recording = _state.value.recording ?: return
+        val steps = recorder.finish()
+        _state.update {
+            it.copy(
+                recording = null,
+                screen = Screen.AutomationEdit(recording.automationId, AutomationDraft(recording.name, steps)),
+            )
+        }
+    }
+
+    /** Verwirft die Aufnahme und kehrt zum Ausgangspunkt zurück. */
+    fun cancelRecording() {
+        val recording = _state.value.recording ?: return
+        recorder.cancel()
+        _state.update { it.copy(recording = null, screen = recording.returnTo) }
     }
 
     // ---- Sprache ----

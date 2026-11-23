@@ -154,4 +154,14 @@
     <string name="timer_fail_action">কাজটি আর নেই বা বোতাম নেই।</string>
     <string name="timer_fail_incomplete">অটোমেশন খুব বেশি সময় নিয়েছে, তাই থামানো হয়েছে।</string>
     <string name="timer_keys_skipped">বাদ দেওয়া বোতাম (এই রিমোটে নেই): %1$d</string>
+    <string name="rec_start">● রেকর্ড</string>
+    <string name="rec_new_quick">● নতুন অটোমেশন রেকর্ড করুন</string>
+    <string name="rec_into">● রিমোট দিয়ে রেকর্ড করুন</string>
+    <string name="rec_status">● রেকর্ড হচ্ছে · ধাপ: %1$d</string>
+    <string name="rec_hint">স্বাভাবিকভাবে বোতাম চাপুন – বিরতিগুলো অপেক্ষার সময় হিসেবে যোগ হবে।</string>
+    <string name="rec_undo">পূর্বাবস্থা</string>
+    <string name="rec_done">হয়ে গেছে</string>
+    <string name="rec_discard_confirm">রেকর্ডিং বাদ দেবেন?</string>
+    <string name="rec_discard">বাদ দিন</string>
+    <string name="rec_continue">রেকর্ড চালিয়ে যান</string>
 </resources>

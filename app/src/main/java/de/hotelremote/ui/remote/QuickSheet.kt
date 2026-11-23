@@ -45,7 +45,7 @@ import kotlinx.coroutines.delay
 
 private val SheetRow = Color(0xFF36383D)
 
-/** ⚡-Sheet: Automationen dieser Fernbedienung (Tipp = ausführen), Sleep-Timer und „Automationen bearbeiten“. */
+/** ⚡-Sheet: Automationen dieser Fernbedienung (Tipp = ausführen), Aufnahme, Sleep-Timer und „Automationen bearbeiten“. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickSheet(
@@ -57,6 +57,7 @@ fun QuickSheet(
     onTimer: () -> Unit,
     onCancelTimer: () -> Unit,
     onEdit: () -> Unit,
+    onRecord: () -> Unit,
     onTimerExpired: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -73,7 +74,7 @@ fun QuickSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = RemoteColors.BackgroundTop,
     ) {
-        QuickSheetContent(automations, progress, timer, now, onRun, onCancelRun, onTimer, onCancelTimer, onEdit)
+        QuickSheetContent(automations, progress, timer, now, onRun, onCancelRun, onTimer, onCancelTimer, onEdit, onRecord)
     }
 }
 
@@ -88,6 +89,7 @@ fun QuickSheetContent(
     onTimer: () -> Unit,
     onCancelTimer: () -> Unit,
     onEdit: () -> Unit,
+    onRecord: () -> Unit = {},
 ) {
     Column(
         Modifier
@@ -103,6 +105,7 @@ fun QuickSheetContent(
         automations.forEach { a ->
             SheetItem("▶  ${a.name}", "quick_run_${a.id}") { onRun(a) }
         }
+        SheetItem(stringResource(R.string.rec_new_quick), "quick_record", onClick = onRecord)
         if (timer == null) {
             SheetItem(stringResource(R.string.timer_title), "quick_timer", onClick = onTimer)
         } else {

@@ -32,12 +32,19 @@ import androidx.compose.ui.unit.sp
 import de.hotelremote.Keys
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.ui.automation.RecordingBar
+import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.theme.RemoteColors
 
-/** Alle `X:`-Tasten der Fernbedienung als große Zeilen-Buttons, alphabetisch. */
+/** Alle `X:`-Tasten der Fernbedienung als große Zeilen-Buttons, alphabetisch; während einer Aufnahme mit Aufnahmeleiste. */
 @Composable
-fun ExtraKeysScreen(remote: SavedRemote, handler: KeyHandler, onBack: () -> Unit) {
+fun ExtraKeysScreen(
+    remote: SavedRemote,
+    handler: KeyHandler,
+    onBack: () -> Unit,
+    recording: RecordingBarState? = null,
+) {
     val extras = remember(remote) {
         remote.keys.keys.filter(Keys::isExtra).sortedBy { Keys.extraLabel(it).lowercase() }
     }
@@ -68,6 +75,7 @@ fun ExtraKeysScreen(remote: SavedRemote, handler: KeyHandler, onBack: () -> Unit
                 fontWeight = FontWeight.SemiBold,
             )
         }
+        recording?.let { RecordingBar(it, Modifier.padding(bottom = 8.dp)) }
         if (extras.isEmpty()) {
             Text(
                 stringResource(R.string.extra_keys_empty),

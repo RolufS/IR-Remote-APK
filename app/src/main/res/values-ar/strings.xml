@@ -154,4 +154,14 @@
     <string name="timer_fail_action">الإجراء لم يعد موجودًا أو الزر غير موجود.</string>
     <string name="timer_fail_incomplete">استغرقت الأتمتة وقتًا طويلًا وتم إيقافها.</string>
     <string name="timer_keys_skipped">أزرار تم تخطيها (غير موجودة في جهاز التحكم هذا): %1$d</string>
+    <string name="rec_start">● تسجيل</string>
+    <string name="rec_new_quick">● تسجيل أتمتة جديدة</string>
+    <string name="rec_into">● التسجيل بجهاز التحكم</string>
+    <string name="rec_status">● جارٍ التسجيل · الخطوات: %1$d</string>
+    <string name="rec_hint">اضغط على الأزرار كالمعتاد – تُحفظ فترات التوقف كوقت انتظار.</string>
+    <string name="rec_undo">تراجع</string>
+    <string name="rec_done">تم</string>
+    <string name="rec_discard_confirm">تجاهل التسجيل؟</string>
+    <string name="rec_discard">تجاهل</string>
+    <string name="rec_continue">متابعة التسجيل</string>
 </resources>

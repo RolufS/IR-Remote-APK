@@ -154,4 +154,14 @@
     <string name="timer_fail_action">L’action n’existe plus ou la touche manque.</string>
     <string name="timer_fail_incomplete">L’automatisation a duré trop longtemps et a été arrêtée.</string>
     <string name="timer_keys_skipped">Touches ignorées (absentes de cette télécommande) : %1$d</string>
+    <string name="rec_start">● Enregistrer</string>
+    <string name="rec_new_quick">● Enregistrer une automatisation</string>
+    <string name="rec_into">● Enregistrer avec la télécommande</string>
+    <string name="rec_status">● Enregistrement · Étapes : %1$d</string>
+    <string name="rec_hint">Appuyez sur les touches comme d’habitude – les pauses deviennent des temps d’attente.</string>
+    <string name="rec_undo">Annuler la dernière</string>
+    <string name="rec_done">Terminé</string>
+    <string name="rec_discard_confirm">Abandonner l’enregistrement ?</string>
+    <string name="rec_discard">Abandonner</string>
+    <string name="rec_continue">Continuer</string>
 </resources>

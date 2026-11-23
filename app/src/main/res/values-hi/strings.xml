@@ -154,4 +154,14 @@
     <string name="timer_fail_action">यह कार्रवाई अब नहीं है या बटन नहीं है।</string>
     <string name="timer_fail_incomplete">ऑटोमेशन बहुत लंबा चला और रोक दिया गया।</string>
     <string name="timer_keys_skipped">छोड़े गए बटन (इस रिमोट में नहीं हैं): %1$d</string>
+    <string name="rec_start">● रिकॉर्ड करें</string>
+    <string name="rec_new_quick">● नया ऑटोमेशन रिकॉर्ड करें</string>
+    <string name="rec_into">● रिमोट से रिकॉर्ड करें</string>
+    <string name="rec_status">● रिकॉर्डिंग · चरण: %1$d</string>
+    <string name="rec_hint">बटन हमेशा की तरह दबाएँ – रुकने का समय प्रतीक्षा के रूप में जुड़ जाएगा।</string>
+    <string name="rec_undo">पूर्ववत करें</string>
+    <string name="rec_done">हो गया</string>
+    <string name="rec_discard_confirm">रिकॉर्डिंग हटाएँ?</string>
+    <string name="rec_discard">हटाएँ</string>
+    <string name="rec_continue">रिकॉर्डिंग जारी रखें</string>
 </resources>

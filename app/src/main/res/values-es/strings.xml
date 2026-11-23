@@ -154,4 +154,14 @@
     <string name="timer_fail_action">La acción ya no existe o falta la tecla.</string>
     <string name="timer_fail_incomplete">La automatización tardó demasiado y se detuvo.</string>
     <string name="timer_keys_skipped">Teclas omitidas (faltan en este mando): %1$d</string>
+    <string name="rec_start">● Grabar</string>
+    <string name="rec_new_quick">● Grabar nueva automatización</string>
+    <string name="rec_into">● Grabar con el mando</string>
+    <string name="rec_status">● Grabando · Pasos: %1$d</string>
+    <string name="rec_hint">Pulsa las teclas como siempre: las pausas se guardan como tiempo de espera.</string>
+    <string name="rec_undo">Deshacer</string>
+    <string name="rec_done">Listo</string>
+    <string name="rec_discard_confirm">¿Descartar la grabación?</string>
+    <string name="rec_discard">Descartar</string>
+    <string name="rec_continue">Seguir grabando</string>
 </resources>

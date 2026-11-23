@@ -11,6 +11,9 @@ import de.hotelremote.data.ScanEntry
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.wizard.WizardState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -76,6 +79,7 @@ class AppControllerTest {
     private fun TestScope.controller(
         store: RemoteStorage,
         languageChosen: Boolean = true,
+        hold: ((IrSignal) -> Job?)? = null,
         catalog: () -> CodeCatalog = { FakeCatalog() },
     ): AppController {
         val d = StandardTestDispatcher(testScheduler)
@@ -88,6 +92,7 @@ class AppControllerTest {
             irAvailable = true,
             clock = { 1000L },
             languageChosen = languageChosen,
+            hold = hold ?: { sent += it; null },
         ).also { runCurrent() }
     }
 
@@ -338,6 +343,120 @@ class AppControllerTest {
         c.runAutomation("B", listOf(AutomationStep(Keys.POWER)))
         assertEquals(UiMessage.AUTOMATION_BUSY, c.state.value.message)
         c.cancelAutomation()
+        runCurrent()
+        assertNull(c.automationProgress.value)
+        assertEquals(1, sent.size)
+    }
+
+    // ---- Aufnahme ----
+
+    private fun recordingRemote(automations: List<Automation> = emptyList()) = SavedRemote(
+        id = "r",
+        brand = "Samsung",
+        codeLabel = "Code 1",
+        keys = mapOf(Keys.POWER to sig(1), Keys.MENU to sig(2), Keys.OK to sig(3), Keys.VOL_UP to sig(4)),
+        lastUsed = 1,
+        automations = automations,
+    )
+
+    @Test fun pressWhileRecordingSendsAndRecords() = runTest {
+        val c = controller(FakeStorage(listOf(recordingRemote())))
+        c.press(Keys.MENU)
+        assertEquals(listOf(sig(2)), sent)
+        assertEquals(emptyList<AutomationStep>(), c.recordedSteps.value)
+        c.recordNew(returnTo = Screen.Automations)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertEquals(0, c.state.value.recording?.existingCount)
+        c.press(Keys.MENU)
+        c.press(Keys.OK)
+        assertEquals(listOf(sig(2), sig(2), sig(3)), sent)
+        assertEquals(listOf(Keys.MENU, Keys.OK), c.recordedSteps.value.map { it.key })
+        // Tasten, die diese Fernbedienung nicht hat, werden weder gesendet noch aufgenommen.
+        c.press(Keys.EXIT)
+        assertEquals(2, c.recordedSteps.value.size)
+        c.undoRecording()
+        assertEquals(listOf(Keys.MENU), c.recordedSteps.value.map { it.key })
+    }
+
+    @Test fun holdingRepeatingKeyRecordsOneStep() = runTest {
+        var repeats = 0
+        val c = controller(FakeStorage(listOf(recordingRemote())), hold = { signal ->
+            backgroundScope.launch {
+                while (true) {
+                    sent += signal
+                    repeats++
+                    delay(100)
+                }
+            }
+        })
+        c.recordNew(returnTo = Screen.Remote)
+        val job = c.hold(Keys.VOL_UP)
+        advanceTimeBy(1_050)
+        job?.cancel()
+        runCurrent()
+        assertTrue("Wiederholungen: $repeats", repeats > 5)
+        assertEquals(listOf(Keys.VOL_UP), c.recordedSteps.value.map { it.key })
+    }
+
+    @Test fun finishOpensEditorWithRecordedSteps() = runTest {
+        val c = controller(FakeStorage(listOf(recordingRemote())))
+        c.recordNew(returnTo = Screen.Automations)
+        c.press(Keys.MENU)
+        c.press(Keys.OK)
+        c.finishRecording()
+        val screen = c.state.value.screen as Screen.AutomationEdit
+        assertNull(screen.automationId)
+        assertEquals(AutomationDraft("", listOf(AutomationStep(Keys.MENU, 500), AutomationStep(Keys.OK))), screen.draft)
+        assertNull(c.state.value.recording)
+        c.press(Keys.MENU)
+        assertEquals(emptyList<AutomationStep>(), c.recordedSteps.value)
+    }
+
+    @Test fun recordingFromEditorAppendsAndKeepsName() = runTest {
+        val existing = listOf(AutomationStep(Keys.POWER, 3_000))
+        val a = Automation("x", "Abends", existing)
+        val c = controller(FakeStorage(listOf(recordingRemote(listOf(a)))))
+        c.show(Screen.AutomationEdit("x"))
+        c.recordInto("x", "Abends neu", existing)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertEquals(1, c.state.value.recording?.existingCount)
+        c.press(Keys.OK)
+        c.finishRecording()
+        assertEquals(
+            Screen.AutomationEdit("x", AutomationDraft("Abends neu", existing + AutomationStep(Keys.OK))),
+            c.state.value.screen,
+        )
+    }
+
+    @Test fun cancelReturnsToOrigin() = runTest {
+        val c = controller(FakeStorage(listOf(recordingRemote())))
+        c.show(Screen.Automations)
+        c.recordNew(returnTo = Screen.Automations)
+        c.press(Keys.MENU)
+        c.cancelRecording()
+        assertEquals(Screen.Automations, c.state.value.screen)
+        assertNull(c.state.value.recording)
+        assertEquals(emptyList<AutomationStep>(), c.recordedSteps.value)
+
+        val existing = listOf(AutomationStep(Keys.POWER))
+        c.recordInto(null, "Neu", existing)
+        c.press(Keys.OK)
+        c.cancelRecording()
+        assertEquals(Screen.AutomationEdit(null, AutomationDraft("Neu", existing)), c.state.value.screen)
+    }
+
+    @Test fun startingRecordingCancelsRunningAutomationAndBlocksNewRuns() = runTest {
+        val c = controller(FakeStorage(listOf(recordingRemote())))
+        c.runAutomation("A", listOf(AutomationStep(Keys.POWER, 1000), AutomationStep(Keys.POWER)))
+        runCurrent()
+        assertEquals("A", c.automationProgress.value?.name)
+        c.recordNew(returnTo = Screen.Remote)
+        runCurrent()
+        assertNull(c.automationProgress.value)
+        advanceTimeBy(5000)
+        runCurrent()
+        assertEquals(1, sent.size)
+        c.runAutomation("B", listOf(AutomationStep(Keys.POWER)))
         runCurrent()
         assertNull(c.automationProgress.value)
         assertEquals(1, sent.size)

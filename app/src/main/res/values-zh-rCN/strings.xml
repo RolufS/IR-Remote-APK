@@ -154,4 +154,14 @@
     <string name="timer_fail_action">该操作已不存在或缺少按键。</string>
     <string name="timer_fail_incomplete">自动化耗时过长，已停止。</string>
     <string name="timer_keys_skipped">已跳过的按键（此遥控器没有）：%1$d</string>
+    <string name="rec_start">● 录制</string>
+    <string name="rec_new_quick">● 录制新自动化</string>
+    <string name="rec_into">● 用遥控器录制</string>
+    <string name="rec_status">● 录制中 · 步骤：%1$d</string>
+    <string name="rec_hint">像平常一样按键即可，停顿会记为等待时间。</string>
+    <string name="rec_undo">撤销</string>
+    <string name="rec_done">完成</string>
+    <string name="rec_discard_confirm">放弃录制？</string>
+    <string name="rec_discard">放弃</string>
+    <string name="rec_continue">继续录制</string>
 </resources>
