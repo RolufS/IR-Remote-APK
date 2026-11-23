@@ -1,6 +1,12 @@
 package de.hotelremote.ui.remote
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
@@ -13,6 +19,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.up
+import de.hotelremote.Keys
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ir.IrSignal
@@ -101,6 +108,50 @@ class RemoteScreenTest {
         show(remote("HDMI1"))
         rule.onNodeWithTag("key_HDMI1").assertExists()
         rule.onNodeWithTag("key_HDMI4").assertExists().assertIsNotEnabled()
+    }
+
+    /** Beschriftungen einer Taste (ungemergter Baum) mit ihrem Text-Layout. */
+    private fun labels(key: String): List<Pair<String, TextLayoutResult>> =
+        rule.onAllNodes(
+            hasAnyAncestor(hasTestTag(key)) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
+            useUnmergedTree = true,
+        ).fetchSemanticsNodes().map { node ->
+            val layout = mutableListOf<TextLayoutResult>()
+            node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layout)
+            node.config[SemanticsProperties.Text].joinToString("") { it.text } to layout.single()
+        }
+
+    private val allKeys = arrayOf(
+        "SOURCE", "POWER", "MUTE", "HDMI1", "HDMI2", "HDMI3", "HDMI4", "DIGIT_1", "DIGIT_0", "VOL_UP", "CH_UP", "OK",
+    )
+
+    @Test
+    @Config(sdk = [35], qualifiers = "de-w360dp-h640dp-port-xxhdpi")
+    fun hdmiLabelsTwoLinesWithRoom() {
+        show(remote(*allKeys))
+        Keys.HDMI.forEachIndexed { i, key ->
+            val labels = labels("key_$key")
+            assertEquals(listOf("HDMI", "${i + 1}"), labels.map { it.first })
+            assertTrue("$key abgeschnitten", labels.none { it.second.didOverflowHeight })
+        }
+    }
+
+    /** Kleines Handy mit Aufnahmeleiste: die HDMI-Reihe ist niedrig, die Ziffer darf nicht abgeschnitten werden. */
+    @Test
+    @Config(sdk = [35], qualifiers = "de-w360dp-h640dp-port-xxhdpi")
+    fun hdmiLabelsFitWithRecordingBar() = assertHdmiLabelsFit(bar(3))
+
+    @Test
+    @Config(sdk = [35], qualifiers = "de-w360dp-h640dp-port-xxhdpi")
+    fun hdmiLabelsFitWithRecordingBarAndHint() = assertHdmiLabelsFit(bar(0, hint = true))
+
+    private fun assertHdmiLabelsFit(recording: RecordingBarState) {
+        show(remote(*allKeys), recording = recording)
+        Keys.HDMI.forEachIndexed { i, key ->
+            val labels = labels("key_$key")
+            assertEquals("HDMI ${i + 1}", labels.joinToString(" ") { it.first })
+            assertTrue("$key abgeschnitten", labels.none { it.second.didOverflowHeight })
+        }
     }
 
     @Test

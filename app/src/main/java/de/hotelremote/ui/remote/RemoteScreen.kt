@@ -16,6 +16,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -58,12 +60,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import de.hotelremote.Keys
 import de.hotelremote.R
@@ -122,10 +127,7 @@ fun RemoteScreen(
                 KeyRow(1.05f) {
                     Keys.HDMI.forEachIndexed { i, key ->
                         KeyButton(key, key in keys, handler, Modifier.weight(1f).fillMaxHeight()) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Label("HDMI", 10.sp)
-                                Label("${i + 1}", 15.sp)
-                            }
+                            HdmiLabel(i + 1)
                         }
                     }
                 }
@@ -191,6 +193,42 @@ private fun Label(text: String, size: TextUnit, color: Color = RemoteColors.KeyT
         letterSpacing = 0.4.sp,
         textAlign = TextAlign.Center,
     )
+}
+
+/** Stil der HDMI-Beschriftung: enge Zeilenhöhe statt der 24 sp aus dem Theme, damit zwei Zeilen in die Reihe passen. */
+@Composable
+private fun hdmiStyle(size: TextUnit): TextStyle = LocalTextStyle.current.merge(
+    TextStyle(
+        color = RemoteColors.KeyText,
+        fontSize = size,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.4.sp,
+        textAlign = TextAlign.Center,
+        lineHeight = 1.2.em,
+    ),
+)
+
+/**
+ * „HDMI“ über der Ziffer. Ist die Reihe dafür zu niedrig (kleines Handy mit Aufnahmeleiste), einzeilig „HDMI 1“,
+ * damit die Ziffer nicht abgeschnitten wird.
+ */
+@Composable
+private fun HdmiLabel(number: Int) {
+    val measurer = rememberTextMeasurer()
+    val top = hdmiStyle(10.sp)
+    val bottom = hdmiStyle(15.sp)
+    val single = hdmiStyle(11.sp)
+    BoxWithConstraints(contentAlignment = Alignment.Center) {
+        val twoLines = measurer.measure("HDMI", top).size.height + measurer.measure("$number", bottom).size.height
+        if (!constraints.hasBoundedHeight || twoLines <= constraints.maxHeight) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("HDMI", style = top)
+                Text("$number", style = bottom)
+            }
+        } else {
+            Text("HDMI $number", style = single, maxLines = 1)
+        }
+    }
 }
 
 /** Taste in einer Zeile; fehlt der Code, wird sie abgeblendet und ist nicht klickbar. */
