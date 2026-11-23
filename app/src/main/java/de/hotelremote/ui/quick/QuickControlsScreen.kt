@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.quick.InputTileService
@@ -79,11 +81,18 @@ fun QuickControlsScreen(
 ) {
     val context = LocalContext.current
     var denied by rememberSaveable { mutableStateOf(false) }
+    // Bei jeder Rückkehr neu prüfen (z. B. aus den Systemeinstellungen), sonst bliebe der Hinweis stehen.
+    var canPost by remember { mutableStateOf(AndroidSleepTimerNotifier.canPostNotifications(context)) }
+    LifecycleResumeEffect(Unit) {
+        canPost = AndroidSleepTimerNotifier.canPostNotifications(context)
+        if (canPost) denied = false
+        onPauseOrDispose { }
+    }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         denied = !granted
+        canPost = AndroidSleepTimerNotifier.canPostNotifications(context)
         if (granted) onLockScreen(true)
     }
-    val canPost = AndroidSleepTimerNotifier.canPostNotifications(context)
     fun setLockScreen(on: Boolean) {
         if (on && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !canPost) {
             permission.launch(Manifest.permission.POST_NOTIFICATIONS)

@@ -25,7 +25,7 @@ object QuickControls {
     @Volatile
     var transmitter: (Context) -> IrTransmitter = ::AndroidIrTransmitter
 
-    /** Ein Sender pro Prozess, damit der Toggle-Zustand (RC5/RC6) zwischen zwei Tipps wechselt. */
+    /** Ein Sender pro Prozess; der Toggle-Zustand (RC5/RC6) liegt in den Einstellungen und überlebt das Prozessende. */
     @Volatile private var sender: DirectSender? = null
 
     fun settings(context: Context) =
@@ -66,7 +66,7 @@ object QuickControls {
     }
 
     private fun sender(context: Context): DirectSender = sender ?: synchronized(this) {
-        sender ?: DirectSender(transmitter(context.applicationContext)).also { sender = it }
+        sender ?: DirectSender(transmitter(context.applicationContext), settings(context).toggles).also { sender = it }
     }
 
     @VisibleForTesting

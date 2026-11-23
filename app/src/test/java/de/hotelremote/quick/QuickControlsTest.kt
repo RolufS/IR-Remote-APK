@@ -71,6 +71,21 @@ class QuickControlsTest {
         assertEquals(listOf(1, 11, 12), tx.sent)
     }
 
+    /** RC5/RC6: aufeinanderfolgende Tipps wechseln frame/frameAlt, auch wenn der Prozess dazwischen endet. */
+    @Test fun toggleAlternatesAcrossProcessRestart() {
+        val rc5 = IrSignal(freq = 36000, frame = listOf(11, 1, 1), frameAlt = listOf(12, 1, 1), periodMs = 114)
+        store.add(SavedRemote(id = "r1", brand = "Philips", codeLabel = "RC5", keys = mapOf(Keys.VOL_UP to rc5), lastUsed = 1))
+        QuickControls.send(app, QuickAction.VOL_UP)
+        // Neuer Prozess: frischer QuickControls-Zustand und neuer DirectSender.
+        QuickControls.reset()
+        QuickControls.transmitter = { tx }
+        QuickControls.send(app, QuickAction.VOL_UP)
+        QuickControls.reset()
+        QuickControls.transmitter = { tx }
+        QuickControls.send(app, QuickAction.VOL_UP)
+        assertEquals(listOf(11, 12, 11), tx.sent)
+    }
+
     @Test fun errorsSendNothing() {
         assertEquals(QuickResult.NO_REMOTE, QuickControls.send(app, QuickAction.POWER))
         store.add(remote("r1", 1, Keys.POWER to 1))

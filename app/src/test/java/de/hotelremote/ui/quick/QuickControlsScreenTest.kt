@@ -2,12 +2,17 @@ package de.hotelremote.ui.quick
 
 import android.Manifest
 import android.app.Application
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import de.hotelremote.Keys
 import de.hotelremote.data.SavedRemote
@@ -62,6 +67,27 @@ class QuickControlsScreenTest {
         show(remote(Keys.POWER), QuickPrefs(null, lockScreen = true))
         rule.onNodeWithTag("quick_lock").assertIsOn().performClick()
         assertEquals(listOf(false), lock)
+    }
+
+    /** Erlaubnis in den Systemeinstellungen erteilt: nach der Rückkehr verschwindet der Hinweis. */
+    @Test fun blockedHintRecomputedOnResume() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        shadowOf(app).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val owner = object : LifecycleOwner {
+            val registry = LifecycleRegistry(this)
+            override val lifecycle: Lifecycle get() = registry
+        }
+        owner.registry.currentState = Lifecycle.State.RESUMED
+        rule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides owner) {
+                HotelRemoteTheme { QuickControlsScreen(remote(Keys.POWER), QuickPrefs(null, true), {}, {}, onBack = {}) }
+            }
+        }
+        rule.onNodeWithTag("quick_notif_blocked").assertExists()
+        shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        rule.runOnIdle { owner.registry.currentState = Lifecycle.State.STARTED }
+        rule.runOnIdle { owner.registry.currentState = Lifecycle.State.RESUMED }
+        rule.onNodeWithTag("quick_notif_blocked").assertDoesNotExist()
     }
 
     @Test fun addTileButtonsFromAndroid13() {
