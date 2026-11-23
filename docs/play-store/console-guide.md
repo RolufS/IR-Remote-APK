@@ -29,8 +29,9 @@ Dateien:
    `https://github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md` im Browser
    (abgemeldet) öffnen und prüfen.
 3. **App Bundle bauen**: `dist/Fernbedienung-1.7.0.aab` (README → „Für
-   Entwickler“ → „Play Store und Grafiken“). Signiert mit dem Upload-Schlüssel
+   Entwickler“ → „Play Store und Grafiken“). Signiert mit
    `~/.android/hotelremote.jks`; Keystore und Passwörter sicher aufbewahren.
+   Welche Rolle dieser Schlüssel bei Play bekommt, entscheidest du in Schritt 5.4.
 4. **Tester vorbereiten**: mindestens 12 Personen mit einem Handy mit
    Infrarot-Sender und einem Google-Konto. Ohne IR-Sender sehen sie die App im
    Play Store nicht (Gerätefilter, siehe `listing-de.md`). Entweder ihre
@@ -97,17 +98,27 @@ Dashboard). Antworten stehen in `listing-de.md` → „Formulare in der Play Con
 3. **Tester**: E-Mail-Liste anlegen (Adressen einfügen) oder die Google-Gruppe
    eintragen. Feedback-Kanal (E-Mail oder URL) angeben, wenn verlangt.
 4. **Release erstellen**:
-   - Beim ersten Release fragt die Console nach **Play App Signing**: aktiv
-     lassen. Google verwaltet dann den App-Signaturschlüssel,
-     `~/.android/hotelremote.jks` ist der **Upload-Schlüssel**; alle späteren
-     Bundles müssen damit signiert sein.
-     Wichtig: Mit einem von Google erzeugten Signaturschlüssel sind Play-Installationen
-     anders signiert als die APKs auf GitHub – ein Wechsel zwischen beiden geht
-     dann nur per Deinstallieren (gespeicherte Fernbedienungen gehen dabei
-     verloren). Wer das vermeiden will, kann in diesem Schritt stattdessen den
-     eigenen Schlüssel als App-Signaturschlüssel hochladen (die Console bietet
-     dafür eine Option mit Anleitung an). Die Entscheidung lässt sich später
-     nicht einfach rückgängig machen.
+   - **Entscheidung zuerst: App-Signaturschlüssel.** Beim ersten Release fragt
+     die Console nach **Play App Signing** und danach, welcher Schlüssel die App
+     signiert. Diese Wahl lässt sich später nicht einfach rückgängig machen:
+     - **Option A (empfohlen): eigenen Schlüssel `~/.android/hotelremote.jks`
+       als App-Signaturschlüssel hochladen.** Play-Installationen sind dann
+       genauso signiert wie die APKs auf GitHub; beide sind austauschbar, ein
+       Update von der GitHub-APK auf die Play-Version (und umgekehrt) klappt
+       ohne Deinstallieren. Dafür in der Console die Option zum Hochladen bzw.
+       Exportieren eines vorhandenen Schlüssels wählen und **der Anleitung der
+       Console folgen** (sie stellt eigene Anweisungen zum Exportieren und
+       Verschlüsseln des Schlüssels bereit). Anschließend verlangt Google einen
+       **Upload-Schlüssel**; das kann ein separater, neuer Schlüssel sein. Alle
+       späteren Bundles müssen mit dem Upload-Schlüssel signiert werden, den
+       du dabei festlegst – Keystores und Passwörter sicher aufbewahren
+       (nicht im Repo).
+     - **Option B: von Google erzeugten Schlüssel verwenden.**
+       `~/.android/hotelremote.jks` ist dann nur der Upload-Schlüssel. Folge:
+       Play-Installationen und GitHub-APKs sind unterschiedlich signiert und
+       können sich **nicht gegenseitig aktualisieren**; ein Wechsel geht nur
+       per Deinstallieren, dabei gehen die gespeicherten Fernbedienungen
+       verloren.
    - App Bundle hochladen: `dist/Fernbedienung-1.7.0.aab`
    - Release-Name: z. B. `1.7.0` (Vorschlag der Console übernehmen)
    - Versionshinweise: aus `release-notes.md` (beide Sprachen mit Sprach-Tags)

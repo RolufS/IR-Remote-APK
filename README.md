@@ -316,11 +316,12 @@ mkdir -p dist
 cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.7.0.aab
 ```
 
-Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
-aktiv lassen. Google erzeugt und verwaltet dann den eigentlichen App-Signaturschlüssel;
-`~/.android/hotelremote.jks` dient als Upload-Schlüssel. Mit diesem Schlüssel
-müssen alle späteren Bundles signiert sein – Keystore und Passwörter sicher
-aufbewahren (nicht im Repo). Store-Texte, Formular-Antworten und Grafiken liegen
+Play App Signing: Beim ersten Upload fragt die Play Console nach dem
+App-Signaturschlüssel. Empfohlen: `~/.android/hotelremote.jks` selbst als
+App-Signaturschlüssel hochladen, damit GitHub-APKs und Play-Installationen
+sich gegenseitig aktualisieren können (Entscheidung und Alternative:
+[console-guide.md, Schritt 5.4](docs/play-store/console-guide.md#5-geschlossener-test)).
+Keystores und Passwörter sicher aufbewahren (nicht im Repo). Store-Texte, Formular-Antworten und Grafiken liegen
 unter `docs/play-store/`: [Store-Eintrag](docs/play-store/listing-de.md),
 [Versionshinweise](docs/play-store/release-notes.md),
 [Schritte in der Play Console](docs/play-store/console-guide.md) und

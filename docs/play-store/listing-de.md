@@ -211,8 +211,10 @@ Ausführliche Reihenfolge mit Dateien: [console-guide.md](console-guide.md).
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.7.0.aab` hochladen (Play App Signing
-   aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
+   Test“ anlegen, `dist/Fernbedienung-1.7.0.aab` hochladen (vorher den
+   App-Signaturschlüssel festlegen – empfohlen: eigenen Schlüssel
+   `~/.android/hotelremote.jks` hochladen, siehe
+   [console-guide.md, Schritt 5.4](console-guide.md#5-geschlossener-test)), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen ein Handy mit IR-Sender – ohne sehen sie die
    App im Play Store nicht.
