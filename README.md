@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.6.3-2C5199" alt="Version 1.6.3"></a>
+  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.7.0-2C5199" alt="Version 1.7.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-MIT-2F9E44" alt="Lizenz: MIT"></a>
   <img src="https://img.shields.io/badge/No%20ads%20%C2%B7%20No%20tracking%20%C2%B7%20No%20internet-CF3B31" alt="No ads · No tracking · No internet">
   <img src="https://img.shields.io/badge/Android-6%2B-3DDC84?logo=android&logoColor=white" alt="Android 6+">
@@ -97,7 +97,8 @@ genaue Aussehen hängt vom Hersteller ab.</sub>
 
 - **Android 6 oder neuer.**
 - **Ein Handy mit Infrarot-Sender** (IR-Blaster), z. B. viele Modelle von Xiaomi, Redmi und POCO sowie einige von
-  Huawei und Honor. Ohne IR-Sender zeigt die App einen Hinweis.
+  Huawei und Honor. Im Play Store wird die App nur Handys mit IR-Sender angeboten; die APK von GitHub lässt sich
+  überall installieren und zeigt ohne IR-Sender einen Hinweis.
 - **Ein Fernseher mit Infrarot-Empfänger** – das sind praktisch alle, die mit einer normalen Fernbedienung kommen.
 
 ## Installation
@@ -106,7 +107,7 @@ genaue Aussehen hängt vom Hersteller ab.</sub>
 2. Auf dem Handy öffnen und die Installation aus unbekannten Quellen für den Browser bzw. Dateimanager erlauben.
 3. Beim ersten Start die Sprache wählen – danach führt der Assistent zur passenden Fernbedienung.
 
-Per USB: `adb install -r Fernbedienung-1.6.3.apk`
+Per USB: `adb install -r Fernbedienung-1.7.0.apk`
 
 **Xiaomi / Redmi / POCO (MIUI, HyperOS):** Für `adb install` in den Entwickleroptionen „Installation über USB“
 einschalten. Damit der Sleep-Timer auch bei geschlossener App zuverlässig auslöst, in den App-Infos unter
@@ -286,12 +287,12 @@ Widget-Info
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.3.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.7.0.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.6.3.apk` ist die Datei zum Installieren (`dist/` steht nicht
-im Repo). Installieren per USB: `adb install -r dist/Fernbedienung-1.6.3.apk`.
+`dist/Fernbedienung-1.7.0.apk` ist die Datei zum Installieren (`dist/` steht nicht
+im Repo). Installieren per USB: `adb install -r dist/Fernbedienung-1.7.0.apk`.
 
 Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
@@ -312,7 +313,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.3.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.7.0.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -320,7 +321,12 @@ aktiv lassen. Google erzeugt und verwaltet dann den eigentlichen App-Signatursch
 `~/.android/hotelremote.jks` dient als Upload-Schlüssel. Mit diesem Schlüssel
 müssen alle späteren Bundles signiert sein – Keystore und Passwörter sicher
 aufbewahren (nicht im Repo). Store-Texte, Formular-Antworten und Grafiken liegen
-unter `docs/play-store/`.
+unter `docs/play-store/`: [Store-Eintrag](docs/play-store/listing-de.md),
+[Versionshinweise](docs/play-store/release-notes.md),
+[Schritte in der Play Console](docs/play-store/console-guide.md) und
+[Antrag auf Produktionszugriff](docs/play-store/production-access.md).
+Das Manifest verlangt `android.hardware.consumerir`: Play bietet die App nur
+Handys mit Infrarot-Sender an.
 
 Grafiken neu erzeugen:
 
@@ -440,7 +446,8 @@ Stick. Automations send several keys with one tap and can be recorded simply by 
 set the TV's own sleep timer, and a phone-side sleep timer turns the TV off even when the app is closed. Quick
 Settings tiles, a home-screen widget with freely assignable buttons and an expandable lock-screen notification
 (optionally opening the full remote over the lock screen) work without opening the app. The app is available in 11
-languages and needs Android 6+ and a phone with an IR emitter (e.g. many Xiaomi, Redmi and POCO models).
+languages and needs Android 6+ and a phone with an IR emitter (e.g. many Xiaomi, Redmi and POCO models); on Google
+Play it is offered only to such phones.
 
 [**Download the latest APK**](https://github.com/RolufS/IR-Remote-APK/releases/latest) · [Privacy policy (German)](PRIVACY.md)
 
