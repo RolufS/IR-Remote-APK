@@ -1,6 +1,6 @@
 # Datenschutzerklärung – Fernbedienung
 
-Stand: 23. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
+Stand: 24. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
 
 ## Kurz gesagt
 
@@ -19,6 +19,10 @@ Die App erhebt keine Daten, hat keinen Internetzugang und gibt nichts weiter.
   „Zimmer 412“, Automationen) und ein laufender Sleep-Timer liegen nur lokal auf dem Gerät im privaten Speicher der App.
   Sie werden nicht gesichert oder synchronisiert und beim Deinstallieren der
   App gelöscht.
+- **Sperrbildschirm.** Optional (Standard aus) lässt sich die Fernbedienung über
+  dem Sperrbildschirm öffnen. Dort zeigt die App nur den Namen der zuletzt
+  benutzten Fernbedienung und ihre Tasten; nichts ist änderbar, es werden keine
+  weiteren Daten angezeigt und keine Daten erhoben.
 - **Berechtigungen.** Alle wirken nur auf dem Gerät:
   - „Infrarot senden“ (`android.permission.TRANSMIT_IR`), um Signale an den
     Fernseher zu senden.
@@ -50,6 +54,9 @@ The app collects no data, has no internet access and shares nothing.
 - **No sharing.** No data is shared with third parties.
 - **Saved remotes** (brand, code, optional name, automations) and a running sleep timer are stored only locally in the app's private
   storage. They are not backed up or synced and are deleted when the app is uninstalled.
+- **Lock screen.** Optionally (off by default) the remote can be opened over the lock screen.
+  It then shows only the name of the last used remote and its keys; nothing can be changed,
+  no other data is shown and no data is collected.
 - **Permissions.** All of them act on the device only: "transmit infrared" (`TRANSMIT_IR`),
   exact alarms for the sleep timer (`SCHEDULE_EXACT_ALARM`), notifications for the time left
   (`POST_NOTIFICATIONS`), re-scheduling a running sleep timer and restoring the lock-screen controls

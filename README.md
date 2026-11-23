@@ -7,7 +7,8 @@ nacheinander, ein Sleep-Timer schaltet den TV vom Handy aus (auch bei
 geschlossener App). Ein/Aus, Lautstärke und Eingang gehen auch ohne die App zu
 öffnen: über Kacheln in den Schnelleinstellungen (auch auf dem Sperrbildschirm),
 Widgets mit frei wählbaren Tasten und Automationen und optional eine
-Benachrichtigung auf dem Sperrbildschirm.
+Benachrichtigung auf dem Sperrbildschirm, die sich zur Mini-Fernbedienung aufziehen lässt;
+auf Wunsch auch die ganze Fernbedienung über dem Sperrbildschirm.
 Die App hat keine INTERNET-Berechtigung;
 die Code-Datenbank steckt im APK. Benötigt ein Handy mit IR-Sender.
 
@@ -71,7 +72,8 @@ Die wichtigsten Tasten ohne die App zu öffnen. Alle Wege senden an die **zuletz
 benutzte Fernbedienung** (die in der App zuletzt geöffnete). Android erlaubt auf
 Handys keine Widgets auf dem Sperrbildschirm; deshalb drei Wege:
 
-- **Kacheln** (ab Android 7): „TV Ein/Aus“, „TV leiser“, „TV lauter“, „TV Eingang“.
+- **Kacheln** (ab Android 7): „TV Ein/Aus“, „TV leiser“, „TV lauter“, „TV Eingang“
+  und „TV Fernbedienung“ (siehe „Sperrbildschirm“).
   Schnelleinstellungen aufklappen → Bearbeiten (Stift) → Kacheln hineinziehen; ab
   Android 13 auch über ⋮ → Schnellsteuerung → „Kachel … hinzufügen“. Ein Tipp sendet
   sofort, auch auf dem Sperrbildschirm ohne Entsperren (kurzes Vibrieren; bei Fehlern
@@ -94,6 +96,28 @@ Handys keine Widgets auf dem Sperrbildschirm; deshalb drei Wege:
   Neustart erscheint sie wieder. Ab Android 14 lässt sie sich entsperrt wegwischen;
   beim nächsten Öffnen der App kommt sie zurück.
 
+### Sperrbildschirm
+
+Echte Widgets auf dem Sperrbildschirm gibt es auf Android-Handys nicht. Deshalb zwei
+Wege, beide ohne Entsperren:
+
+- **Aufziehbare Benachrichtigung**: unter „Steuerung auf dem Sperrbildschirm anzeigen“
+  die Ansicht wählen. **Klein** zeigt nur die Knopfreihe, **Erweitert** (Standard) lässt
+  sich zusätzlich herunterziehen zur **Mini-Fernbedienung**: Ein/Aus · Stumm · Eingang,
+  Lautstärke −/+ und CH ▲/▼, das Steuerkreuz mit OK sowie BACK und HOME. Tasten, die der
+  zuletzt benutzten Fernbedienung fehlen, sind ausgeblendet. Eingeklappt bleibt die frei
+  gewählte Knopfreihe.
+- **Ganze Fernbedienung über dem Sperrbildschirm** (Standard aus): Schalter „Ganze
+  Fernbedienung über dem Sperrbildschirm erlauben“. Dann öffnet der Knopf „Ganze
+  Fernbedienung“ (in der Benachrichtigung unten bzw. als letzter Knopf der Reihe) oder die
+  Kachel „TV Fernbedienung“ die normale Fernbedienung der zuletzt benutzten Fernbedienung
+  über dem Sperrbildschirm, ohne zu entsperren. Dort gibt es nur Tasten und ⋮ → „Weitere
+  Tasten“: kein ☰, kein Wechseln, kein ⚡, keine Automationen, kein Assistent, keine
+  Einstellungen. Zurück oder die Ein/Aus-Taste des Handys schließt sie; wer dabei entsperrt,
+  kann weiter bedienen, die volle App öffnet sich wie gewohnt über den Launcher. Wer das
+  Handy in der Hand hat, kann damit den Fernseher bedienen – sonst nichts. Ist die Option
+  aus, ist die Kachel ausgegraut („In der App aktivieren“).
+
 **Belegung** (Widget und Benachrichtigung): jede Taste der zuletzt benutzten
 Fernbedienung (Gruppen „Häufig“, „Alle Tasten“, „Weitere Tasten“ mit den Extra-Tasten
 wie „Netflix“), „Eingang“ oder eine Automation dieser Fernbedienung. Automationen laufen
@@ -112,15 +136,17 @@ sonst „Einschalten“ bzw. „Ausschalten“.
 
 Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, Widget
 `QuickWidgetProvider.kt`, Einrichten `WidgetConfigActivity.kt`, Benachrichtigung
-`QuickNotification.kt`, Knöpfe `QuickControlReceiver.kt`, Belegung `QuickButton.kt` und
+`QuickNotification.kt` mit Mini-Fernbedienung `MiniRemoteViews.kt`, ganze Fernbedienung über
+dem Sperrbildschirm `LockScreenRemoteActivity.kt`, Knöpfe `QuickControlReceiver.kt`, Belegung `QuickButton.kt` und
 `QuickButtonLook.kt`), Einstellungen `ui/quick/QuickControlsScreen.kt` und
 `ui/quick/QuickButtonsEditor.kt`, Layouts `res/layout/widget_quick.xml` (bis 4 Knöpfe),
-`widget_quick_dense.xml` (5–6) und `notification_quick.xml`, Widget-Info
+`widget_quick_dense.xml` (5–6), `notification_quick.xml` und `notification_quick_big.xml`,
+Widget-Info
 `res/xml/quick_widget_info.xml`.
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.5.apk`
+- USB: `adb install -r dist/Fernbedienung-1.6.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -129,11 +155,11 @@ Code: `app/src/main/java/de/hotelremote/quick/` (Kacheln `QuickTileService.kt`, 
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.5.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.5.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.6.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -150,7 +176,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.5.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -213,7 +239,7 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 13. Timer starten und über „Abbrechen“ in der Benachrichtigung beenden: nichts wird gesendet.
 14. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
 15. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 12 wiederholen.
-16. Kacheln: Schnelleinstellungen → Bearbeiten → die vier TV-Kacheln hinzufügen (ab Android 13
+16. Kacheln: Schnelleinstellungen → Bearbeiten → die vier TV-Kacheln (Ein/Aus, leiser, lauter, Eingang) hinzufügen (ab Android 13
     auch über ⋮ → Schnellsteuerung). Untertitel zeigt die Fernbedienung. Handy sperren,
     Schnelleinstellungen vom Sperrbildschirm aufklappen: Ein/Aus, leiser, lauter und Eingang
     wirken am TV ohne Entsperren, das Handy vibriert kurz.
@@ -241,6 +267,21 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
     da. Schalter aus: sie verschwindet.
 24. Alle Fernbedienungen löschen: Kacheln sind ausgegraut („Keine Fernbedienung“), das Widget
     zeigt „Keine Fernbedienung“.
+25. Sperrbildschirm-Benachrichtigung an, Ansicht „Erweitert“: Handy sperren, die Benachrichtigung
+    herunterziehen: die Mini-Fernbedienung erscheint (nichts abgeschnitten). Ein/Aus, Stumm,
+    Eingang, −/+, CH ▲/▼, Pfeile, OK, BACK, HOME senden ohne Entsperren. Bei einer
+    Fernbedienung ohne z. B. HOME fehlt der Knopf. Ansicht „Klein“: nur die Knopfreihe, kein
+    Aufziehen.
+26. „Ganze Fernbedienung über dem Sperrbildschirm erlauben“ an: in der Benachrichtigung
+    erscheint „Ganze Fernbedienung“ (eingeklappt als letzter Knopf). Handy sperren, tippen: die
+    Fernbedienung öffnet sich über dem Sperrbildschirm ohne Entsperren, nur mit ⋮ → „Weitere
+    Tasten“; VOL halten zählt hoch. Zurück: der Sperrbildschirm ist wieder da. Erneut öffnen,
+    Ein/Aus-Taste des Handys: Bildschirm aus, nach dem Einschalten der Sperrbildschirm. Ohne
+    gespeicherte Fernbedienung: Hinweis „Noch keine Fernbedienung – App öffnen“.
+27. Kachel „TV Fernbedienung“ hinzufügen (ab Android 13 auch über ⋮ → Schnellsteuerung): bei
+    ausgeschalteter Option ausgegraut mit „In der App aktivieren“; eingeschaltet öffnet ein Tipp
+    auf dem Sperrbildschirm die ganze Fernbedienung. Option wieder aus: Knopf und Kachel sind
+    weg bzw. ausgegraut.
 
 Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
 Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt

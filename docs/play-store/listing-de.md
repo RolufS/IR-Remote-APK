@@ -50,7 +50,8 @@ AUTOMATIONEN UND SLEEP-TIMER
 SCHNELLSTEUERUNG OHNE APP
 • Kacheln in den Schnelleinstellungen für Ein/Aus, leiser, lauter und Eingang – funktionieren auch auf dem Sperrbildschirm
 • Widgets für den Startbildschirm mit 1 bis 6 frei wählbaren Tasten – jede Taste der Fernbedienung oder eine Automation, z. B. ein Lautstärke- und ein HDMI-Widget
-• Auf Wunsch eine stille Benachrichtigung mit frei wählbaren Tasten auf dem Sperrbildschirm
+• Auf Wunsch eine stille Benachrichtigung mit frei wählbaren Tasten auf dem Sperrbildschirm – herunterziehen öffnet eine Mini-Fernbedienung mit Steuerkreuz
+• Optional die ganze Fernbedienung über dem Sperrbildschirm, ohne Entsperren (Knopf in der Benachrichtigung oder Kachel „TV Fernbedienung“) – nur die Tasten, sonst nichts
 
 WERBEFREI UND OFFLINE
 • Keine Werbung, keine In-App-Käufe, kein Konto
@@ -167,7 +168,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.5.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.6.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
@@ -182,6 +183,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 2828 | 4000 |
+| Vollständige Beschreibung | 3063 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.

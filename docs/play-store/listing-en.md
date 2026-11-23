@@ -45,7 +45,8 @@ AUTOMATIONS AND SLEEP TIMER
 QUICK CONTROLS WITHOUT THE APP
 • Quick Settings tiles for power, volume down, volume up and input – they work on the lock screen too
 • Home screen widgets with 1 to 6 keys of your choice – any key of the remote or an automation, e.g. one widget for volume and one for HDMI
-• Optionally a silent notification with keys of your choice on the lock screen
+• Optionally a silent notification with keys of your choice on the lock screen – pull it down for a mini remote with arrow keys
+• Optionally the full remote over the lock screen, without unlocking (button in the notification or the "TV remote" tile) – just the keys, nothing else
 
 AD-FREE AND OFFLINE
 • No ads, no in-app purchases, no account
@@ -69,6 +70,6 @@ Brand names belong to their owners. The app is not affiliated with the manufactu
 |---|---|---|
 | App name | 20 | 30 |
 | Short description | 67 | 80 |
-| Full description | 2483 | 4000 |
+| Full description | 2684 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.
