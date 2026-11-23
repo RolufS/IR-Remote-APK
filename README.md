@@ -103,13 +103,15 @@ Wege, beide ohne Entsperren:
 
 - **Aufziehbare Benachrichtigung**: unter „Steuerung auf dem Sperrbildschirm anzeigen“
   die Ansicht wählen. **Klein** zeigt nur die Knopfreihe, **Erweitert** (Standard) lässt
-  sich zusätzlich herunterziehen zur **Mini-Fernbedienung**: Ein/Aus · Stumm · Eingang,
-  Lautstärke −/+ und CH ▲/▼, das Steuerkreuz mit OK sowie BACK und HOME. Tasten, die der
+  sich zusätzlich herunterziehen zur **Mini-Fernbedienung** mit großen Tasten in zwei
+  Spalten: links Ein/Aus · Stumm, Eingang · HOME, Lautstärke −/+ und CH ▼/▲, rechts das
+  Steuerkreuz mit OK und darunter BACK. Tasten, die der
   zuletzt benutzten Fernbedienung fehlen, sind ausgeblendet. Eingeklappt bleibt die frei
   gewählte Knopfreihe.
 - **Ganze Fernbedienung über dem Sperrbildschirm** (Standard aus): Schalter „Ganze
   Fernbedienung über dem Sperrbildschirm erlauben“. Dann öffnet der Knopf „Ganze
-  Fernbedienung“ (in der Benachrichtigung unten bzw. als letzter Knopf der Reihe) oder die
+  Fernbedienung“ (aufgezogen als kleines Symbol oben rechts im Steuerkreuz, eingeklappt als
+  letzter Knopf der Reihe) oder die
   Kachel „TV Fernbedienung“ die normale Fernbedienung der zuletzt benutzten Fernbedienung
   über dem Sperrbildschirm, ohne zu entsperren. Dort gibt es nur Tasten und ⋮ → „Weitere
   Tasten“: kein ☰, kein Wechseln, kein ⚡, keine Automationen, kein Assistent, keine
@@ -146,7 +148,7 @@ Widget-Info
 
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.6.apk`
+- USB: `adb install -r dist/Fernbedienung-1.6.1.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -155,11 +157,11 @@ Widget-Info
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.6.1.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.6.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.6.1.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -176,7 +178,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.6.1.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -268,12 +270,14 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 24. Alle Fernbedienungen löschen: Kacheln sind ausgegraut („Keine Fernbedienung“), das Widget
     zeigt „Keine Fernbedienung“.
 25. Sperrbildschirm-Benachrichtigung an, Ansicht „Erweitert“: Handy sperren, die Benachrichtigung
-    herunterziehen: die Mini-Fernbedienung erscheint (nichts abgeschnitten). Ein/Aus, Stumm,
+    herunterziehen: die Mini-Fernbedienung erscheint zweispaltig mit hohen Tasten (nichts
+    abgeschnitten). Ein/Aus, Stumm,
     Eingang, −/+, CH ▲/▼, Pfeile, OK, BACK, HOME senden ohne Entsperren. Bei einer
     Fernbedienung ohne z. B. HOME fehlt der Knopf. Ansicht „Klein“: nur die Knopfreihe, kein
     Aufziehen.
 26. „Ganze Fernbedienung über dem Sperrbildschirm erlauben“ an: in der Benachrichtigung
-    erscheint „Ganze Fernbedienung“ (eingeklappt als letzter Knopf). Handy sperren, tippen: die
+    erscheint „Ganze Fernbedienung“ (eingeklappt als letzter Knopf, aufgezogen als Symbol oben
+    rechts im Steuerkreuz). Handy sperren, tippen: die
     Fernbedienung öffnet sich über dem Sperrbildschirm ohne Entsperren, nur mit ⋮ → „Weitere
     Tasten“; VOL halten zählt hoch. Zurück: der Sperrbildschirm ist wieder da. Erneut öffnen,
     Ein/Aus-Taste des Handys: Bildschirm aus, nach dem Einschalten der Sperrbildschirm. Ohne
