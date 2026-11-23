@@ -23,9 +23,28 @@ einfach die passende `app/src/main/res/values-*/strings.xml` ändern; der Test
 `TranslationsTest` prüft, dass Namen und Platzhalter (`%1$s`, `%1$d`) zu
 `values/strings.xml` passen.
 
+## Automationen
+
+Eine Automation sendet mehrere Tasten nacheinander, mit einer Wartezeit nach
+jedem Schritt (0,5–10 s). Anlegen geht auf zwei Wegen:
+
+- **Liste:** ⋮ → Automationen → „+ Neue Automation“, Tasten einzeln hinzufügen.
+- **Aufnahme:** „● Aufnehmen“ in der Automationen-Liste, „● Neue Automation
+  aufnehmen“ im ⚡-Sheet oder „● Per Fernbedienung aufnehmen“ im Editor (hängt an
+  die vorhandenen Schritte an). Danach einfach die Fernbedienung benutzen – auch
+  HDMI-Reihe und ⋮ → „Weitere Tasten“: jede Taste wird normal gesendet und als
+  Schritt aufgezeichnet (gehaltene VOL/CH/Pfeile als ein Schritt), die Pause bis
+  zur nächsten Taste wird zur Wartezeit (auf 0,5 s gerundet). Die rote Leiste
+  zeigt die Schrittzahl, „Rückgängig“ entfernt den letzten Schritt, „Fertig“
+  öffnet den Editor (Name eingeben, Wartezeiten anpassen, speichern),
+  „Abbrechen“ bzw. Zurück verwirft die Aufnahme nach Rückfrage. Während der
+  Aufnahme sind ☰, ⚡ und das Wechseln der Fernbedienung gesperrt.
+
+Ausgeführt wird eine Automation über ⚡ oder ▶ in der Liste.
+
 ## APK installieren
 
-- USB: `adb install -r dist/Fernbedienung-1.2.apk`
+- USB: `adb install -r dist/Fernbedienung-1.3.apk`
 - Oder die Datei aufs Handy kopieren und dort öffnen. Dabei die Installation
   aus unbekannten Quellen erlauben.
 
@@ -34,11 +53,11 @@ einfach die passende `app/src/main/res/values-*/strings.xml` ändern; der Test
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.2.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.3.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.2.apk` ist die Datei zum Installieren (`dist/` steht nicht
+`dist/Fernbedienung-1.3.apk` ist die Datei zum Installieren (`dist/` steht nicht
 im Repo). Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
 `HOTELREMOTE_STORE_FILE`, `HOTELREMOTE_STORE_PASSWORD`, `HOTELREMOTE_KEY_ALIAS`,
@@ -55,7 +74,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.2.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.3.aab
 ```
 
 Play App Signing: Beim ersten Upload in der Play Console „Play App Signing“
@@ -106,14 +125,18 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 10. ⋮ → Automationen → „+ Neue Automation“: Name, Schritte (z. B. Menü, Pfeil runter, OK)
     mit Wartezeiten, „Testen“ sendet die Folge, Speichern. Über ⚡ startet ein Tipp die
     Automation; die Leiste zeigt „Schritt i von n“, „Abbrechen“ stoppt, der Bildschirm bleibt an.
-11. ⚡ → Sleep-Timer (Handy) → eigener Wert 2 min, „Ausschalten“: Akku-Hinweis (nur beim
+11. Automationen → „● Aufnehmen“: Menü, Pfeil runter (kurz warten), OK drücken – der TV
+    reagiert jeweils, die Leiste zählt „Schritte: 3“. VOL+ halten ergibt einen Schritt,
+    „Rückgängig“ entfernt ihn. „Fertig“ zeigt die Schritte mit den gemessenen Wartezeiten;
+    Name eingeben, speichern, über ⚡ ausführen: gleiche Folge wie aufgenommen.
+12. ⚡ → Sleep-Timer (Handy) → eigener Wert 2 min, „Ausschalten“: Akku-Hinweis (nur beim
     ersten Mal), ab Android 14 Frage nach „Wecker und Erinnerungen“, ab Android 13 nach
     Benachrichtigungen. Die Benachrichtigung zählt herunter; App schließen (aus „Zuletzt
     verwendet“ wischen), Handy sperren und auf den TV legen: nach 2 min geht der TV aus,
     danach „Sleep-Timer ausgeführt“.
-12. Timer starten und über „Abbrechen“ in der Benachrichtigung beenden: nichts wird gesendet.
-13. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
-14. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 11 wiederholen.
+13. Timer starten und über „Abbrechen“ in der Benachrichtigung beenden: nichts wird gesendet.
+14. Timer mit 10 min starten, Handy neu starten: der Timer läuft weiter und löst aus.
+15. Auf Xiaomi/HyperOS: Akku „Keine Einschränkungen“ setzen und Punkt 12 wiederholen.
 
 Hinweis: Vor Android 13 erscheinen die Sleep-Timer-Benachrichtigungen in der
 Systemsprache, nicht in der in der App gewählten Sprache (die App-Sprache gilt

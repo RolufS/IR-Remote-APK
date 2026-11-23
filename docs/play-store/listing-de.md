@@ -43,6 +43,7 @@ Mehrere Fernbedienungen lassen sich speichern und benennen, etwa „Zimmer 412�
 
 AUTOMATIONEN UND SLEEP-TIMER
 • Automationen: mehrere Tasten nacheinander mit einem Tipp, z. B. Menü → Pfeil runter → OK, mit eigener Wartezeit pro Schritt
+• Aufnehmen statt zusammenklicken: einfach die Tasten wie gewohnt drücken – die App merkt sich Reihenfolge und Pausen
 • Sleep-Timer im Handy: nach 15 bis 120 Minuten (oder eigenem Wert) schaltet das Handy den Fernseher aus oder startet eine Automation – auch wenn die App geschlossen ist. Das Handy muss dafür auf den Fernseher zeigen.
 
 WERBEFREI UND OFFLINE
@@ -158,7 +159,7 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 6. Vorher das Repo öffentlich auf GitHub stellen, damit die URL der
    Datenschutzerklärung erreichbar ist.
 7. Geschlossener Test (Pflicht für neue private Konten): Track „Geschlossener
-   Test“ anlegen, `dist/Fernbedienung-1.2.aab` hochladen (Play App Signing
+   Test“ anlegen, `dist/Fernbedienung-1.3.aab` hochladen (Play App Signing
    aktiv lassen, Upload-Schlüssel `~/.android/hotelremote.jks`), mindestens
    **12 Tester** per E-Mail-Liste einladen, die **14 Tage ohne Unterbrechung**
    dabeibleiben. Tester brauchen für echte Tests ein Handy mit IR-Sender.
@@ -173,6 +174,6 @@ Screenshots im Format 9:16, weil Google höchstens das Seitenverhältnis 2:1 zul
 |---|---|---|
 | App-Name | 26 | 30 |
 | Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 2162 | 4000 |
+| Vollständige Beschreibung | 2280 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.
