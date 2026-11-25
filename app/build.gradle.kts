@@ -13,8 +13,8 @@ android {
         applicationId = "de.hotelremote"
         minSdk = 23
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.7.0"
+        versionCode = 12
+        versionName = "1.7.1"
     }
 
     androidResources {

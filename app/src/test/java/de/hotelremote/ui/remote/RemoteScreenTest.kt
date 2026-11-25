@@ -375,6 +375,26 @@ class RemoteScreenTest {
     }
 
     @Test
+    fun pressedKeyDarkensAndFadesBack() {
+        show(remote("MUTE"))
+        rule.mainClock.autoAdvance = false
+        fun shade() = rule.onNodeWithTag("key_MUTE").fetchSemanticsNode().config[PressShade]
+        assertEquals(0f, shade(), 0.001f)
+
+        rule.onNodeWithTag("key_MUTE").performTouchInput { down(center) }
+        rule.mainClock.advanceTimeByFrame()
+        assertEquals("gedrückt: abgedunkelt", PRESS_SHADE, shade(), 0.001f)
+
+        rule.onNodeWithTag("key_MUTE").performTouchInput { up() }
+        rule.mainClock.advanceTimeBy(PRESS_FADE_MS / 2L)
+        val half = shade()
+        assertTrue("blendet zurück: $half", half > 0f && half < PRESS_SHADE)
+
+        rule.mainClock.advanceTimeBy(PRESS_FADE_MS.toLong())
+        assertEquals("wieder Originalfarbe", 0f, shade(), 0.001f)
+    }
+
+    @Test
     fun centeredMenuOffsetCentersBothWays() {
         assertEquals(-50, centeredMenuOffset(anchor = 100, menu = 200))
         assertEquals(30, centeredMenuOffset(anchor = 160, menu = 100))

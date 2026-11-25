@@ -1,7 +1,17 @@
 package de.hotelremote.ui.remote
 
 import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -40,6 +50,16 @@ val PowerBrush: Brush = Brush.verticalGradient(listOf(RemoteColors.PowerTop, Rem
 
 private const val DISABLED_ALPHA = 0.35f
 
+/** Wie stark eine gedrückte Taste abgedunkelt wird (Schwarz-Deckkraft). */
+internal const val PRESS_SHADE = 0.3f
+
+/** Dauer, in der die Taste nach dem Loslassen zur Originalfarbe zurückblendet. */
+internal const val PRESS_FADE_MS = 250
+
+/** Aktuelle Abdunkelung einer Taste – nur für Tests sichtbar gemacht. */
+internal val PressShade = SemanticsPropertyKey<Float>("PressShade")
+private var SemanticsPropertyReceiver.pressShadeValue by PressShade
+
 /** Tastenfläche: Tag `key_<key>`, Alpha 0,35 und "disabled" für Semantik, wenn die Taste fehlt. */
 @Composable
 private fun PressableKey(
@@ -60,6 +80,10 @@ private fun PressableKey(
     fun haptic() {
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
+
+    // Gedrückt: Fläche sofort abdunkeln, nach dem Loslassen weich zur Originalfarbe zurück.
+    val pressShade = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
 
     var surface = modifier
         .testTag("key_$key")
@@ -82,7 +106,20 @@ private fun PressableKey(
     }
     Box(
         modifier = surface
+            // Abdunkeln über der Tastenfläche, aber unter der Beschriftung. Der Umriss folgt [shape];
+            // Wippen-Hälften und Pfeilflächen werden zusätzlich vom Elternelement zugeschnitten.
+            .drawWithContent {
+                val shade = pressShade.value
+                if (shade > 0f) {
+                    drawOutline(
+                        shape.createOutline(size, layoutDirection, this),
+                        Color.Black.copy(alpha = shade),
+                    )
+                }
+                drawContent()
+            }
             .semantics(mergeDescendants = true) {
+                pressShadeValue = pressShade.value
                 role = Role.Button
                 if (enabled) onClick {
                     tap()
@@ -94,13 +131,13 @@ private fun PressableKey(
                 detectTapGestures(
                     onPress = {
                         haptic()
+                        scope.launch { pressShade.snapTo(PRESS_SHADE) }
                         val release = pressStart?.invoke()
-                        if (release != null) {
-                            try {
-                                awaitRelease()
-                            } finally {
-                                release()
-                            }
+                        try {
+                            tryAwaitRelease()
+                        } finally {
+                            release?.invoke()
+                            scope.launch { pressShade.animateTo(0f, tween(PRESS_FADE_MS)) }
                         }
                     },
                     onTap = if (onPressStart == null) {

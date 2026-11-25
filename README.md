@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.7.0-2C5199" alt="Version 1.7.0"></a>
+  <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.7.1-2C5199" alt="Version 1.7.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-MIT-2F9E44" alt="Lizenz: MIT"></a>
   <img src="https://img.shields.io/badge/No%20ads%20%C2%B7%20No%20tracking%20%C2%B7%20No%20internet-CF3B31" alt="No ads · No tracking · No internet">
   <img src="https://img.shields.io/badge/Android-6%2B-3DDC84?logo=android&logoColor=white" alt="Android 6+">
@@ -107,7 +107,7 @@ genaue Aussehen hängt vom Hersteller ab.</sub>
 2. Auf dem Handy öffnen und die Installation aus unbekannten Quellen für den Browser bzw. Dateimanager erlauben.
 3. Beim ersten Start die Sprache wählen – danach führt der Assistent zur passenden Fernbedienung.
 
-Per USB: `adb install -r Fernbedienung-1.7.0.apk`
+Per USB: `adb install -r Fernbedienung-1.7.1.apk`
 
 **Xiaomi / Redmi / POCO (MIUI, HyperOS):** Für `adb install` in den Entwickleroptionen „Installation über USB“
 einschalten. Damit der Sleep-Timer auch bei geschlossener App zuverlässig auslöst, in den App-Infos unter
@@ -287,12 +287,12 @@ Widget-Info
 ```
 ./gradlew :app:assembleRelease
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.7.0.apk
+cp app/build/outputs/apk/release/app-release.apk dist/Fernbedienung-1.7.1.apk
 ```
 
 Gradle legt `app/build/outputs/apk/release/app-release.apk` an; die Kopie unter
-`dist/Fernbedienung-1.7.0.apk` ist die Datei zum Installieren (`dist/` steht nicht
-im Repo). Installieren per USB: `adb install -r dist/Fernbedienung-1.7.0.apk`.
+`dist/Fernbedienung-1.7.1.apk` ist die Datei zum Installieren (`dist/` steht nicht
+im Repo). Installieren per USB: `adb install -r dist/Fernbedienung-1.7.1.apk`.
 
 Zum Signieren stehen
 in `~/.gradle/gradle.properties` (außerhalb des Repos) vier Properties:
@@ -313,7 +313,7 @@ Schlüssel signiert wie das APK (Properties wie oben):
 ```
 ./gradlew :app:bundleRelease
 mkdir -p dist
-cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.7.0.aab
+cp app/build/outputs/bundle/release/app-release.aab dist/Fernbedienung-1.7.1.aab
 ```
 
 Play App Signing: Beim ersten Upload fragt die Play Console nach dem
