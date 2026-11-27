@@ -5,6 +5,7 @@ import de.hotelremote.automation.AutomationRecorder
 import de.hotelremote.automation.AutomationResult
 import de.hotelremote.automation.AutomationRunner
 import de.hotelremote.automation.AutomationTemplate
+import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
@@ -85,7 +86,12 @@ data class AppUiState(
     val languageFirstStart: Boolean = false,
     /** Aufnahme einer Automation läuft (null = keine). */
     val recording: Recording? = null,
+    /** Zuletzt gezeigte Seite je Raum mit Fernseher und Klimaanlage (fehlt = TV). */
+    val roomPages: Map<String, RoomPage> = emptyMap(),
 )
+
+/** Seite im Raum mit Fernseher und Klimaanlage; die Reihenfolge ist die der Wischseiten. */
+enum class RoomPage { TV, AC }
 
 /**
  * Navigation und Zustand der App ohne Android-Abhängigkeiten: lädt gespeicherte Fernbedienungen und
@@ -127,6 +133,8 @@ class AppController(
 
     /** Schritte der laufenden Aufnahme (vorhandene und aufgenommene). */
     val recordedSteps: StateFlow<List<AutomationStep>> = recorder.steps
+
+    private val acController = AcController(scope, send, ::acChanged)
 
     /** Bildschirm, zu dem „Sprache wählen“ zurückkehrt. */
     private var languageReturn: Screen = Screen.Remote
@@ -195,6 +203,30 @@ class AppController(
         if (_state.value.recording == null) return
         recorder.record(key)
         _state.update { s -> s.copy(recording = s.recording?.copy(hint = false)) }
+    }
+
+    // ---- Klimaanlage ----
+
+    /** Bedienschritt an der Klimaanlage des aktuellen Raums; während einer Aufnahme gesperrt (nicht aufnehmbar). */
+    fun ac(action: AcAction) {
+        if (_state.value.recording != null) return
+        val current = _state.value.current ?: return
+        acController.perform(current.id, current.ac ?: return, action)
+    }
+
+    /** Anzeige für die Klimaanlage von [remote]; null ohne (lesbare) Klimaanlage. */
+    fun acView(remote: SavedRemote): AcView? = remote.ac?.let(acController::view)
+
+    /** Merkt den Zustand; scheitert das Speichern, gilt er trotzdem für diese Sitzung. */
+    private fun acChanged(roomId: String, ac: AcState) {
+        storing { store.updateAcState(roomId, ac) }
+        fun SavedRemote.changed() = if (id == roomId && this.ac != null) copy(ac = this.ac.copy(state = ac)) else this
+        _state.update { s -> s.copy(current = s.current?.changed(), remotes = s.remotes.map { it.changed() }) }
+    }
+
+    /** Merkt die gezeigte Seite des Raums (für die Rückkehr zur Fernbedienung und den Raumwechsel). */
+    fun showRoomPage(roomId: String, page: RoomPage) {
+        _state.update { it.copy(roomPages = it.roomPages + (roomId to page)) }
     }
 
     // ---- Fernbedienungen ----

@@ -4,6 +4,9 @@ import de.hotelremote.Keys
 import de.hotelremote.automation.SleepTemplates
 import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
+import de.hotelremote.data.PLAIN_PATHS
+import de.hotelremote.data.pulsesOf
+import de.hotelremote.data.testAc
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
@@ -496,5 +499,84 @@ class AppControllerTest {
         runCurrent()
         assertNull(c.automationProgress.value)
         assertEquals(1, sent.size)
+    }
+    // ---- Klimaanlage ----
+
+    private fun acRoom(id: String = "k", lastUsed: Long = 5, tv: Boolean = true) = SavedRemote(
+        id = id,
+        brand = if (tv) "Samsung" else "",
+        codeLabel = if (tv) "Code 1" else "",
+        keys = if (tv) mapOf(Keys.POWER to sig(1)) else emptyMap(),
+        lastUsed = lastUsed,
+        ac = testAc(),
+    )
+
+    @Test fun acActionUpdatesStateStoresAndSendsAfterDebounce() = runTest {
+        val store = FakeStorage(listOf(acRoom(), remote("a", 1)))
+        val c = controller(store)
+        c.ac(AcAction.Warmer)
+        val expected = AcState(true, "cool", 23.0, "auto")
+        assertEquals(expected, c.state.value.current?.ac?.state)
+        assertEquals(expected, c.state.value.remotes.first { it.id == "k" }.ac?.state)
+        assertEquals(expected, store.list.first { it.id == "k" }.ac?.state)
+        assertEquals(listOf("k", "a"), c.state.value.remotes.map { it.id })
+        assertTrue(sent.isEmpty())
+        advanceTimeBy(AcController.DEBOUNCE_MS + 1)
+        assertEquals(listOf(pulsesOf(PLAIN_PATHS, "cool/auto/23")), sent.map { it.frame })
+        assertEquals(23.0, c.acView(c.state.value.current!!)!!.state.temp, 0.0)
+    }
+
+    @Test fun acSaveFailureKeepsStateForSessionAndShowsMessage() = runTest {
+        val store = FakeStorage(listOf(acRoom()))
+        val c = controller(store)
+        store.failWrite = true
+        c.ac(AcAction.Power)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        assertFalse(c.state.value.current!!.ac!!.state.power)
+        assertEquals(listOf(pulsesOf(PLAIN_PATHS, "off")), sent.map { it.frame })
+    }
+
+    @Test fun acKeysAreNotRecordable() = runTest {
+        val c = controller(FakeStorage(listOf(acRoom())))
+        c.recordNew(returnTo = Screen.Remote)
+        c.ac(AcAction.Power)
+        advanceTimeBy(1000)
+        assertTrue(sent.isEmpty())
+        assertTrue(c.state.value.current!!.ac!!.state.power)
+        assertEquals(emptyList<AutomationStep>(), c.recordedSteps.value)
+    }
+
+    @Test fun acWithoutAcInRoomDoesNothing() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.ac(AcAction.Power)
+        advanceTimeBy(1000)
+        assertTrue(sent.isEmpty())
+        assertNull(c.acView(c.state.value.current!!))
+    }
+
+    @Test fun roomPageIsRememberedPerRoom() = runTest {
+        val c = controller(FakeStorage(listOf(acRoom("k"), acRoom("m", lastUsed = 1))))
+        assertNull(c.state.value.roomPages["k"])
+        c.showRoomPage("k", RoomPage.AC)
+        c.switchTo("m")
+        assertEquals(mapOf("k" to RoomPage.AC), c.state.value.roomPages)
+        c.showRoomPage("m", RoomPage.TV)
+        c.switchTo("k")
+        assertEquals(RoomPage.AC, c.state.value.roomPages["k"])
+        assertEquals(RoomPage.TV, c.state.value.roomPages["m"])
+    }
+
+    @Test fun pureAcRoomWithoutKeysDoesNotBreakTvFunctions() = runTest {
+        val c = controller(FakeStorage(listOf(acRoom(tv = false))))
+        val s = c.state.value
+        assertEquals(Screen.Remote, s.screen)
+        assertEquals("Acme · AC-1", s.current?.title)
+        c.press(Keys.POWER)
+        assertNull(c.hold(Keys.VOL_UP))
+        c.runAutomation("A", listOf(AutomationStep(Keys.POWER)))
+        advanceTimeBy(5000)
+        assertTrue(sent.isEmpty())
+        c.ac(AcAction.Power)
+        assertEquals(listOf(pulsesOf(PLAIN_PATHS, "off")), sent.map { it.frame })
     }
 }
