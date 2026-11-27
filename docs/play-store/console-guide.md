@@ -59,7 +59,7 @@ Dashboard). Antworten stehen in `listing-de.md` → „Formulare in der Play Con
 | Werbung | Keine Werbung |
 | Einstufung des Inhalts | Fragebogen: Kategorie „Dienstprogramm …“, alle Fragen Nein |
 | Zielgruppe und Inhalte | 18 Jahre und älter; spricht Kinder nicht an |
-| Datensicherheit | Keine Daten erhoben, keine Daten weitergegeben |
+| Datensicherheit | Ab 1.8.0 (INTERNET nur für die optionale Außentemperatur): wahrscheinlich „Daten erhoben: ja“ – Standort → ungefährer Standort (selbst gewählter Ort an Open-Meteo), optional, App-Funktionen, verschlüsselt (HTTPS), beim Entwickler nichts gespeichert; „geteilt“ wahrscheinlich nein (Dienstleister). Vorschlag, bitte mit den aktuellen Hilfetexten selbst prüfen – Details in `listing-de.md` → „Datensicherheit“ |
 | Werbe-ID | Wird nicht verwendet |
 | Regierungs-App, Finanzfunktionen, Gesundheit, Nachrichten-App | Nein / keine |
 | Exakte Alarme („Alarme und Erinnerungen“), falls angezeigt | Begründung aus `listing-de.md` → „Berechtigungen“ (Sleep-Timer) |

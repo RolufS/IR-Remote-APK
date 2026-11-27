@@ -5,14 +5,14 @@
 <h1 align="center">Fernbedienung</h1>
 
 <p align="center">
-  <b>Werbefreie IR-Fernbedienung für Hotel-Fernseher</b><br>
-  Das Handy mit Infrarot-Sender wird zur Fernbedienung – offline, ohne Konto, ohne Werbung.
+  <b>Werbefreie IR-Fernbedienung für Hotel-Fernseher und Klimaanlagen</b><br>
+  Das Handy mit Infrarot-Sender wird zur Fernbedienung – ohne Konto, ohne Werbung, Internet nur für die optionale Außentemperatur.
 </p>
 
 <p align="center">
   <a href="https://github.com/RolufS/IR-Remote-APK/releases/latest"><img src="https://img.shields.io/badge/Version-1.7.1-2C5199" alt="Version 1.7.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-MIT-2F9E44" alt="Lizenz: MIT"></a>
-  <img src="https://img.shields.io/badge/No%20ads%20%C2%B7%20No%20tracking%20%C2%B7%20No%20internet-CF3B31" alt="No ads · No tracking · No internet">
+  <img src="https://img.shields.io/badge/No%20ads%20%C2%B7%20No%20tracking%20%C2%B7%20Internet%20only%20for%20optional%20weather-CF3B31" alt="No ads · No tracking · Internet only for optional weather">
   <img src="https://img.shields.io/badge/Android-6%2B-3DDC84?logo=android&logoColor=white" alt="Android 6+">
 </p>
 
@@ -32,7 +32,8 @@ Im Hotelzimmer fehlt die Fernbedienung, die Batterien sind leer oder man möchte
 nicht anfassen – und wer seinen Fire TV Stick mitbringt, muss trotzdem erst auf den richtigen
 HDMI-Eingang umschalten. Die Fernbedienungs-Apps im Play Store sind meist voller Werbung und
 Tracker. Diese App macht nur eins: Sie findet den Code für den Fernseher und sendet ihn per
-Infrarot – ohne Werbung, ohne Internet, ohne Datensammeln.
+Infrarot – ohne Werbung, ohne Datensammeln, ohne Internet (außer für die optionale Außentemperatur). Seit
+Version 1.8.0 bedient sie auch Klimaanlagen.
 
 ## Funktionen
 
@@ -56,9 +57,16 @@ Infrarot – ohne Werbung, ohne Internet, ohne Datensammeln.
 - Widget mit 1–6 frei belegbaren Knöpfen (Tasten oder Automationen), Live-Vorschau beim Einrichten.
 - Sperrbildschirm-Benachrichtigung, aufziehbar zur Mini-Fernbedienung – auf Wunsch öffnet ein Tipp die ganze Fernbedienung über dem Sperrbildschirm.
 
+**❄️ Klimaanlage**
+- Eigener Assistent: Marke wählen, die App sendet „Ein · Kühlen · 24 °C“, du sagst, ob die Anlage reagiert hat – danach „Aus“ zur Bestätigung.
+- Klima-Bildschirm mit großer Soll-Temperatur, −/+, Modus, Lüfter und Swing; Raum mit Fernseher und Klimaanlage: einfach zwischen „TV“ und „Klima“ wischen.
+- Optional die Außentemperatur („Draußen 31 °C · Pattaya · vor 12 min“, Wetterdaten Open-Meteo.com, CC BY 4.0) – Standard aus, Ort per Suche, keine Standortberechtigung.
+- Klima-Automatik „kühler als draußen“: z. B. 5 °C unter der Außentemperatur, aber nicht kälter als 25 °C; prüft alle 30 Minuten und sendet nur, wenn sich das Ziel ändert. Das Handy muss dafür im Raum liegen.
+
 **🌍 11 Sprachen** – Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch, Indonesisch.
 
-**🛡️ Datenschutz** – keine INTERNET-Berechtigung, keine Werbung, kein Tracking; die Code-Datenbank steckt in der App.
+**🛡️ Datenschutz** – keine Werbung, kein Tracking, kein Konto; die Code-Datenbanken stecken in der App. Internet nur,
+wenn du die Außentemperatur einschaltest: dann geht der gewählte Ort an Open-Meteo.
 
 ## Screenshots
 
@@ -115,8 +123,10 @@ einschalten. Damit der Sleep-Timer auch bei geschlossener App zuverlässig ausl�
 
 ## Datenschutz
 
-Die App erhebt keine Daten, hat keinen Internetzugang und enthält weder Werbung noch Tracking. Gespeicherte
-Fernbedienungen liegen nur auf dem Gerät. Details: [PRIVACY.md](PRIVACY.md) (zugleich die Datenschutzerklärung für
+Die App erhebt keine Daten und enthält weder Werbung noch Tracking. Gespeicherte Fernbedienungen liegen nur auf
+dem Gerät. Die Internet-Berechtigung (ab 1.8.0) dient nur der optionalen Außentemperatur: Erst wenn du sie
+einschaltest, sendet die App den gesuchten Ortsnamen bzw. die Koordinaten des gewählten Orts an Open-Meteo;
+ausgeschaltet baut sie keine Verbindung auf. Details: [PRIVACY.md](PRIVACY.md) (zugleich die Datenschutzerklärung für
 den Play Store).
 
 ## Bedienung im Detail
@@ -370,7 +380,7 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 5. VOL halten zählt hoch und stoppt beim Loslassen.
 6. Die App neu starten öffnet die letzte Fernbedienung.
 7. Der Suchlauf schaltet den TV aus, der Stopp mit Kandidatenprüfung schaltet ihn wieder an.
-8. Flugmodus an: Alles funktioniert unverändert.
+8. Flugmodus an: Alles funktioniert unverändert, nur die (optionale) Außentemperatur zeigt „Wetter nicht erreichbar“.
 9. ⋮ → Sprache → z. B. English: Texte wechseln, die gespeicherten Fernbedienungen bleiben.
 10. ⋮ → Automationen → „+ Neue Automation“: Name, Schritte (z. B. Menü, Pfeil runter, OK)
     mit Wartezeiten, „Testen“ sendet die Folge, Speichern. Über ⚡ startet ein Tipp die
@@ -440,13 +450,16 @@ wenn irdb enthalten ist. Der Standard-Build verwendet irdb nicht.
 ## English
 
 **Fernbedienung** ("TV Remote") turns an Android phone with an infrared blaster into a remote control for hotel
-TVs – no ads, no tracking, no internet permission. A short wizard finds the right code: pick the brand, tap MUTE
+TVs and, since 1.8.0, air conditioners – no ads, no tracking, internet only for the optional outdoor temperature. A short wizard finds the right code: pick the brand, tap MUTE
 and say whether the TV reacted; for unknown brands a scan sends power-off codes until the TV switches off. The
 remote has number keys, a D-pad, color keys and – if the TV supports it – direct HDMI 1–4 keys, handy for a Fire TV
 Stick. Automations send several keys with one tap and can be recorded simply by using the remote; templates help
 set the TV's own sleep timer, and a phone-side sleep timer turns the TV off even when the app is closed. Quick
 Settings tiles, a home-screen widget with freely assignable buttons and an expandable lock-screen notification
-(optionally opening the full remote over the lock screen) work without opening the app. The app is available in 11
+(optionally opening the full remote over the lock screen) work without opening the app. Air conditioners
+have their own wizard and screen (swipe between TV and AC in a room); optionally the app shows the outdoor
+temperature (off by default; only the chosen place is sent to Open-Meteo.com, weather data CC BY 4.0) and an AC
+automation keeps the room e.g. 5 °C cooler than outside, but not colder than 25 °C. The app is available in 11
 languages and needs Android 6+ and a phone with an IR emitter (e.g. many Xiaomi, Redmi and POCO models); on Google
 Play it is offered only to such phones.
 
@@ -457,4 +470,7 @@ Play it is offered only to such phones.
 - Der Code steht unter der [MIT-Lizenz](LICENSE).
 - Die Infrarot-Codes in `app/src/main/assets/codes.db` stammen aus der
   [Flipper-IRDB](https://github.com/Lucaslhm/Flipper-IRDB) (CC0-1.0).
+- Die Klima-Codes in `app/src/main/assets/ac_codes.db` stammen aus
+  [SmartIR](https://github.com/smartHomeHub/SmartIR) (MIT).
+- Wetterdaten (optional): [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0).
 - Quellen der Sleep-Timer-Vorlagen: [docs/sleep-timer-research.md](docs/sleep-timer-research.md).

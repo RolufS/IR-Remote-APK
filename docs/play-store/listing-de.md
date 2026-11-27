@@ -31,13 +31,13 @@ Der Name auf dem Startbildschirm bleibt „Fernbedienung“ (`app_name`).
 ## Kurzbeschreibung (max. 80 Zeichen)
 
 ```
-TV-Fernbedienung per Infrarot: werbefrei, offline, findet den Code für dich.
+Infrarot-Fernbedienung für TV und Klimaanlage: werbefrei, findet den Code.
 ```
 
 ## Vollständige Beschreibung (max. 4000 Zeichen)
 
 ```
-Fernbedienung macht dein Handy zur Fernbedienung für den Fernseher – gedacht für Hotelzimmer, Ferienwohnungen und überall, wo die Original-Fernbedienung fehlt oder nicht funktioniert.
+Fernbedienung macht dein Handy zur Fernbedienung für Fernseher und Klimaanlage – gedacht für Hotelzimmer, Ferienwohnungen und überall, wo die Original-Fernbedienung fehlt oder nicht funktioniert.
 
 SO FUNKTIONIERT ES
 Ein Assistent findet in wenigen Schritten den passenden Code: Marke wählen (zum Beispiel Samsung, LG oder Philips), auf MUTE tippen und angeben, ob der Fernseher reagiert hat. Ist die Marke unbekannt, sendet ein Suchlauf nacheinander Ausschalt-Befehle. Sobald der Fernseher ausgeht, tippst du auf Stopp, und die App prüft die zuletzt gesendeten Codes.
@@ -51,6 +51,12 @@ DIE FERNBEDIENUNG
 
 Mehrere Fernbedienungen lassen sich speichern und benennen, etwa „Zimmer 412“. Beim nächsten Start ist die zuletzt benutzte sofort da.
 
+KLIMAANLAGE
+• Eigener Assistent: Marke wählen, die App sendet „Ein · Kühlen · 24 °C“, du sagst, ob die Anlage reagiert hat
+• Große Soll-Temperatur, −/+, Modus, Lüfter und Swing; Fernseher und Klimaanlage eines Zimmers per Wischen
+• Optional die Außentemperatur, z. B. „Draußen 31 °C · Pattaya“ (Standard aus, Ort per Suche, keine Standortberechtigung)
+• Klima-Automatik: z. B. 5 °C kühler als draußen, aber nicht kälter als 25 °C – prüft alle 30 Minuten und sendet nur, wenn sich das Ziel ändert. Das Handy muss im Raum liegen.
+
 AUTOMATIONEN UND SLEEP-TIMER
 • Automationen: mehrere Tasten nacheinander mit einem Tipp, z. B. Menü → Pfeil runter → OK, mit eigener Wartezeit pro Schritt
 • Aufnehmen statt zusammenklicken: einfach die Tasten wie gewohnt drücken – die App merkt sich Reihenfolge und Pausen
@@ -63,18 +69,18 @@ SCHNELLSTEUERUNG OHNE APP
 • Auf Wunsch eine stille Benachrichtigung mit frei wählbaren Tasten auf dem Sperrbildschirm – herunterziehen öffnet eine Mini-Fernbedienung mit Steuerkreuz
 • Optional die ganze Fernbedienung über dem Sperrbildschirm, ohne Entsperren (Tippen auf die Benachrichtigung oder Kachel „TV Fernbedienung“) – nur die Tasten, sonst nichts
 
-WERBEFREI UND OFFLINE
+WERBEFREI, OHNE TRACKING
 • Keine Werbung, keine In-App-Käufe, kein Konto
-• Keine Internet-Berechtigung – funktioniert auch im Flugmodus
+• Internet nur für die optionale Außentemperatur: Nur wenn du sie einschaltest, wird der gewählte Ort an Open-Meteo gesendet. Alles andere funktioniert auch im Flugmodus.
 • Keine Datenerhebung, keine Analyse
-• Die Code-Datenbank ist in der App enthalten (Flipper-IRDB, CC0)
+• Die Code-Datenbanken sind in der App enthalten (Flipper-IRDB, CC0; SmartIR, MIT); Wetterdaten: Open-Meteo.com (CC BY 4.0)
 • Quelloffen: github.com/RolufS/IR-Remote-APK
 
 11 SPRACHEN
 Deutsch, Englisch, Chinesisch (vereinfacht), Hindi, Spanisch, Französisch, Arabisch, Bengalisch, Portugiesisch, Russisch und Indonesisch. Die Sprache wählst du beim ersten Start, später jederzeit im Menü.
 
 WICHTIG
-Benötigt ein Handy mit Infrarot-Sender (IR-Blaster) und Android 6 oder neuer. Viele Handys haben keinen IR-Sender; im Play Store wird die App deshalb nur für Handys mit IR-Sender angeboten. Fernseher, die nur per WLAN oder Bluetooth gesteuert werden, lassen sich nicht bedienen.
+Benötigt ein Handy mit Infrarot-Sender (IR-Blaster) und Android 6 oder neuer. Viele Handys haben keinen IR-Sender; im Play Store wird die App deshalb nur für Handys mit IR-Sender angeboten. Fernseher und Klimaanlagen, die nur per WLAN oder Bluetooth gesteuert werden, lassen sich nicht bedienen.
 
 Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den Herstellern.
 ```
@@ -83,17 +89,45 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
 
 ### Datensicherheit („Data safety“)
 
-- Erhebt oder teilt die App erforderliche Nutzerdaten? **Nein.**
-  Begründung: Die App hat keine INTERNET-Berechtigung und keine Analyse-, Werbe-
-  oder Absturzbibliotheken. Gespeicherte Fernbedienungen, Automationen und der
-  Sleep-Timer bleiben im privaten Speicher der App auf dem Gerät; Daten, die das Gerät nie verlassen, gelten bei
-  Google nicht als „erhoben“.
-- Damit entfallen die Fragen zu Verschlüsselung und Löschanfragen; Ergebnis im
-  Store: „Keine Daten erhoben“, „Keine Daten an Dritte weitergegeben“.
+Ab Version 1.8.0 hat die App die INTERNET-Berechtigung, nur für die optionale
+Außentemperatur (Standard aus). Was dabei passiert: Erst nach dem Einschalten
+schickt die App den eingetippten Ortsnamen (Ortssuche) bzw. die Koordinaten des
+gewählten Orts (Temperatur) direkt vom Handy an Open-Meteo. Beim Entwickler wird
+nichts gespeichert oder empfangen; es gibt keine Analyse-, Werbe- oder
+Absturzbibliotheken, keine Kennung und keine Standortberechtigung.
+
+**Ehrliche Einschätzung, bitte selbst prüfen:** Die Formular-Fragen und Googles
+Auslegung ändern sich; die folgenden Antworten sind ein Vorschlag, keine
+Rechtsberatung. Vor dem Absenden die aktuellen Hilfetexte der Play Console
+lesen.
+
+- Erhebt oder teilt die App erforderliche Nutzerdaten? Wahrscheinlich **Ja**,
+  weil Daten (Ort) das Gerät verlassen – auch wenn sie nur an einen Drittdienst
+  gehen und optional sind. Google zählt als „erhoben“, was die App vom Gerät
+  überträgt, auch an Dienste Dritter.
+- Datentyp: **Standort → Ungefährer Standort** (der selbst gewählte Ort; kein
+  GPS). Ein eingetippter Stadtname bzw. dessen Koordinaten ist nach Googles
+  Definition am ehesten „ungefährer Standort“. Wer es enger sieht, kann
+  stattdessen „App-Aktivität → Sonstige nutzergenerierte Inhalte“ prüfen.
+- **Erhoben** (ja), **geteilt**: wahrscheinlich **nein** – Google nimmt die
+  Übertragung an einen Dienstleister, der im Auftrag der App eine Funktion
+  erbringt, vom „Teilen“ aus; Open-Meteo liefert nur das Wetter. Wenn du Open-
+  Meteo nicht als solchen Dienstleister einordnest, „geteilt: ja“ angeben.
+- Verarbeitung: **optional** (Nutzer kann es ablehnen – Standard aus);
+  Zweck: **App-Funktionen**; nicht vorübergehend gespeichert beim Entwickler,
+  aber Open-Meteo kann Anfragen protokollieren.
+- Verschlüsselung bei der Übertragung: **Ja** (nur HTTPS).
+- Löschung: Es gibt beim Entwickler nichts zu löschen; „Ausschalten“ bzw.
+  Deinstallieren entfernt Ort und letzten Wert vom Gerät. Die Frage nach einer
+  Löschmöglichkeit je nach Formular entsprechend beantworten.
+- Alles Übrige (Fernbedienungen, Automationen, Klima-Zustand, Timer) bleibt im
+  privaten Speicher der App auf dem Gerät und wird nicht angegeben.
 
 ### Berechtigungen (Stand Version 1.7.0)
 
-- `TRANSMIT_IR` – Infrarot senden.
+- `TRANSMIT_IR` – Infrarot senden (Fernseher und Klimaanlage).
+- `INTERNET` (ab Version 1.8.0) – nur für die optionale Außentemperatur
+  (Open-Meteo); ohne Einschalten keine Verbindung.
 - `SCHEDULE_EXACT_ALARM` – Sleep-Timer löst pünktlich aus (ab Android 14 nur
   nach Zustimmung des Nutzers; ohne sie ein ungenauer Alarm). Bewusst **kein**
   `USE_EXACT_ALARM`. Die App ist kein Wecker; der genaue Alarm ist eine vom
@@ -114,13 +148,15 @@ Markennamen gehören ihren Inhabern. Die App steht in keiner Verbindung zu den H
   created. An inexact alarm would turn the TV off noticeably late. Without the
   user's consent (Android 14+) the app falls back to an inexact alarm.“
 - `POST_NOTIFICATIONS` – laufende Benachrichtigung des Sleep-Timers mit Restzeit
-  und „Abbrechen“ sowie die (optionale, standardmäßig aus) Steuerung auf dem
-  Sperrbildschirm.
-- `RECEIVE_BOOT_COMPLETED` – einen laufenden Sleep-Timer nach einem Neustart
-  wieder planen und die Sperrbildschirm-Steuerung (falls eingeschaltet) wieder anzeigen.
+  und „Abbrechen“, der Klima-Automatik mit „Stopp“ sowie die (optionale,
+  standardmäßig aus) Steuerung auf dem Sperrbildschirm.
+- `RECEIVE_BOOT_COMPLETED` – einen laufenden Sleep-Timer bzw. eine laufende
+  Klima-Automatik nach einem Neustart wieder planen und die Sperrbildschirm-Steuerung (falls eingeschaltet) wieder anzeigen.
 - `VIBRATE` (ab Version 1.4) – kurzes Vibrieren als Bestätigung, wenn eine Kachel,
   das Widget oder die Sperrbildschirm-Steuerung sendet (normale Berechtigung, keine Rückfrage).
-- Keine Internet-, Standort-, Kontakt- oder Vordergrunddienst-Berechtigung.
+- Keine Standort-, Kontakt- oder Vordergrunddienst-Berechtigung. Die
+  Klima-Automatik nutzt einen ungenauen Alarm (`setAndAllowWhileIdle`) alle 30
+  Minuten, keinen exakten Alarm.
 
 ### Einstufung des Inhalts (IARC-Fragebogen)
 
@@ -228,7 +264,7 @@ Ausführliche Reihenfolge mit Dateien: [console-guide.md](console-guide.md).
 | Text | Zeichen | Grenze |
 |---|---|---|
 | App-Name | 26 | 30 |
-| Kurzbeschreibung | 76 | 80 |
-| Vollständige Beschreibung | 3169 | 4000 |
+| Kurzbeschreibung | 74 | 80 |
+| Vollständige Beschreibung | 3896 | 4000 |
 
 Gezählt als Unicode-Zeichen (Python `len`) des Codeblock-Inhalts, Zeilenumbrüche mitgezählt.
