@@ -296,7 +296,7 @@
     <string name="weather_stale">veraltet</string>
     <string name="weather_source">Wetterdaten: Open-Meteo.com</string>
     <string name="weather_source_full">Wetterdaten: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Die App fragt dafür Open-Meteo.com. Gesendet werden nur der Ortsname, den du suchst, und die Koordinaten des gewählten Orts – kein Standort, kein Konto. Solange das ausgeschaltet ist, baut die App keine Internetverbindung auf.</string>
+    <string name="weather_explain">Die App fragt dafür Open-Meteo.com. Gesendet werden nur der Ortsname, den du suchst, die Koordinaten des gewählten Orts und die App-Sprache – kein Standort, kein Konto. Solange das ausgeschaltet ist, baut die App keine Internetverbindung auf.</string>
     <string name="weather_place">Ort: %1$s</string>
     <string name="weather_search_hint">Stadt suchen, z. B. Pattaya</string>
     <string name="weather_search">Suchen</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Nicht kälter als</string>
     <string name="acauto_ceiling">Nicht wärmer als</string>
     <string name="acauto_preview">Bei %1$s draußen → %2$s</string>
-    <string name="acauto_hint">Das Handy muss im Raum liegen, mit freier Sicht auf die Klimaanlage; am Ladegerät läuft es zuverlässiger. Alle 30 Minuten holt die App die Außentemperatur und sendet nur, wenn sich das Ziel ändert (Ein · Kühlen · Ziel · Lüfter).</string>
+    <string name="acauto_hint">Das Handy muss im Raum liegen, mit freier Sicht auf die Klimaanlage; am Ladegerät läuft es zuverlässiger. Alle 30 Minuten holt die App die Außentemperatur und sendet nur, wenn sich das Ziel ändert (Ein · Kühlen · Ziel · Lüfter). Änderungen von Hand bleiben bis zum nächsten neuen Ziel.</string>
     <string name="acauto_needs_weather">Dafür braucht die App die Außentemperatur. „Start“ führt zur Einrichtung.</string>
     <string name="acauto_start">Start</string>
     <string name="acauto_stop">Stopp</string>

@@ -296,7 +296,7 @@
     <string name="weather_stale">périmée</string>
     <string name="weather_source">Données météo\u00A0: Open-Meteo.com</string>
     <string name="weather_source_full">Données météo\u00A0: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Pour cela, l’app interroge Open-Meteo.com. Seuls le nom du lieu que tu recherches et les coordonnées du lieu choisi sont envoyés – pas de localisation, pas de compte. Tant que c’est désactivé, l’app n’établit aucune connexion internet.</string>
+    <string name="weather_explain">Pour cela, l’app interroge Open-Meteo.com. Seuls le nom du lieu que tu recherches, les coordonnées du lieu choisi et la langue de l’app sont envoyés – pas de localisation, pas de compte. Tant que c’est désactivé, l’app n’établit aucune connexion internet.</string>
     <string name="weather_place">Lieu\u00A0: %1$s</string>
     <string name="weather_search_hint">Rechercher une ville, p. ex. Pattaya</string>
     <string name="weather_search">Rechercher</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Pas plus froid que</string>
     <string name="acauto_ceiling">Pas plus chaud que</string>
     <string name="acauto_preview">Avec %1$s dehors → %2$s</string>
-    <string name="acauto_hint">Le téléphone doit rester dans la pièce, face au climatiseur\u00A0; sur le chargeur, c’est plus fiable. Toutes les 30 minutes, l’app récupère la température extérieure et n’envoie que si la consigne change (Marche · Froid · consigne · ventilation).</string>
+    <string name="acauto_hint">Le téléphone doit rester dans la pièce, face au climatiseur\u00A0; sur le chargeur, c’est plus fiable. Toutes les 30 minutes, l’app récupère la température extérieure et n’envoie que si la consigne change (Marche · Froid · consigne · ventilation). Les changements faits à la main restent jusqu’à la prochaine nouvelle consigne.</string>
     <string name="acauto_needs_weather">Il faut pour cela la température extérieure. «\u00A0Démarrer\u00A0» mène à la configuration.</string>
     <string name="acauto_start">Démarrer</string>
     <string name="acauto_stop">Arrêter</string>

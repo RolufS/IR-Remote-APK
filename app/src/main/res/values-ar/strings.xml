@@ -296,7 +296,7 @@
     <string name="weather_stale">قديمة</string>
     <string name="weather_source">بيانات الطقس: Open-Meteo.com</string>
     <string name="weather_source_full">بيانات الطقس: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">يسأل التطبيق لذلك Open-Meteo.com. لا يُرسَل إلا اسم المكان الذي تبحث عنه وإحداثيات المكان المختار – بلا موقع وبلا حساب. ما دام هذا متوقفًا، لا يتصل التطبيق بالإنترنت.</string>
+    <string name="weather_explain">يسأل التطبيق لذلك Open-Meteo.com. لا يُرسَل إلا اسم المكان الذي تبحث عنه وإحداثيات المكان المختار ولغة التطبيق – بلا موقع وبلا حساب. ما دام هذا متوقفًا، لا يتصل التطبيق بالإنترنت.</string>
     <string name="weather_place">المكان: %1$s</string>
     <string name="weather_search_hint">ابحث عن مدينة، مثل Pattaya</string>
     <string name="weather_search">بحث</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">ليس أبرد من</string>
     <string name="acauto_ceiling">ليس أدفأ من</string>
     <string name="acauto_preview">عند %1$s في الخارج ← %2$s</string>
-    <string name="acauto_hint">يجب أن يبقى الهاتف في الغرفة موجّهًا مباشرة نحو المكيّف؛ ويعمل بشكل أوثق وهو على الشاحن. كل 30 دقيقة يجلب التطبيق درجة الحرارة الخارجية ولا يرسل إلا عند تغيّر الهدف (تشغيل · تبريد · الهدف · المروحة).</string>
+    <string name="acauto_hint">يجب أن يبقى الهاتف في الغرفة موجّهًا مباشرة نحو المكيّف؛ ويعمل بشكل أوثق وهو على الشاحن. كل 30 دقيقة يجلب التطبيق درجة الحرارة الخارجية ولا يرسل إلا عند تغيّر الهدف (تشغيل · تبريد · الهدف · المروحة). تبقى التغييرات اليدوية حتى الهدف الجديد التالي.</string>
     <string name="acauto_needs_weather">يتطلب هذا درجة الحرارة الخارجية. «ابدأ» ينقلك إلى الإعداد.</string>
     <string name="acauto_start">ابدأ</string>
     <string name="acauto_stop">إيقاف</string>

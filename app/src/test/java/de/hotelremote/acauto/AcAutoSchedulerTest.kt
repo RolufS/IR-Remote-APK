@@ -103,6 +103,32 @@ class AcAutoSchedulerTest {
         assertEquals(store.saved, notifier.running)
     }
 
+    @Test fun beginTickPlansNextAlarmFirst() {
+        val s = scheduler()
+        s.start("r1")
+        now += 10 * 60_000L
+        val run = s.beginTick("r1")!!
+        assertEquals(now + interval, run.nextAt)
+        assertEquals("at@${now + interval}", alarm.calls.last())
+        assertEquals(run, store.saved)
+        assertNull(s.beginTick("r2"))
+    }
+
+    @Test fun rearmWithUnchangedTimeDoesNotWrite() {
+        var saves = 0
+        val counting = object : AcAutoStore by store {
+            override fun save(run: AcAutoRun) {
+                saves++
+                store.save(run)
+            }
+        }
+        val s = AcAutoScheduler(counting, alarm, notifier) { now }
+        s.start("r1")
+        s.rearm()
+        assertEquals(1, saves)
+        assertEquals(store.saved, notifier.running)
+    }
+
     @Test fun rearmWithoutRunDoesNothing() {
         val s = scheduler()
         s.rearm()

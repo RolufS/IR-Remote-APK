@@ -53,8 +53,11 @@ sealed interface Screen {
     /** Einstellungen der Klima-Automatik des aktuellen Raums. */
     data object AcAuto : Screen
 
-    /** Außentemperatur ein/aus und Ort; danach zurück zu [returnTo]. */
-    data class WeatherSetup(val returnTo: Screen = Remote) : Screen
+    /**
+     * Außentemperatur ein/aus und Ort; danach zurück zu [returnTo]. [startAutoFor]: kam von „Start“ der Klima-Automatik
+     * dieses Raums – sie startet, sobald ein Ort gewählt ist.
+     */
+    data class WeatherSetup(val returnTo: Screen = Remote, val startAutoFor: String? = null) : Screen
 
     /**
      * Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme).

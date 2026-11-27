@@ -13,7 +13,13 @@ import de.hotelremote.weather.MemoryWeatherStore
 import de.hotelremote.weather.OutdoorWeather
 import de.hotelremote.weather.PATTAYA
 import de.hotelremote.weather.WeatherSettings
+import de.hotelremote.data.SWING_PATHS
+import de.hotelremote.weather.WeatherApi
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -47,10 +53,86 @@ class AcAutoRunnerTest {
         ac = testAc(state = AcState(false, "heat", 19.0, "auto")).copy(auto = settings),
     )
 
-    private fun runner() = AcAutoRunner(scheduler, remotes, weather, {
+    private fun runner(
+        w: OutdoorWeather = weather,
+        budgetMs: Long = AcAutoRunner.WEATHER_BUDGET_MS,
+        io: CoroutineDispatcher = Dispatchers.Unconfined,
+    ) = AcAutoRunner(scheduler, remotes, w, {
         if (sendFails) throw UnsupportedOperationException("kein IR")
         sent += it
-    }, Dispatchers.Unconfined)
+    }, io, budgetMs)
+
+    /** Wetter, dessen Abruf hängt, bis [release] freigibt (länger als jedes Budget im Test). */
+    private fun hangingWeather(release: CountDownLatch) = OutdoorWeather(
+        weatherStore,
+        object : WeatherApi by api {
+            override fun currentTemperature(latitude: Double, longitude: Double): Double {
+                release.await(10, TimeUnit.SECONDS)
+                return 30.0
+            }
+        },
+    ) { now }
+
+    @Test fun swingChangedByHandDoesNotCauseResend() {
+        val ac = testAc(SWING_PATHS, AcState(true, "cool", 22.0, "auto", "off")).copy(auto = AcAutoSettings(5.0, 22.0))
+        remotes.add(SavedRemote(id = "r1", lastUsed = 1, ac = ac))
+        scheduler.start("r1")
+        tick(always = true)
+        assertEquals(1, sent.size)
+        // Swing von Hand geändert: kein neues Ziel, nichts senden.
+        remotes.updateAcState("r1", AcState(true, "cool", 23.0, "auto", "swing"))
+        assertEquals(AcAutoTick.UNCHANGED, tick())
+        assertEquals(1, sent.size)
+    }
+
+    @Test fun nextAlarmIsPlannedBeforeAnyWork() {
+        remotes.add(room())
+        scheduler.start("r1")
+        now += 5 * 60_000L
+        alarm.calls.clear()
+        api.fail = true
+        tick()
+        assertEquals("at@${now + AcAutoScheduler.INTERVAL_MS}", alarm.calls.first())
+    }
+
+    @Test fun hangingWeatherEndsWithinBudgetSendsNothingAndKeepsAlarm() {
+        remotes.add(room())
+        scheduler.start("r1")
+        val release = CountDownLatch(1)
+        try {
+            val started = System.nanoTime()
+            val result = runBlocking { runner(hangingWeather(release), budgetMs = 300, io = Dispatchers.IO).tick(sendAlways = true) }
+            val tookMs = (System.nanoTime() - started) / 1_000_000
+            assertEquals(AcAutoTick.WEATHER_FAILED, result)
+            assertTrue("dauerte $tookMs ms", tookMs < 2_000)
+            assertTrue(sent.isEmpty())
+            val run = autoStore.saved!!
+            assertEquals(AcAutoProblem.WEATHER, run.problem)
+            assertEquals(run, notifier.running)
+            assertEquals("at@${now + AcAutoScheduler.INTERVAL_MS}", alarm.calls.last())
+        } finally {
+            release.countDown()
+        }
+    }
+
+    @Test fun cancelledTickStillShowsWeatherProblemAndKeepsAlarm() {
+        remotes.add(room())
+        scheduler.start("r1")
+        val release = CountDownLatch(1)
+        try {
+            // Wie das 8-s-Limit des Receivers, nur kürzer: der Durchlauf wird von außen abgebrochen.
+            val result = runBlocking {
+                withTimeoutOrNull(300) { runner(hangingWeather(release), budgetMs = 5_000, io = Dispatchers.IO).tick() }
+            }
+            assertNull(result)
+            assertTrue(sent.isEmpty())
+            assertEquals(AcAutoProblem.WEATHER, autoStore.saved!!.problem)
+            assertEquals(AcAutoProblem.WEATHER, notifier.running!!.problem)
+            assertEquals("at@${now + AcAutoScheduler.INTERVAL_MS}", alarm.calls.last())
+        } finally {
+            release.countDown()
+        }
+    }
 
     private fun tick(always: Boolean = false) = runBlocking { runner().tick(always) }
 

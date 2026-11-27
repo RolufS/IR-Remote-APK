@@ -296,7 +296,7 @@
     <string name="weather_stale">устарело</string>
     <string name="weather_source">Данные о погоде: Open-Meteo.com</string>
     <string name="weather_source_full">Данные о погоде: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Для этого приложение обращается к Open-Meteo.com. Передаются только название места, которое вы ищете, и координаты выбранного места – без геолокации, без аккаунта. Пока это выключено, приложение не подключается к интернету.</string>
+    <string name="weather_explain">Для этого приложение обращается к Open-Meteo.com. Передаются только название места, которое вы ищете, координаты выбранного места и язык приложения – без геолокации, без аккаунта. Пока это выключено, приложение не подключается к интернету.</string>
     <string name="weather_place">Место: %1$s</string>
     <string name="weather_search_hint">Найти город, напр. Pattaya</string>
     <string name="weather_search">Найти</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Не холоднее</string>
     <string name="acauto_ceiling">Не теплее</string>
     <string name="acauto_preview">При %1$s на улице → %2$s</string>
-    <string name="acauto_hint">Телефон должен лежать в комнате с прямой видимостью кондиционера; на зарядке надёжнее. Каждые 30 минут приложение получает уличную температуру и отправляет команду, только если цель изменилась (Вкл · Охлаждение · цель · вентилятор).</string>
+    <string name="acauto_hint">Телефон должен лежать в комнате с прямой видимостью кондиционера; на зарядке надёжнее. Каждые 30 минут приложение получает уличную температуру и отправляет команду, только если цель изменилась (Вкл · Охлаждение · цель · вентилятор). Ручные изменения сохраняются до следующей новой цели.</string>
     <string name="acauto_needs_weather">Для этого нужна уличная температура. «Старт» откроет настройку.</string>
     <string name="acauto_start">Старт</string>
     <string name="acauto_stop">Стоп</string>

@@ -6,13 +6,18 @@ Stand: 27. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
 
 Die App erhebt keine Daten und gibt nichts an den Entwickler weiter. Ins Internet
 geht sie nur, wenn du die optionale Außentemperatur einschaltest (Standard aus):
-dann wird der gewählte Ort an Open-Meteo gesendet. Keine Konten, keine Werbung,
+dann gehen der gesuchte Ortsname (mit der App-Sprache) bzw. die Koordinaten des
+gewählten Orts an Open-Meteo. Keine Konten, keine Werbung,
 kein Tracking.
 
 ## Im Einzelnen
 
-- **Keine Datenerhebung.** Die App erhebt, sammelt und überträgt keine
-  personenbezogenen oder sonstigen Daten.
+- **Keine Datenerhebung durch den Entwickler.** Die App sammelt keine
+  personenbezogenen oder sonstigen Daten für den Entwickler und überträgt nichts
+  an ihn. Nur wenn du die Außentemperatur einschaltest, gehen an Open-Meteo: bei
+  der Ortssuche der eingetippte Ortsname mit der App-Sprache, beim Abruf der
+  Temperatur die Koordinaten des gewählten Orts (siehe nächster Punkt). Sonst
+  verlässt nichts das Gerät.
 - **Internet nur für die Außentemperatur (optional, Standard aus).** Die App hat
   ab Version 1.8.0 die Internet-Berechtigung, nutzt sie aber nur, wenn du im
   Klima-Bereich „Außentemperatur anzeigen“ einschaltest. Solange das aus ist, baut
@@ -77,9 +82,13 @@ https://github.com/RolufS/IR-Remote-APK/issues
 # Privacy Policy – Fernbedienung (English)
 
 The app collects no data and sends nothing to the developer. It only goes online if you turn on the optional
-outdoor temperature (off by default): then the chosen place is sent to Open-Meteo. No accounts, no ads, no tracking.
+outdoor temperature (off by default): then the place name you search for (with the app language) or the coordinates
+of the chosen place are sent to Open-Meteo. No accounts, no ads, no tracking.
 
-- **No data collection.** The app does not collect or transmit any personal or other data.
+- **No collection by the developer.** The app collects no personal or other data for the developer and sends
+  nothing to them. Only if you turn on the outdoor temperature, Open-Meteo receives the place name you type when
+  searching (with the app language) and the coordinates of the chosen place when fetching the temperature (see next
+  point). Otherwise nothing leaves the device.
 - **Internet only for the outdoor temperature (optional, off by default).** Since version 1.8.0 the app has the
   internet permission but uses it only after you turn on "Show outdoor temperature" in the air-conditioner section.
   While it is off, the app makes no connection. When on, it sends to the weather service

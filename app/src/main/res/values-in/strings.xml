@@ -296,7 +296,7 @@
     <string name="weather_stale">usang</string>
     <string name="weather_source">Data cuaca: Open-Meteo.com</string>
     <string name="weather_source_full">Data cuaca: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Untuk ini aplikasi bertanya ke Open-Meteo.com. Yang dikirim hanya nama tempat yang kamu cari dan koordinat tempat yang dipilih – tanpa lokasi, tanpa akun. Selama ini mati, aplikasi tidak membuat koneksi internet.</string>
+    <string name="weather_explain">Untuk ini aplikasi bertanya ke Open-Meteo.com. Yang dikirim hanya nama tempat yang kamu cari, koordinat tempat yang dipilih, dan bahasa aplikasi – tanpa lokasi, tanpa akun. Selama ini mati, aplikasi tidak membuat koneksi internet.</string>
     <string name="weather_place">Tempat: %1$s</string>
     <string name="weather_search_hint">Cari kota, mis. Pattaya</string>
     <string name="weather_search">Cari</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Tidak lebih dingin dari</string>
     <string name="acauto_ceiling">Tidak lebih hangat dari</string>
     <string name="acauto_preview">Saat di luar %1$s → %2$s</string>
-    <string name="acauto_hint">Ponsel harus tetap di kamar dengan arah langsung ke AC; di pengisi daya lebih andal. Setiap 30 menit aplikasi mengambil suhu luar dan hanya mengirim jika target berubah (Nyala · Dingin · target · kipas).</string>
+    <string name="acauto_hint">Ponsel harus tetap di kamar dengan arah langsung ke AC; di pengisi daya lebih andal. Setiap 30 menit aplikasi mengambil suhu luar dan hanya mengirim jika target berubah (Nyala · Dingin · target · kipas). Perubahan manual tetap berlaku sampai target baru berikutnya.</string>
     <string name="acauto_needs_weather">Ini membutuhkan suhu luar. “Mulai” membuka pengaturannya.</string>
     <string name="acauto_start">Mulai</string>
     <string name="acauto_stop">Berhenti</string>

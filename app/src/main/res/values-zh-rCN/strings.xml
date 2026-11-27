@@ -296,7 +296,7 @@
     <string name="weather_stale">已过时</string>
     <string name="weather_source">天气数据：Open-Meteo.com</string>
     <string name="weather_source_full">天气数据：Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">应用会为此查询 Open-Meteo.com。只发送你搜索的地名和所选地点的坐标——不使用定位，无需账户。关闭时，应用不会建立任何互联网连接。</string>
+    <string name="weather_explain">应用会为此查询 Open-Meteo.com。只发送你搜索的地名、所选地点的坐标和应用语言——不使用定位，无需账户。关闭时，应用不会建立任何互联网连接。</string>
     <string name="weather_place">地点：%1$s</string>
     <string name="weather_search_hint">搜索城市，例如 Pattaya</string>
     <string name="weather_search">搜索</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">不低于</string>
     <string name="acauto_ceiling">不高于</string>
     <string name="acauto_preview">室外 %1$s 时 → %2$s</string>
-    <string name="acauto_hint">手机必须放在房间里，并能直接对准空调；连接充电器时更可靠。应用每 30 分钟获取一次室外温度，只有目标温度变化时才发送（开 · 制冷 · 目标 · 风速）。</string>
+    <string name="acauto_hint">手机必须放在房间里，并能直接对准空调；连接充电器时更可靠。应用每 30 分钟获取一次室外温度，只有目标温度变化时才发送（开 · 制冷 · 目标 · 风速）。手动更改会保留到下一个新目标为止。</string>
     <string name="acauto_needs_weather">此功能需要室外温度。点“开始”进入设置。</string>
     <string name="acauto_start">开始</string>
     <string name="acauto_stop">停止</string>

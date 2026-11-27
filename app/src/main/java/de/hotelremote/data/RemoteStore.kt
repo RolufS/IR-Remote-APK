@@ -53,59 +53,50 @@ interface RemoteStorage {
     fun setAcAuto(id: String, settings: AcAutoSettings)
 }
 
-/** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
+/**
+ * JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über eine eigene Temp-Datei je Schreibvorgang.
+ * Alle Instanzen auf derselben Datei (App, Receiver, Benachrichtigungen) teilen sich eine Sperre pro Prozess,
+ * damit gleichzeitige Änderungen weder die Datei zerstören noch einander überschreiben.
+ */
 class RemoteStore(private val file: File) : RemoteStorage {
     private val json = Json { ignoreUnknownKeys = true }
     private val serializer = ListSerializer(SavedRemote.serializer())
+    private val lock: Any = lockFor(file)
 
-    @Synchronized
-    override fun all(): List<SavedRemote> = load().sortedByDescending { it.lastUsed }
+    override fun all(): List<SavedRemote> = synchronized(lock) { load().sortedByDescending { it.lastUsed } }
 
-    @Synchronized
-    override fun add(r: SavedRemote) {
-        save(load().filterNot { it.id == r.id } + r)
-    }
+    override fun add(r: SavedRemote) = synchronized(lock) { save(load().filterNot { it.id == r.id } + r) }
 
-    @Synchronized
     override fun rename(id: String, name: String?) = update(id) { it.copy(name = name) }
 
-    @Synchronized
-    override fun delete(id: String) {
+    override fun delete(id: String) = synchronized(lock) {
         val list = load()
         if (list.any { it.id == id }) save(list.filterNot { it.id == id })
     }
 
-    @Synchronized
     override fun markUsed(id: String, now: Long) = update(id) { it.copy(lastUsed = now) }
 
-    @Synchronized
     override fun updateAutomations(id: String, automations: List<Automation>) = update(id) { it.copy(automations = automations) }
 
-    @Synchronized
     override fun setTv(id: String, brand: String, codeLabel: String, keys: Map<String, IrSignal>) =
         update(id) { it.copy(brand = brand, codeLabel = codeLabel, keys = keys) }
 
-    @Synchronized
     override fun setAc(id: String, ac: SavedAc?) = update(id) { it.copy(ac = ac) }
 
-    @Synchronized
     override fun updateAcState(id: String, state: AcState) = update(id) { r -> r.copy(ac = r.ac?.copy(state = state)) }
 
-    @Synchronized
     override fun setLastPage(id: String, page: RoomPage) = update(id) { it.copy(lastPage = page) }
 
-    @Synchronized
     override fun setAcAuto(id: String, settings: AcAutoSettings) = update(id) { r -> r.copy(ac = r.ac?.copy(auto = settings)) }
 
-    @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()
 
     /** Ändert den Eintrag [id]; ist er unbekannt oder bleibt er gleich, wird nicht geschrieben. */
-    private fun update(id: String, change: (SavedRemote) -> SavedRemote) {
+    private fun update(id: String, change: (SavedRemote) -> SavedRemote) = synchronized(lock) {
         val list = load()
-        val old = list.firstOrNull { it.id == id } ?: return
+        val old = list.firstOrNull { it.id == id } ?: return@synchronized
         val new = change(old)
-        if (new == old) return
+        if (new == old) return@synchronized
         save(list.map { if (it.id == id) new else it })
     }
 
@@ -128,10 +119,16 @@ class RemoteStore(private val file: File) : RemoteStorage {
     }
 
     private fun save(list: List<SavedRemote>) {
-        file.absoluteFile.parentFile?.mkdirs()
-        val tmp = File(file.path + ".tmp")
-        tmp.writeText(json.encodeToString(serializer, list), Charsets.UTF_8)
-        moveReplacing(tmp, file)
+        val dir = file.absoluteFile.parentFile
+        dir?.mkdirs()
+        // Eigene Temp-Datei je Schreibvorgang im selben Ordner (gleiches Dateisystem, Umbenennen bleibt atomar).
+        val tmp = File.createTempFile(file.name, ".tmp", dir)
+        try {
+            tmp.writeText(json.encodeToString(serializer, list), Charsets.UTF_8)
+            moveReplacing(tmp, file)
+        } finally {
+            if (tmp.exists()) tmp.delete()
+        }
     }
 
     /** File.renameTo ersetzt auf Android (POSIX) atomar; auf Windows/JVM schlägt es bei vorhandenem Ziel fehl. */
@@ -140,4 +137,16 @@ class RemoteStore(private val file: File) : RemoteStorage {
         to.delete()
         if (!from.renameTo(to)) throw java.io.IOException("Konnte ${from.name} nicht nach ${to.name} verschieben")
     }
+}
+
+private val remoteStoreLocks = HashMap<String, Any>()
+
+/** Eine Sperre je Datei (kanonischer Pfad) für alle [RemoteStore]-Instanzen im Prozess. */
+private fun lockFor(file: File): Any = synchronized(remoteStoreLocks) {
+    val key = try {
+        file.canonicalPath
+    } catch (e: java.io.IOException) {
+        file.absolutePath
+    }
+    remoteStoreLocks.getOrPut(key) { Any() }
 }

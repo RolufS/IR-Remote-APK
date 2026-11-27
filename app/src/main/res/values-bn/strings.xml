@@ -296,7 +296,7 @@
     <string name="weather_stale">পুরোনো</string>
     <string name="weather_source">আবহাওয়ার তথ্য: Open-Meteo.com</string>
     <string name="weather_source_full">আবহাওয়ার তথ্য: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">এর জন্য অ্যাপটি Open-Meteo.com-কে জিজ্ঞেস করে। শুধু আপনার খোঁজা জায়গার নাম আর বেছে নেওয়া জায়গার স্থানাঙ্ক পাঠানো হয় – কোনো লোকেশন নয়, কোনো অ্যাকাউন্ট নয়। এটি বন্ধ থাকলে অ্যাপ কোনো ইন্টারনেট সংযোগ করে না।</string>
+    <string name="weather_explain">এর জন্য অ্যাপটি Open-Meteo.com-কে জিজ্ঞেস করে। শুধু আপনার খোঁজা জায়গার নাম, বেছে নেওয়া জায়গার স্থানাঙ্ক আর অ্যাপের ভাষা পাঠানো হয় – কোনো লোকেশন নয়, কোনো অ্যাকাউন্ট নয়। এটি বন্ধ থাকলে অ্যাপ কোনো ইন্টারনেট সংযোগ করে না।</string>
     <string name="weather_place">জায়গা: %1$s</string>
     <string name="weather_search_hint">শহর খুঁজুন, যেমন Pattaya</string>
     <string name="weather_search">খুঁজুন</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">এর চেয়ে ঠান্ডা নয়</string>
     <string name="acauto_ceiling">এর চেয়ে গরম নয়</string>
     <string name="acauto_preview">বাইরে %1$s হলে → %2$s</string>
-    <string name="acauto_hint">ফোনটি ঘরে এসির দিকে সরাসরি মুখ করে রাখতে হবে; চার্জারে থাকলে আরও নির্ভরযোগ্য। প্রতি ৩০ মিনিটে অ্যাপ বাইরের তাপমাত্রা নেয় এবং লক্ষ্য বদলালেই শুধু পাঠায় (চালু · কুল · লক্ষ্য · ফ্যান)।</string>
+    <string name="acauto_hint">ফোনটি ঘরে এসির দিকে সরাসরি মুখ করে রাখতে হবে; চার্জারে থাকলে আরও নির্ভরযোগ্য। প্রতি ৩০ মিনিটে অ্যাপ বাইরের তাপমাত্রা নেয় এবং লক্ষ্য বদলালেই শুধু পাঠায় (চালু · কুল · লক্ষ্য · ফ্যান)। হাতে করা পরিবর্তন পরের নতুন লক্ষ্য পর্যন্ত থাকে।</string>
     <string name="acauto_needs_weather">এর জন্য বাইরের তাপমাত্রা দরকার। “শুরু” সেটআপে নিয়ে যায়।</string>
     <string name="acauto_start">শুরু</string>
     <string name="acauto_stop">থামান</string>

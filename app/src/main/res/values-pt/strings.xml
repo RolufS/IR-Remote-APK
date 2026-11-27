@@ -296,7 +296,7 @@
     <string name="weather_stale">desatualizado</string>
     <string name="weather_source">Dados do clima: Open-Meteo.com</string>
     <string name="weather_source_full">Dados do clima: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Para isso, o app consulta o Open-Meteo.com. Só são enviados o nome do lugar que você pesquisa e as coordenadas do lugar escolhido – sem localização, sem conta. Enquanto isso estiver desligado, o app não se conecta à internet.</string>
+    <string name="weather_explain">Para isso, o app consulta o Open-Meteo.com. Só são enviados o nome do lugar que você pesquisa, as coordenadas do lugar escolhido e o idioma do app – sem localização, sem conta. Enquanto isso estiver desligado, o app não se conecta à internet.</string>
     <string name="weather_place">Lugar: %1$s</string>
     <string name="weather_search_hint">Pesquisar cidade, ex.: Pattaya</string>
     <string name="weather_search">Pesquisar</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Não mais frio que</string>
     <string name="acauto_ceiling">Não mais quente que</string>
     <string name="acauto_preview">Com %1$s lá fora → %2$s</string>
-    <string name="acauto_hint">O celular precisa ficar no quarto, com visão direta do ar-condicionado; no carregador funciona melhor. A cada 30 minutos o app busca a temperatura externa e só envia quando o alvo muda (Ligado · Frio · alvo · ventilador).</string>
+    <string name="acauto_hint">O celular precisa ficar no quarto, com visão direta do ar-condicionado; no carregador funciona melhor. A cada 30 minutos o app busca a temperatura externa e só envia quando o alvo muda (Ligado · Frio · alvo · ventilador). Mudanças feitas à mão ficam até o próximo novo alvo.</string>
     <string name="acauto_needs_weather">Isso precisa da temperatura externa. “Iniciar” leva à configuração.</string>
     <string name="acauto_start">Iniciar</string>
     <string name="acauto_stop">Parar</string>

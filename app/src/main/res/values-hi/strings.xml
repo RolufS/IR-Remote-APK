@@ -296,7 +296,7 @@
     <string name="weather_stale">पुराना</string>
     <string name="weather_source">मौसम डेटा: Open-Meteo.com</string>
     <string name="weather_source_full">मौसम डेटा: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">इसके लिए ऐप Open-Meteo.com से पूछता है। केवल आपके खोजे गए स्थान का नाम और चुने गए स्थान के निर्देशांक भेजे जाते हैं – कोई लोकेशन नहीं, कोई खाता नहीं। जब तक यह बंद है, ऐप कोई इंटरनेट कनेक्शन नहीं बनाता।</string>
+    <string name="weather_explain">इसके लिए ऐप Open-Meteo.com से पूछता है। केवल आपके खोजे गए स्थान का नाम, चुने गए स्थान के निर्देशांक और ऐप की भाषा भेजे जाते हैं – कोई लोकेशन नहीं, कोई खाता नहीं। जब तक यह बंद है, ऐप कोई इंटरनेट कनेक्शन नहीं बनाता।</string>
     <string name="weather_place">स्थान: %1$s</string>
     <string name="weather_search_hint">शहर खोजें, जैसे Pattaya</string>
     <string name="weather_search">खोजें</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">इससे ठंडा नहीं</string>
     <string name="acauto_ceiling">इससे गर्म नहीं</string>
     <string name="acauto_preview">बाहर %1$s पर → %2$s</string>
-    <string name="acauto_hint">फ़ोन कमरे में एसी की सीधी दिशा में रखा होना चाहिए; चार्जर पर यह ज़्यादा भरोसेमंद चलता है। हर 30 मिनट में ऐप बाहरी तापमान लेता है और केवल लक्ष्य बदलने पर भेजता है (चालू · कूल · लक्ष्य · पंखा)।</string>
+    <string name="acauto_hint">फ़ोन कमरे में एसी की सीधी दिशा में रखा होना चाहिए; चार्जर पर यह ज़्यादा भरोसेमंद चलता है। हर 30 मिनट में ऐप बाहरी तापमान लेता है और केवल लक्ष्य बदलने पर भेजता है (चालू · कूल · लक्ष्य · पंखा)। हाथ से किए बदलाव अगले नए लक्ष्य तक बने रहते हैं।</string>
     <string name="acauto_needs_weather">इसके लिए बाहरी तापमान चाहिए। “शुरू” सेटअप पर ले जाता है।</string>
     <string name="acauto_start">शुरू</string>
     <string name="acauto_stop">रोकें</string>

@@ -53,7 +53,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         controller.showMessage(UiMessage.SEND_FAILED)
     }
     private val languageChoice = LanguageChoice(app.getSharedPreferences(LanguageChoice.PREFS, Context.MODE_PRIVATE))
-    private val remotesFile = File(app.filesDir, "remotes.json")
+    /** Eine Ablage für Controller und Klima-Automatik (die Sperre gilt ohnehin je Datei im ganzen Prozess). */
+    private val remoteStore = RemoteStore(File(app.filesDir, "remotes.json"))
 
     private val acAutoScheduler = AcAutoGraph.scheduler(app)
     private val outdoorWeather = AcAutoGraph.weather(app)
@@ -62,13 +63,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
     val climate = ClimateController(
         weatherSource = outdoorWeather,
         scheduler = acAutoScheduler,
-        runner = AcAutoRunner(acAutoScheduler, RemoteStore(remotesFile), outdoorWeather, sender::press),
+        runner = AcAutoRunner(acAutoScheduler, remoteStore, outdoorWeather, sender::press),
         scope = viewModelScope,
         io = Dispatchers.IO,
     )
 
     val controller: AppController = AppController(
-        store = RemoteStore(remotesFile),
+        store = remoteStore,
         openCatalog = { CodeRepository(CodeDatabase.open(app)) },
         send = sender::press,
         scope = viewModelScope,
@@ -179,11 +180,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
 
     /** Rückkehr in die App: Wetter neu lesen, Alarm der Klima-Automatik neu setzen. */
     fun resumeClimate() {
-        climate.resumed()
         val s = controller.state.value
         val room = s.current
-        // Klima-Seite sichtbar: ein älterer Wert wird beim Zurückkehren erneuert.
-        if (s.screen == Screen.Remote && room?.ac != null && (!room.hasTv || room.lastPage == RoomPage.AC)) climate.acScreenShown()
+        val acVisible = s.screen == Screen.Remote && room?.ac != null && (!room.hasTv || room.lastPage == RoomPage.AC)
+        // Dateien lesen, Alarm und Benachrichtigung nicht auf dem Main-Thread.
+        viewModelScope.launch(Dispatchers.IO) {
+            climate.resumed()
+            // Klima-Seite sichtbar: ein älterer Wert wird beim Zurückkehren erneuert.
+            if (acVisible) climate.acScreenShown()
+        }
     }
 
     /** Außentemperatur aus: eine laufende Automatik endet (mit Hinweis). */

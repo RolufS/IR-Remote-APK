@@ -57,8 +57,8 @@ class ClimateScreensTest {
         setup(WeatherSettings())
         rule.onNodeWithText("Außentemperatur anzeigen").assertExists()
         rule.onNodeWithTag("weather_explain").assertTextEquals(
-            "Die App fragt dafür Open-Meteo.com. Gesendet werden nur der Ortsname, den du suchst, und die Koordinaten des " +
-                "gewählten Orts – kein Standort, kein Konto. Solange das ausgeschaltet ist, baut die App keine Internetverbindung auf.",
+            "Die App fragt dafür Open-Meteo.com. Gesendet werden nur der Ortsname, den du suchst, die Koordinaten des " +
+                "gewählten Orts und die App-Sprache – kein Standort, kein Konto. Solange das ausgeschaltet ist, baut die App keine Internetverbindung auf.",
         )
         rule.onNodeWithTag("weather_query").assertDoesNotExist()
         rule.onNodeWithTag("weather_source").assertTextEquals("Wetterdaten: Open-Meteo.com (CC BY 4.0)")

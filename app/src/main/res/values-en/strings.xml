@@ -296,7 +296,7 @@
     <string name="weather_stale">outdated</string>
     <string name="weather_source">Weather data: Open-Meteo.com</string>
     <string name="weather_source_full">Weather data: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">The app asks Open-Meteo.com for this. Only the place name you search for and the coordinates of the chosen place are sent – no location, no account. While this is off, the app makes no internet connection.</string>
+    <string name="weather_explain">The app asks Open-Meteo.com for this. Only the place name you search for, the coordinates of the chosen place and the app language are sent – no location, no account. While this is off, the app makes no internet connection.</string>
     <string name="weather_place">Place: %1$s</string>
     <string name="weather_search_hint">Search a city, e.g. Pattaya</string>
     <string name="weather_search">Search</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">Not colder than</string>
     <string name="acauto_ceiling">Not warmer than</string>
     <string name="acauto_preview">At %1$s outside → %2$s</string>
-    <string name="acauto_hint">The phone has to stay in the room with a clear view of the air conditioner; it works more reliably on the charger. Every 30 minutes the app gets the outdoor temperature and only sends when the target changes (On · Cool · target · fan).</string>
+    <string name="acauto_hint">The phone has to stay in the room with a clear view of the air conditioner; it works more reliably on the charger. Every 30 minutes the app gets the outdoor temperature and only sends when the target changes (On · Cool · target · fan). Changes you make by hand stay until the next new target.</string>
     <string name="acauto_needs_weather">This needs the outdoor temperature. “Start” takes you to the setup.</string>
     <string name="acauto_start">Start</string>
     <string name="acauto_stop">Stop</string>

@@ -296,7 +296,7 @@
     <string name="weather_stale">desactualizado</string>
     <string name="weather_source">Datos meteorológicos: Open-Meteo.com</string>
     <string name="weather_source_full">Datos meteorológicos: Open-Meteo.com (CC BY 4.0)</string>
-    <string name="weather_explain">Para ello la app consulta Open-Meteo.com. Solo se envían el nombre del lugar que buscas y las coordenadas del lugar elegido: sin ubicación, sin cuenta. Mientras esté desactivado, la app no se conecta a internet.</string>
+    <string name="weather_explain">Para ello la app consulta Open-Meteo.com. Solo se envían el nombre del lugar que buscas, las coordenadas del lugar elegido y el idioma de la app: sin ubicación, sin cuenta. Mientras esté desactivado, la app no se conecta a internet.</string>
     <string name="weather_place">Lugar: %1$s</string>
     <string name="weather_search_hint">Buscar ciudad, p. ej. Pattaya</string>
     <string name="weather_search">Buscar</string>
@@ -310,7 +310,7 @@
     <string name="acauto_floor">No más frío que</string>
     <string name="acauto_ceiling">No más cálido que</string>
     <string name="acauto_preview">Con %1$s fuera → %2$s</string>
-    <string name="acauto_hint">El móvil debe quedarse en la habitación con vista directa al aire acondicionado; conectado al cargador funciona mejor. Cada 30 minutos la app obtiene la temperatura exterior y solo envía si cambia el objetivo (Encendido · Frío · objetivo · ventilador).</string>
+    <string name="acauto_hint">El móvil debe quedarse en la habitación con vista directa al aire acondicionado; conectado al cargador funciona mejor. Cada 30 minutos la app obtiene la temperatura exterior y solo envía si cambia el objetivo (Encendido · Frío · objetivo · ventilador). Los cambios manuales se mantienen hasta el siguiente objetivo nuevo.</string>
     <string name="acauto_needs_weather">Para esto hace falta la temperatura exterior. «Iniciar» te lleva a la configuración.</string>
     <string name="acauto_start">Iniciar</string>
     <string name="acauto_stop">Detener</string>

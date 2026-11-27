@@ -212,7 +212,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onRemoveDevice = c::removeDevice,
             )
             state.screen is Screen.WeatherSetup -> {
-                val returnTo = (state.screen as Screen.WeatherSetup).returnTo
+                val setup = state.screen as Screen.WeatherSetup
+                val returnTo = setup.returnTo
                 WeatherSetupScreen(
                     weather = weather,
                     ui = weatherUi,
@@ -221,6 +222,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onChoose = {
                         vm.climate.choose(it)
                         c.show(returnTo)
+                        setup.startAutoFor?.let(startAuto)
                     },
                     onBack = { c.show(returnTo) },
                 )
@@ -236,7 +238,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onSettings = vm::setAcAuto,
                 onStart = { startAuto(current.id) },
                 onStop = vm.climate::stopAuto,
-                onWeatherSetup = { c.show(Screen.WeatherSetup(returnTo = Screen.AcAuto)) },
+                onWeatherSetup = { c.show(Screen.WeatherSetup(returnTo = Screen.AcAuto, startAutoFor = current.id)) },
                 onBack = { c.show(Screen.Remote) },
             )
             state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { c.show(Screen.Remote) }, recording = recording)

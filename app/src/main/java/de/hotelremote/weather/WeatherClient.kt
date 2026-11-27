@@ -45,7 +45,8 @@ class OpenMeteoClient(private val get: (String) -> String = ::httpGet) : Weather
 
 /** URLs und Antworten der Open-Meteo-APIs (Geokodierung und Vorhersage). */
 object OpenMeteo {
-    const val TIMEOUT_MS = 5_000
+    /** Je für Verbindung und Lesen; zusammen unter dem Zeitbudget des Alarm-Receivers. */
+    const val TIMEOUT_MS = 3_000
 
     private val json = Json { ignoreUnknownKeys = true }
 
