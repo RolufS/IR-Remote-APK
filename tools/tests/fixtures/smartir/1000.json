@@ -1,0 +1,42 @@
+{
+  "manufacturer": "Acme",
+  "supportedModels": [
+    "A1"
+  ],
+  "supportedController": "Broadlink",
+  "commandsEncoding": "Base64",
+  "minTemperature": 16,
+  "maxTemperature": 17,
+  "precision": 1,
+  "operationModes": [
+    "cool",
+    "heat"
+  ],
+  "fanModes": [
+    "auto",
+    "low"
+  ],
+  "commands": {
+    "off": "JgAKAAABEokRMxEADQU=",
+    "cool": {
+      "auto": {
+        "16": "JgAQAAABEokRMxEREREREREADQU=",
+        "17": "JgAQAAABEokREREzEREREREADQU="
+      },
+      "low": {
+        "16": "JgAQAAABEokRMxEzEREREREADQU",
+        "17": "JgAQAAABEokRERERETMR\nEREADQU="
+      }
+    },
+    "heat": {
+      "auto": {
+        "16": "JgAQAAABEokRMxERETMREREADQU=",
+        "17": "JgAQAAABEokREREzETMREREADQU="
+      },
+      "low": {
+        "16": "JgAQAAABEokRMxEzETMREREADQU=",
+        "17": "JgEQAAABEokRERERERERMxEADQU="
+      }
+    }
+  }
+}

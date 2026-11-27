@@ -1,0 +1,39 @@
+{
+  "manufacturer": "Ggeneral Electric",
+  "supportedModels": [
+    "G1"
+  ],
+  "supportedController": "Broadlink",
+  "commandsEncoding": "Base64",
+  "minTemperature": 22,
+  "maxTemperature": 22.5,
+  "precision": 0.5,
+  "operationModes": [
+    "cool"
+  ],
+  "fanModes": [
+    "auto"
+  ],
+  "swingModes": [
+    "off",
+    "swing"
+  ],
+  "commands": {
+    "off": "JgAKAAABEokzMxEADQU=",
+    "on": "JgAKAAABEokzEREADQU=",
+    "$comment": "Kommentar",
+    "cool": {
+      "auto": {
+        "off": {
+          "22": "JgAQAAABEokREREzERERMxEADQU=",
+          "22.5": "JgAQAAABEokRMxEzERERMxEADQU="
+        },
+        "swing": {
+          "22": "JgAQAAABEokRERERETMRMxEADQU=",
+          "22.5": "JgAQAAABEokRMxERETMRMxEADQU=",
+          "stop": "JgAQAAABEokREREzETMRMxEADQU="
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "manufacturer": "Acme",
+  "supportedModels": [
+    "A9"
+  ],
+  "supportedController": "Broadlink",
+  "commandsEncoding": "Base64",
+  "minTemperature": 20,
+  "maxTemperature": 20,
+  "precision": 1,
+  "operationModes": [
+    "cool"
+  ],
+  "fanModes": [
+    "auto"
+  ],
+  "commands": {
+    "off": "",
+    "cool": {
+      "auto": {
+        "20": "JgAQAAABEokRMxEREREREREADQU="
+      }
+    }
+  }
+}
