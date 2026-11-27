@@ -18,7 +18,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,9 +64,28 @@ internal const val PRESS_FADE_MS = 250
 internal val PressShade = SemanticsPropertyKey<Float>("PressShade")
 private var SemanticsPropertyReceiver.pressShadeValue by PressShade
 
-/** Tastenfläche: Tag `key_<key>`, Alpha 0,35 und "disabled" für Semantik, wenn die Taste fehlt. */
+/**
+ * Zählt gehaltene Tasten (Lautstärke, Kanal, Klima −/+), damit das Wischen zwischen TV und Klima pausiert,
+ * solange eine davon gedrückt ist: die Taste verbraucht die Geste, ein Verrutschen des Fingers blättert nicht.
+ */
+@Stable
+class SwipeLock {
+    var holds by mutableIntStateOf(0)
+        internal set
+
+    val locked get() = holds > 0
+}
+
+/** Sperre des umgebenden Wischbereichs (null = keiner). */
+val LocalSwipeLock = staticCompositionLocalOf<SwipeLock?> { null }
+
+/**
+ * Tastenfläche: Tag `key_<key>`, Alpha 0,35 und "disabled" für Semantik, wenn die Taste fehlt.
+ * Gemeinsam für TV- und Klima-Tasten (Schatten, Verlauf, Abdunkeln beim Drücken). [holdsGesture]: solange
+ * gedrückt, ist [LocalSwipeLock] gesperrt.
+ */
 @Composable
-private fun PressableKey(
+internal fun PressableKey(
     key: String,
     enabled: Boolean,
     modifier: Modifier,
@@ -71,9 +94,11 @@ private fun PressableKey(
     onTap: () -> Unit,
     onLongPress: (() -> Unit)?,
     onPressStart: (() -> (() -> Unit)?)?,
+    holdsGesture: Boolean = false,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val view = LocalView.current
+    val swipeLock = LocalSwipeLock.current
     val tap by rememberUpdatedState(onTap)
     val longPress by rememberUpdatedState(onLongPress)
     val pressStart by rememberUpdatedState(onPressStart)
@@ -132,10 +157,13 @@ private fun PressableKey(
                     onPress = {
                         haptic()
                         scope.launch { pressShade.snapTo(PRESS_SHADE) }
+                        val lock = swipeLock.takeIf { holdsGesture }
+                        lock?.let { it.holds++ }
                         val release = pressStart?.invoke()
                         try {
                             tryAwaitRelease()
                         } finally {
+                            lock?.let { it.holds-- }
                             release?.invoke()
                             scope.launch { pressShade.animateTo(0f, tween(PRESS_FADE_MS)) }
                         }
@@ -197,6 +225,7 @@ fun KeyButton(
             }
             else -> null
         },
+        holdsGesture = repeating,
         content = content,
     )
 }

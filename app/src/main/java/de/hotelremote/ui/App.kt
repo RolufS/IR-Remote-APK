@@ -34,6 +34,7 @@ import de.hotelremote.R
 import de.hotelremote.automation.SleepTemplates
 import de.hotelremote.quick.WidgetConfigActivity
 import de.hotelremote.ui.about.AboutScreen
+import de.hotelremote.ui.ac.AcPanel
 import de.hotelremote.ui.automation.AutomationEditorScreen
 import de.hotelremote.ui.automation.AutomationListScreen
 import de.hotelremote.ui.automation.AutomationProgressBar
@@ -210,6 +211,14 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 },
                 onQuick = { quickOpen = true },
                 recording = recording,
+                ac = remember(current.ac) { c.acView(current) }?.let { view ->
+                    AcPanel(
+                        view = view,
+                        onAction = c::ac,
+                        page = state.roomPages[current.id] ?: RoomPage.TV,
+                        onPage = { c.showRoomPage(current.id, it) },
+                    )
+                },
             )
         }
         if (current != null && state.screen == Screen.Remote && !state.loading) {

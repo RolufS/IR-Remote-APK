@@ -39,7 +39,20 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.semantics.selected
+import de.hotelremote.ui.RoomPage
+import de.hotelremote.ui.ac.AcPanel
+import de.hotelremote.ui.ac.AcScreen
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -97,10 +110,13 @@ fun RemoteScreen(
     recording: RecordingBarState? = null,
     /** Über dem Sperrbildschirm: kein ☰, kein ⚡, kein Wechseln; ⋮ nur „Weitere Tasten“. */
     locked: Boolean = false,
+    /**
+     * Klimaanlage des Raums (null = keine). Mit Fernseher: Wischseiten TV/Klima; ohne: nur die Klima-Seite.
+     * Während einer Aufnahme ist die Klima-Seite ausgeblendet (Klima-Tasten sind nicht aufnehmbar).
+     */
+    ac: AcPanel? = null,
 ) {
-    val keys = remote.keys.keys
-    val inputRow = showInputRow(keys)
-    val numberWeight = if (inputRow) 0.85f else 1f
+    val acPage = ac?.takeIf { recording == null }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,6 +128,21 @@ fun RemoteScreen(
         if (!irAvailable) NoIrBanner()
         Header(remote, remotes, recording != null, locked, onSwitch, onOpenList, onMenu, onQuick)
         recording?.let { RecordingBar(it) }
+        when {
+            acPage != null && remote.hasTv -> RoomPager(remote.id, acPage, Modifier.weight(1f)) { TvKeys(remote, handler) }
+            acPage != null -> AcScreen(acPage.view, acPage.onAction, Modifier.weight(1f))
+            else -> TvKeys(remote, handler, Modifier.weight(1f))
+        }
+    }
+}
+
+/** Tastenfeld des Fernsehers. */
+@Composable
+private fun TvKeys(remote: SavedRemote, handler: KeyHandler, modifier: Modifier = Modifier) {
+    val keys = remote.keys.keys
+    val inputRow = showInputRow(keys)
+    val numberWeight = if (inputRow) 0.85f else 1f
+    Column(modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(Gap)) {
         // Tastenfeld immer LTR, auch bei Arabisch: links/rechts, Wippen und Steuerkreuz bleiben an ihrem Platz.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             KeyRow(1.25f) {
@@ -169,6 +200,62 @@ fun RemoteScreen(
             }
         }
     }
+}
+
+/**
+ * Wischseiten TV und Klima unter der gemeinsamen Kopfzeile, darüber antippbare Seitenchips. Die Reihenfolge
+ * folgt der Leserichtung. Solange eine Haltetaste gedrückt ist ([SwipeLock]), blättert Wischen nicht.
+ */
+@Composable
+private fun RoomPager(roomId: String, ac: AcPanel, modifier: Modifier, tv: @Composable () -> Unit) {
+    key(roomId) {
+        val pager = rememberPagerState(initialPage = ac.page.ordinal) { RoomPage.entries.size }
+        val lock = remember { SwipeLock() }
+        val scope = rememberCoroutineScope()
+        val onPage by rememberUpdatedState(ac.onPage)
+        LaunchedEffect(pager) {
+            snapshotFlow { pager.settledPage }.drop(1).collect { onPage(RoomPage.entries[it]) }
+        }
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(Gap)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Gap, Alignment.CenterHorizontally)) {
+                RoomPage.entries.forEach { page ->
+                    PageChip(
+                        text = stringResource(if (page == RoomPage.TV) R.string.room_page_tv else R.string.room_page_ac),
+                        tag = if (page == RoomPage.TV) "page_tv" else "page_ac",
+                        selected = pager.currentPage == page.ordinal,
+                    ) { scope.launch { pager.animateScrollToPage(page.ordinal) } }
+                }
+            }
+            CompositionLocalProvider(LocalSwipeLock provides lock) {
+                HorizontalPager(
+                    state = pager,
+                    modifier = Modifier.fillMaxWidth().weight(1f).testTag("room_pager"),
+                    pageSpacing = SideMargin * 2,
+                    userScrollEnabled = !lock.locked,
+                ) { page ->
+                    if (page == RoomPage.TV.ordinal) tv() else AcScreen(ac.view, ac.onAction)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PageChip(text: String, tag: String, selected: Boolean, onClick: () -> Unit) {
+    Text(
+        text,
+        color = RemoteColors.KeyText.copy(alpha = if (selected) 1f else 0.55f),
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 1,
+        modifier = Modifier
+            .testTag(tag)
+            .semantics { this.selected = selected }
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .background(Color.White.copy(alpha = if (selected) 0.14f else 0.04f))
+            .padding(horizontal = 14.dp, vertical = 4.dp),
+    )
 }
 
 @Composable
