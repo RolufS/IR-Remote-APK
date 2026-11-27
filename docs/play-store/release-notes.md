@@ -16,6 +16,30 @@ Sprach-Tags eingeschlossen (so schlägt die Console es selbst vor):
 </en-US>
 ```
 
+## Version 1.8.0 (versionCode 13)
+
+### Deutsch (de-DE)
+
+```
+Neu in 1.8.0:
+• Klimaanlagen: über 400 Modelle, eigener Assistent, Temperatur, Modus, Lüfter und Swing.
+• Fernseher und Klimaanlage eines Zimmers: per Wischen wechseln.
+• Optional die Außentemperatur (Open-Meteo, Standard aus).
+• Klima-Automatik: z. B. 5 °C kühler als draußen, aber nicht kälter als 25 °C.
+• Gedrückte Tasten werden kurz dunkler.
+```
+
+### English (en-US)
+
+```
+New in 1.8.0:
+• Air conditioners: over 400 models, own setup assistant, temperature, mode, fan and swing.
+• TV and air conditioner of a room: switch with a swipe.
+• Optional outdoor temperature (Open-Meteo, off by default).
+• Climate automation: e.g. 5 °C cooler than outside, but not colder than 25 °C.
+• Pressed keys briefly darken.
+```
+
 ## Version 1.7.0 (versionCode 11)
 
 ### Deutsch (de-DE)

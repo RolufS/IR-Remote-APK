@@ -4,7 +4,7 @@ Stand: 27. November 2026 · App: „Fernbedienung“ (Paket `de.hotelremote`)
 
 ## Kurz gesagt
 
-Die App erhebt keine Daten und gibt nichts an den Entwickler weiter. Ins Internet
+Der Entwickler erhebt keine Daten, und die App gibt nichts an ihn weiter. Ins Internet
 geht sie nur, wenn du die optionale Außentemperatur einschaltest (Standard aus):
 dann gehen der gesuchte Ortsname (mit der App-Sprache) bzw. die Koordinaten des
 gewählten Orts an Open-Meteo. Keine Konten, keine Werbung,
@@ -81,7 +81,7 @@ https://github.com/RolufS/IR-Remote-APK/issues
 
 # Privacy Policy – Fernbedienung (English)
 
-The app collects no data and sends nothing to the developer. It only goes online if you turn on the optional
+The developer collects no data, and the app sends nothing to the developer. It only goes online if you turn on the optional
 outdoor temperature (off by default): then the place name you search for (with the app language) or the coordinates
 of the chosen place are sent to Open-Meteo. No accounts, no ads, no tracking.
 
