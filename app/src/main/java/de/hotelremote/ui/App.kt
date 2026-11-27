@@ -31,7 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.hotelremote.R
+import de.hotelremote.data.RoomPage
 import de.hotelremote.automation.SleepTemplates
+import de.hotelremote.data.AutomationStep
 import de.hotelremote.quick.WidgetConfigActivity
 import de.hotelremote.ui.about.AboutScreen
 import de.hotelremote.ui.ac.AcPanel
@@ -160,7 +162,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onEdit = { c.show(Screen.AutomationEdit(it)) },
                 onDelete = c::deleteAutomation,
                 onBack = { c.show(Screen.Remote) },
-                onRecord = { c.recordNew(returnTo = Screen.Automations) },
+                // Ohne Fernseher nichts aufzunehmen: kein Aufnahme-Knopf.
+                onRecord = { c.recordNew(returnTo = Screen.Automations) }.takeIf { current.hasTv },
                 templates = remember(current.brand, current.keys) { SleepTemplates.forRemote(current.brand, current.keys.keys) },
                 onTemplate = { c.openTemplate(it, templateName(context.resources, it)) },
             )
@@ -187,7 +190,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onCancelRun = c::cancelAutomation,
                     onSave = { if (c.saveAutomation(it)) c.show(Screen.Automations) },
                     onCancel = { c.show(Screen.Automations) },
-                    onRecord = { name, steps -> c.recordInto(id, name, steps) },
+                    onRecord = { name: String, steps: List<AutomationStep> -> c.recordInto(id, name, steps) }.takeIf { current.hasTv },
                     draft = edit.draft,
                     template = edit.template,
                 )
@@ -215,7 +218,9 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     AcPanel(
                         view = view,
                         onAction = c::ac,
-                        page = state.roomPages[current.id] ?: RoomPage.TV,
+                        onHoldStep = c::acHoldStep,
+                        onHoldEnd = c::acHoldEnd,
+                        page = current.lastPage ?: RoomPage.TV,
                         onPage = { c.showRoomPage(current.id, it) },
                     )
                 },
@@ -241,7 +246,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     onRecord = {
                         quickOpen = false
                         c.recordNew(returnTo = Screen.Remote)
-                    },
+                    }.takeIf { current.hasTv },
                     onTimerExpired = vm::reloadSleepTimer,
                     onDismiss = { quickOpen = false },
                 )

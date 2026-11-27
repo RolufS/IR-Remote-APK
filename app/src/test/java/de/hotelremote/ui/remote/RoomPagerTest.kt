@@ -19,7 +19,7 @@ import de.hotelremote.data.SavedRemote
 import de.hotelremote.data.testAc
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.ui.AcAction
-import de.hotelremote.ui.RoomPage
+import de.hotelremote.data.RoomPage
 import de.hotelremote.ui.ac.AcPanel
 import de.hotelremote.ui.ac.acView
 import de.hotelremote.ui.automation.RecordingBarState
@@ -39,14 +39,23 @@ private val SIGNAL = IrSignal(freq = 38000, frame = listOf(9000, 4500, 560), per
 
 private class HoldHandler : KeyHandler {
     val pressed = mutableListOf<String>()
+    val held = mutableListOf<String>()
     val job = Job()
 
     override fun press(key: String) {
         pressed += key
     }
 
-    override fun hold(key: String): Job = job
+    override fun hold(key: String): Job {
+        held += key
+        return job
+    }
 }
+
+/** Sicher länger als die Long-Press-Zeit, nach der eine Haltetaste im Wischbereich zu wiederholen beginnt. */
+private const val HOLD_START_MS = 1000L
+
+private const val DIGIT_1 = "DIGIT_1"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -57,12 +66,14 @@ class RoomPagerTest {
 
     private val pages = mutableListOf<RoomPage>()
     private val actions = mutableListOf<AcAction>()
+    private val holdSteps = mutableListOf<AcAction>()
+    private var holdEnds = 0
 
     private fun room(tv: Boolean = true) = SavedRemote(
         id = "r1",
         brand = if (tv) "Samsung" else "",
         codeLabel = if (tv) "Code 1" else "",
-        keys = if (tv) listOf(Keys.POWER, Keys.VOL_UP, Keys.MUTE).associateWith { SIGNAL } else emptyMap(),
+        keys = if (tv) listOf(Keys.POWER, Keys.VOL_UP, Keys.MUTE, DIGIT_1).associateWith { SIGNAL } else emptyMap(),
         lastUsed = 0,
         ac = testAc(),
     )
@@ -87,7 +98,7 @@ class RoomPagerTest {
                         onOpenList = {},
                         onMenu = {},
                         recording = recording,
-                        ac = if (withAc) AcPanel(acView(), { actions += it }, page, { pages += it }) else null,
+                        ac = if (withAc) AcPanel(acView(), { actions += it }, { holdSteps += it }, { holdEnds++ }, page, { pages += it }) else null,
                     )
                 }
             }
@@ -174,17 +185,124 @@ class RoomPagerTest {
         rule.onNodeWithTag("key_VOL_UP").assertIsDisplayed()
     }
 
+    @Test
+    fun holdingVolumeIsNotBrokenBySwiping() {
+        val handler = HoldHandler()
+        show(handler = handler)
+        val node = rule.onNodeWithTag("key_VOL_UP")
+        node.performTouchInput { down(center) }
+        assertTrue("Wiederholung startet nicht beim Herunterdrücken", handler.held.isEmpty())
+        rule.mainClock.advanceTimeBy(HOLD_START_MS)
+        assertEquals(listOf("VOL_UP"), handler.held)
+        assertFalse("Pager steht beim Halten still", dragBy("key_VOL_UP", 40))
+        assertFalse(handler.job.isCancelled)
+        node.performTouchInput { up() }
+        assertTrue(handler.job.isCancelled)
+        rule.waitForIdle()
+        rule.onNodeWithTag("page_tv").assertIsSelected()
+        assertTrue(pages.isEmpty())
+        assertTrue(handler.pressed.isEmpty())
+    }
+
+    @Test
+    fun holdingAcPlusIsNotBrokenBySwiping() {
+        show(page = RoomPage.AC)
+        rule.mainClock.autoAdvance = false
+        val node = rule.onNodeWithTag("key_ac_warmer")
+        node.performTouchInput { down(center) }
+        rule.mainClock.advanceTimeBy(HOLD_START_MS)
+        assertTrue(holdSteps.isNotEmpty())
+        assertFalse(dragBy("key_ac_warmer", 40, anchor = "key_ac_power", towardsTv = true))
+        node.performTouchInput { up() }
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertTrue(holdSteps.all { it == AcAction.Warmer })
+        assertEquals(1, holdEnds)
+        assertTrue(actions.isEmpty())
+        assertTrue(pages.isEmpty())
+    }
+
+    @Test
+    fun swipeStartingOnDigitPagesAndSendsNothing() {
+        val handler = HoldHandler()
+        show(handler = handler)
+        swipeFrom("key_$DIGIT_1")
+        rule.onNodeWithTag("ac_screen").assertIsDisplayed()
+        assertEquals(listOf(RoomPage.AC), pages)
+        assertTrue(handler.pressed.isEmpty())
+    }
+
+    @Test
+    fun swipeStartingOnVolumePagesAndSendsNothing() {
+        val handler = HoldHandler()
+        show(handler = handler)
+        swipeFrom("key_VOL_UP")
+        rule.onNodeWithTag("ac_screen").assertIsDisplayed()
+        assertTrue(handler.pressed.isEmpty())
+        assertTrue(handler.held.isEmpty())
+    }
+
+    @Test
+    fun swipeStartingOnAcPlusPagesAndChangesNothing() {
+        show(page = RoomPage.AC)
+        swipeFrom("key_ac_warmer", towardsTv = true)
+        rule.onNodeWithTag("key_POWER").assertIsDisplayed()
+        assertTrue(actions.isEmpty())
+        assertTrue(holdSteps.isEmpty())
+        assertEquals(0, holdEnds)
+    }
+
+    @Test
+    fun tapOnDigitSendsOnceOnRelease() {
+        val handler = HoldHandler()
+        show(handler = handler)
+        val node = rule.onNodeWithTag("key_$DIGIT_1")
+        node.performTouchInput { down(center) }
+        assertTrue("nicht schon beim Herunterdrücken", handler.pressed.isEmpty())
+        node.performTouchInput { up() }
+        assertEquals(listOf(DIGIT_1), handler.pressed)
+    }
+
+    @Test
+    fun tapOnVolumeSendsOnce() {
+        val handler = HoldHandler()
+        show(handler = handler)
+        rule.onNodeWithTag("key_VOL_UP").performClick()
+        rule.mainClock.advanceTimeBy(HOLD_START_MS)
+        assertEquals(listOf("VOL_UP"), handler.pressed)
+        assertTrue(handler.held.isEmpty())
+    }
+
+    @Test
+    fun tvOnlyRoomStillSendsOnPressDown() {
+        val handler = HoldHandler()
+        show(withAc = false, handler = handler)
+        rule.onNodeWithTag("key_$DIGIT_1").performTouchInput { down(center) }
+        assertEquals(listOf(DIGIT_1), handler.pressed)
+        rule.onNodeWithTag("key_$DIGIT_1").performTouchInput { up() }
+        rule.onNodeWithTag("key_VOL_UP").performTouchInput { down(center) }
+        assertEquals("Halten beginnt sofort", listOf("VOL_UP"), handler.held)
+    }
+
+    /** Wischt von [key] aus 200 dp weit zur Nachbarseite und lässt los. */
+    private fun swipeFrom(key: String, towardsTv: Boolean = false) {
+        val node = rule.onNodeWithTag(key)
+        node.performTouchInput { down(center) }
+        val step = with(rule.density) { 20.dp.toPx() } * if (towardsTv) 1 else -1
+        repeat(10) { node.performTouchInput { moveBy(Offset(step, 0f), delayMillis = 10) } }
+        node.performTouchInput { up() }
+        rule.waitForIdle()
+    }
+
     /**
-     * Drückt [key], verschiebt den Finger um 40 dp zur Nachbarseite (innerhalb der Taste; [towardsTv]: nach rechts)
-     * und liefert true, wenn der Pager mitging.
+     * Verschiebt den schon gedrückten Finger auf [key] um [distanceDp] zur Nachbarseite (innerhalb der Taste;
+     * [towardsTv]: nach rechts) und liefert true, wenn der Pager mitging.
      */
-    private fun dragOnKey(key: String, anchor: String = "key_POWER", towardsTv: Boolean = false): Boolean {
+    private fun dragBy(key: String, distanceDp: Int, anchor: String = "key_POWER", towardsTv: Boolean = false): Boolean {
         val node = rule.onNodeWithTag(key)
         val before = left(anchor)
-        node.performTouchInput { down(center) }
-        nextFrame()
         val step = with(rule.density) { 10.dp.toPx() } * if (towardsTv) 1 else -1
-        repeat(4) {
+        repeat(distanceDp / 10) {
             node.performTouchInput { moveBy(Offset(step, 0f)) }
             nextFrame()
         }
@@ -199,37 +317,4 @@ class RoomPagerTest {
 
     /** Linke Kante einer Taste der Seite: verschiebt sich, sobald der Pager mitgeht. */
     private fun left(tag: String): Float = rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.left
-
-    @Test
-    fun holdingVolumeIsNotBrokenBySwiping() {
-        val handler = HoldHandler()
-        show(handler = handler)
-        assertFalse("Pager steht beim Halten still", dragOnKey("key_VOL_UP"))
-        assertFalse(handler.job.isCancelled)
-        rule.onNodeWithTag("key_VOL_UP").performTouchInput { up() }
-        assertTrue(handler.job.isCancelled)
-        rule.waitForIdle()
-        rule.onNodeWithTag("page_tv").assertIsSelected()
-        assertTrue(pages.isEmpty())
-    }
-
-    @Test
-    fun holdingAcPlusIsNotBrokenBySwiping() {
-        show(page = RoomPage.AC)
-        rule.mainClock.autoAdvance = false
-        assertFalse(dragOnKey("key_ac_warmer", anchor = "key_ac_power", towardsTv = true))
-        rule.onNodeWithTag("key_ac_warmer").performTouchInput { up() }
-        rule.mainClock.autoAdvance = true
-        rule.waitForIdle()
-        assertTrue(actions.isNotEmpty() && actions.all { it == AcAction.Warmer })
-        assertTrue(pages.isEmpty())
-    }
-
-    /** Gegenprobe: dieselbe Bewegung ohne gehaltene Taste (abgeblendete Taste SOURCE) blättert. */
-    @Test
-    fun sameDragWithoutHeldKeyMovesPager() {
-        show()
-        assertTrue(dragOnKey("key_SOURCE"))
-        rule.onNodeWithTag("key_SOURCE").performTouchInput { up() }
-    }
 }

@@ -11,6 +11,7 @@ import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
 import de.hotelremote.data.RemoteStorage
+import de.hotelremote.data.RoomPage
 import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.data.ScanEntry
@@ -41,6 +42,8 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
     val list = initial.toMutableList()
     var failLoad = false
     var failWrite = false
+    /** Anzahl gespeicherter Klima-Zustände. */
+    var writes = 0
 
     override fun all(): List<SavedRemote> {
         if (failLoad) throw IOException("lesen")
@@ -67,7 +70,11 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
         list.replaceAll { if (it.id == id) it.copy(ac = ac) else it }
     }
     override fun updateAcState(id: String, state: AcState) = write {
+        writes++
         list.replaceAll { if (it.id == id) it.copy(ac = it.ac?.copy(state = state)) else it }
+    }
+    override fun setLastPage(id: String, page: RoomPage) = write {
+        list.replaceAll { if (it.id == id) it.copy(lastPage = page) else it }
     }
 }
 
@@ -554,16 +561,52 @@ class AppControllerTest {
         assertNull(c.acView(c.state.value.current!!))
     }
 
-    @Test fun roomPageIsRememberedPerRoom() = runTest {
-        val c = controller(FakeStorage(listOf(acRoom("k"), acRoom("m", lastUsed = 1))))
-        assertNull(c.state.value.roomPages["k"])
+    @Test fun roomPageIsStoredPerRoomAndSurvivesRestart() = runTest {
+        val store = FakeStorage(listOf(acRoom("k"), acRoom("m", lastUsed = 1)))
+        val c = controller(store)
+        assertNull(c.state.value.current?.lastPage)
         c.showRoomPage("k", RoomPage.AC)
+        assertEquals(RoomPage.AC, c.state.value.current?.lastPage)
         c.switchTo("m")
-        assertEquals(mapOf("k" to RoomPage.AC), c.state.value.roomPages)
-        c.showRoomPage("m", RoomPage.TV)
+        assertNull(c.state.value.current?.lastPage)
         c.switchTo("k")
-        assertEquals(RoomPage.AC, c.state.value.roomPages["k"])
-        assertEquals(RoomPage.TV, c.state.value.roomPages["m"])
+        assertEquals(RoomPage.AC, c.state.value.current?.lastPage)
+
+        // Neustart: neuer Controller auf derselben Ablage.
+        val restarted = controller(store)
+        assertEquals("k", restarted.state.value.current?.id)
+        assertEquals(RoomPage.AC, restarted.state.value.current?.lastPage)
+        assertNull(restarted.state.value.remotes.first { it.id == "m" }.lastPage)
+    }
+
+    @Test fun holdingPlusSendsAndStoresOnlyAfterRelease() = runTest {
+        val store = FakeStorage(listOf(acRoom()))
+        val c = controller(store)
+        // + etwa 1200 ms gehalten: Schritte bei 0, 400, 800, 1200 ms (22 -> 24, dann Grenze).
+        repeat(4) {
+            c.acHoldStep(AcAction.Warmer)
+            advanceTimeBy(400)
+        }
+        assertEquals(24.0, c.state.value.current!!.ac!!.state.temp, 0.0)
+        assertTrue("während des Haltens nichts gesendet", sent.isEmpty())
+        assertEquals("und nicht gespeichert", 0, store.writes)
+        c.acHoldEnd()
+        assertEquals(1, store.writes)
+        assertEquals(24.0, store.list.single().ac!!.state.temp, 0.0)
+        advanceTimeBy(AcController.DEBOUNCE_MS - 1)
+        assertTrue(sent.isEmpty())
+        advanceTimeBy(2)
+        assertEquals("genau ein Signal mit der Endtemperatur", listOf(pulsesOf(PLAIN_PATHS, "cool/auto/24")), sent.map { it.frame })
+        advanceTimeBy(1000)
+        assertEquals(1, sent.size)
+    }
+
+    @Test fun recordingIsNotOfferedInPureAcRoom() = runTest {
+        val c = controller(FakeStorage(listOf(acRoom(tv = false))))
+        c.recordNew(returnTo = Screen.Remote)
+        assertNull(c.state.value.recording)
+        c.recordInto(null, "x", emptyList())
+        assertNull(c.state.value.recording)
     }
 
     @Test fun pureAcRoomWithoutKeysDoesNotBreakTvFunctions() = runTest {

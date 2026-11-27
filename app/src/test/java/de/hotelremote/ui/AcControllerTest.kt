@@ -23,11 +23,15 @@ class AcControllerTest {
     private val sent = mutableListOf<IrSignal>()
     private val changes = mutableListOf<Pair<String, AcState>>()
 
+    /** Zustände, die gespeichert werden sollten. */
+    private val stored = mutableListOf<AcState>()
+
     /** Klimaanlage wie in AppController: der gemeldete Zustand wird der neue gespeicherte. */
     private var ac: SavedAc = testAc()
 
-    private fun TestScope.controller() = AcController(backgroundScope, { sent += it }, { id, s ->
+    private fun TestScope.controller() = AcController(backgroundScope, { sent += it }, { id, s, store ->
         changes += id to s
+        if (store) stored += s
         ac = ac.copy(state = s)
     })
 
@@ -49,6 +53,61 @@ class AcControllerTest {
         assertEquals(listOf("cool/auto/23"), sentPaths())
         assertEquals("nach jeder Änderung gespeichert", listOf(23.0, 24.0, 23.0), changes.map { it.second.temp })
         assertTrue(changes.all { it.first == "r1" })
+    }
+
+    @Test fun heldStepsOnlyDisplayReleaseStoresAndSendsOnceAfterDebounce() = runTest {
+        ac = testAc(state = AcState(true, "cool", 20.0, "auto"))
+        val c = controller()
+        // + gehalten: Schritte bei 0, 400, 800 und 1200 ms.
+        repeat(4) {
+            c.perform("r1", ac, AcAction.Warmer, held = true)
+            advanceTimeBy(400)
+        }
+        assertEquals(24.0, ac.state.temp, 0.0)
+        assertEquals(4, changes.size)
+        assertTrue("während des Haltens nichts gesendet", sent.isEmpty())
+        assertTrue("und nichts gespeichert", stored.isEmpty())
+        c.release("r1", ac)
+        assertEquals(listOf(ac.state), stored)
+        advanceTimeBy(299)
+        assertTrue(sent.isEmpty())
+        advanceTimeBy(2)
+        assertEquals(listOf("cool/auto/24"), sentPaths())
+        advanceTimeBy(1000)
+        assertEquals(1, sent.size)
+    }
+
+    @Test fun tapAfterReleaseRestartsDebounce() = runTest {
+        val c = controller()
+        c.perform("r1", ac, AcAction.Warmer, held = true)
+        c.release("r1", ac)
+        advanceTimeBy(200)
+        c.does(AcAction.Warmer)
+        advanceTimeBy(299)
+        assertTrue(sent.isEmpty())
+        advanceTimeBy(2)
+        assertEquals(listOf("cool/auto/24"), sentPaths())
+    }
+
+    @Test fun releaseWithoutChangeSendsNothing() = runTest {
+        ac = testAc(state = AcState(true, "cool", 24.0, "auto"))
+        val c = controller()
+        c.perform("r1", ac, AcAction.Warmer, held = true)
+        c.release("r1", ac)
+        c.release("r1", ac)
+        advanceTimeBy(1000)
+        assertTrue(sent.isEmpty())
+        assertTrue(stored.isEmpty())
+    }
+
+    @Test fun heldWhileOffIsStoredButNotSent() = runTest {
+        ac = testAc(state = AcState(false, "cool", 22.0, "auto"))
+        val c = controller()
+        c.perform("r1", ac, AcAction.Cooler, held = true)
+        c.release("r1", ac)
+        advanceTimeBy(1000)
+        assertTrue(sent.isEmpty())
+        assertEquals(listOf(AcState(false, "cool", 21.0, "auto")), stored)
     }
 
     @Test fun tempStopsAtAvailableLimits() = runTest {

@@ -4,6 +4,10 @@ import kotlinx.serialization.Serializable
 import java.util.Locale
 import kotlin.io.encoding.Base64
 
+/** Seite im Raum mit Fernseher und Klimaanlage; die Reihenfolge ist die der Wischseiten. */
+@Serializable
+enum class RoomPage { TV, AC }
+
 /**
  * Zuletzt gesendeter (bzw. bei ausgeschalteter Anlage gemerkter) Zustand einer Klimaanlage. Die Anlage meldet
  * nichts zurück; die App zeigt diesen Zustand an. Namen von Modus, Lüfter und Swing roh wie in SmartIR.

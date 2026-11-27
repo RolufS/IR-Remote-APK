@@ -48,7 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.semantics.selected
-import de.hotelremote.ui.RoomPage
+import de.hotelremote.data.RoomPage
 import de.hotelremote.ui.ac.AcPanel
 import de.hotelremote.ui.ac.AcScreen
 import kotlinx.coroutines.flow.drop
@@ -130,7 +130,7 @@ fun RemoteScreen(
         recording?.let { RecordingBar(it) }
         when {
             acPage != null && remote.hasTv -> RoomPager(remote.id, acPage, Modifier.weight(1f)) { TvKeys(remote, handler) }
-            acPage != null -> AcScreen(acPage.view, acPage.onAction, Modifier.weight(1f))
+            acPage != null -> AcScreen(acPage, Modifier.weight(1f))
             else -> TvKeys(remote, handler, Modifier.weight(1f))
         }
     }
@@ -233,7 +233,7 @@ private fun RoomPager(roomId: String, ac: AcPanel, modifier: Modifier, tv: @Comp
                     pageSpacing = SideMargin * 2,
                     userScrollEnabled = !lock.locked,
                 ) { page ->
-                    if (page == RoomPage.TV.ordinal) tv() else AcScreen(ac.view, ac.onAction)
+                    if (page == RoomPage.TV.ordinal) tv() else AcScreen(ac)
                 }
             }
         }

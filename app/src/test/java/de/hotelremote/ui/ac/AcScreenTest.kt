@@ -14,6 +14,7 @@ import de.hotelremote.ui.AcAction
 import de.hotelremote.ui.AcView
 import de.hotelremote.ui.theme.HotelRemoteTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,9 +40,12 @@ class AcScreenTest {
     val rule = createComposeRule()
 
     private val actions = mutableListOf<AcAction>()
+    private val holdSteps = mutableListOf<AcAction>()
+    private var holdEnds = 0
 
     private fun show(view: AcView) {
-        rule.setContent { HotelRemoteTheme { AcScreen(view, { actions += it }) } }
+        val panel = AcPanel(view, { actions += it }, { holdSteps += it }, { holdEnds++ })
+        rule.setContent { HotelRemoteTheme { AcScreen(panel) } }
     }
 
     @Test
@@ -80,7 +84,9 @@ class AcScreenTest {
         rule.onNodeWithTag("ac_off").assertTextEquals("Ausgeschaltet")
         rule.onNodeWithTag("key_ac_warmer").performClick()
         rule.onNodeWithTag("key_ac_power").assertContentDescriptionEquals("Klimaanlage ein/aus").performClick()
-        assertEquals(listOf(AcAction.Warmer, AcAction.Power), actions)
+        assertEquals(listOf<AcAction>(AcAction.Power), actions)
+        assertEquals("ohne Wischbereich ist auch ein Tippen auf + ein kurzes Halten", listOf<AcAction>(AcAction.Warmer), holdSteps)
+        assertEquals(1, holdEnds)
     }
 
     @Test
@@ -108,7 +114,9 @@ class AcScreenTest {
         rule.mainClock.advanceTimeBy(AC_HOLD_REPEAT_MS * 2 + 100)
         rule.onNodeWithTag("key_ac_warmer").performTouchInput { up() }
         rule.mainClock.advanceTimeBy(AC_HOLD_REPEAT_MS * 3)
-        assertEquals("sofort, nach 400 und nach 800 ms", List(3) { AcAction.Warmer }, actions)
+        assertEquals("sofort, nach 400 und nach 800 ms", List(3) { AcAction.Warmer }, holdSteps)
+        assertEquals("Loslassen einmal gemeldet", 1, holdEnds)
+        assertTrue(actions.isEmpty())
     }
 
     @Test
@@ -116,6 +124,7 @@ class AcScreenTest {
         show(acView())
         rule.onNodeWithTag("key_ac_cooler").performClick()
         rule.mainClock.advanceTimeBy(AC_HOLD_REPEAT_MS * 3)
-        assertEquals(listOf<AcAction>(AcAction.Cooler), actions)
+        assertEquals(listOf<AcAction>(AcAction.Cooler), holdSteps)
+        assertEquals(1, holdEnds)
     }
 }

@@ -5,6 +5,7 @@ import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.RemoteStorage
+import de.hotelremote.data.RoomPage
 import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
@@ -33,6 +34,7 @@ internal class ListStorage(private val list: List<SavedRemote>) : RemoteStorage 
     override fun updateAutomations(id: String, automations: List<Automation>) = Unit
     override fun setAc(id: String, ac: SavedAc?) = Unit
     override fun updateAcState(id: String, state: AcState) = Unit
+    override fun setLastPage(id: String, page: RoomPage) = Unit
 }
 
 private fun sig(n: Int) = IrSignal(freq = 38000, frame = listOf(n, 100, 200), periodMs = 100)

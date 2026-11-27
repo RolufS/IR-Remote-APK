@@ -1,5 +1,6 @@
 package de.hotelremote.ui.automation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
@@ -193,6 +194,21 @@ class AutomationUiTest {
         rule.onNodeWithText("● Aufnehmen").performClick()
         assertEquals(1, recorded)
         assertEquals(false, edited)
+    }
+
+    /** Raum ohne Fernseher: App.kt übergibt null, dann gibt es keinen Aufnahme-Knopf. */
+    @Test fun noRecordButtonsWithoutRecordAction() {
+        rule.setContent {
+            HotelRemoteTheme {
+                Column {
+                    AutomationListScreen(emptyList(), null, {}, {}, {}, {}, {}, onRecord = null)
+                    QuickSheetContent(emptyList(), null, null, 0L, {}, {}, {}, {}, {}, onRecord = null)
+                }
+            }
+        }
+        rule.onNodeWithTag("automation_record").assertDoesNotExist()
+        rule.onNodeWithTag("quick_record").assertDoesNotExist()
+        rule.onNodeWithTag("automation_new").assertExists()
     }
 
     @Test fun editorRecordsWithCurrentNameAndStepsAndShowsDraft() {

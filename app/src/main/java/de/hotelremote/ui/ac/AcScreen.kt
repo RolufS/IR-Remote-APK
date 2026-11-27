@@ -50,7 +50,7 @@ import de.hotelremote.R
 import de.hotelremote.data.acTempText
 import de.hotelremote.ui.AcAction
 import de.hotelremote.ui.AcView
-import de.hotelremote.ui.RoomPage
+import de.hotelremote.data.RoomPage
 import de.hotelremote.ui.remote.KeyBrush
 import de.hotelremote.ui.remote.KeyShape
 import de.hotelremote.ui.remote.PowerBrush
@@ -67,6 +67,9 @@ import kotlinx.coroutines.launch
 class AcPanel(
     val view: AcView,
     val onAction: (AcAction) -> Unit,
+    /** Schritt einer gehaltenen −/+-Taste (nur anzeigen); nach dem Loslassen folgt [onHoldEnd]. */
+    val onHoldStep: (AcAction) -> Unit = onAction,
+    val onHoldEnd: () -> Unit = {},
     val page: RoomPage = RoomPage.TV,
     val onPage: (RoomPage) -> Unit = {},
 )
@@ -83,9 +86,12 @@ private const val OFF_ALPHA = 0.4f
  * Die Zeile für die Außentemperatur und die Taste Klima-Automatik sind als leerer Platz vorgesehen.
  */
 @Composable
-fun AcScreen(view: AcView, onAction: (AcAction) -> Unit, modifier: Modifier = Modifier) {
+fun AcScreen(panel: AcPanel, modifier: Modifier = Modifier) {
+    val view = panel.view
     val s = view.state
-    val action by rememberUpdatedState(onAction)
+    val action by rememberUpdatedState(panel.onAction)
+    val holdStep by rememberUpdatedState(panel.onHoldStep)
+    val holdEnd by rememberUpdatedState(panel.onHoldEnd)
     Column(modifier.fillMaxSize().testTag("ac_screen"), verticalArrangement = Arrangement.spacedBy(Gap)) {
         Row(Modifier.fillMaxWidth().weight(1.25f), horizontalArrangement = Arrangement.Center) {
             val description = stringResource(R.string.cd_ac_power)
@@ -106,8 +112,8 @@ fun AcScreen(view: AcView, onAction: (AcAction) -> Unit, modifier: Modifier = Mo
         // −/+ wie das Tastenfeld des Fernsehers immer links/rechts, auch bei Arabisch.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Row(Modifier.fillMaxWidth().weight(2f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
-                StepKey("ac_cooler", "−", stringResource(R.string.cd_ac_cooler), view.canCooler) { action(AcAction.Cooler) }
-                StepKey("ac_warmer", "+", stringResource(R.string.cd_ac_warmer), view.canWarmer) { action(AcAction.Warmer) }
+                StepKey("ac_cooler", "−", stringResource(R.string.cd_ac_cooler), view.canCooler, AcAction.Cooler, action, holdStep, holdEnd)
+                StepKey("ac_warmer", "+", stringResource(R.string.cd_ac_warmer), view.canWarmer, AcAction.Warmer, action, holdStep, holdEnd)
             }
         }
         Row(Modifier.fillMaxWidth().weight(1.2f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
@@ -193,27 +199,41 @@ private fun Display(view: AcView, modifier: Modifier) {
     }
 }
 
-/** Große −/+-Taste: Tippen ein Schritt, Halten wiederholt etwa alle [AC_HOLD_REPEAT_MS]; Wischen pausiert. */
+/**
+ * Große −/+-Taste: Tippen ein Schritt ([onTap]), Halten wiederholt etwa alle [AC_HOLD_REPEAT_MS] ([onHoldStep],
+ * nur Anzeige) und endet mit [onHoldEnd] (erst dann wird gespeichert und gesendet).
+ */
 @Composable
-private fun RowScope.StepKey(key: String, text: String, description: String, enabled: Boolean, onStep: () -> Unit) {
+private fun RowScope.StepKey(
+    key: String,
+    text: String,
+    description: String,
+    enabled: Boolean,
+    step: AcAction,
+    onTap: (AcAction) -> Unit,
+    onHoldStep: (AcAction) -> Unit,
+    onHoldEnd: () -> Unit,
+) {
     val scope = rememberCoroutineScope()
-    val step by rememberUpdatedState(onStep)
     PressableKey(
         key = key,
         enabled = enabled,
         modifier = Modifier.weight(1f).fillMaxHeight().semantics { contentDescription = description },
         shape = KeyShape,
         brush = KeyBrush,
-        onTap = { step() },
+        onTap = { onTap(step) },
         onLongPress = null,
         onPressStart = {
             val job = scope.launch {
                 while (true) {
-                    step()
+                    onHoldStep(step)
                     delay(AC_HOLD_REPEAT_MS)
                 }
             }
-            ({ job.cancel(); Unit })
+            ({
+                job.cancel()
+                onHoldEnd()
+            })
         },
         holdsGesture = true,
     ) {

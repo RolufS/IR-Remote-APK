@@ -11,6 +11,8 @@ import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
 import de.hotelremote.data.RemoteStorage
+import de.hotelremote.data.RoomPage
+import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.wizard.ScanRunner
@@ -86,12 +88,7 @@ data class AppUiState(
     val languageFirstStart: Boolean = false,
     /** Aufnahme einer Automation läuft (null = keine). */
     val recording: Recording? = null,
-    /** Zuletzt gezeigte Seite je Raum mit Fernseher und Klimaanlage (fehlt = TV). */
-    val roomPages: Map<String, RoomPage> = emptyMap(),
 )
-
-/** Seite im Raum mit Fernseher und Klimaanlage; die Reihenfolge ist die der Wischseiten. */
-enum class RoomPage { TV, AC }
 
 /**
  * Navigation und Zustand der App ohne Android-Abhängigkeiten: lädt gespeicherte Fernbedienungen und
@@ -208,25 +205,40 @@ class AppController(
     // ---- Klimaanlage ----
 
     /** Bedienschritt an der Klimaanlage des aktuellen Raums; während einer Aufnahme gesperrt (nicht aufnehmbar). */
-    fun ac(action: AcAction) {
+    fun ac(action: AcAction) = withAc { id, ac -> acController.perform(id, ac, action) }
+
+    /** Schritt einer gehaltenen −/+-Taste: nur anzeigen; gesendet und gespeichert wird nach [acHoldEnd]. */
+    fun acHoldStep(action: AcAction) = withAc { id, ac -> acController.perform(id, ac, action, held = true) }
+
+    /** −/+ losgelassen: speichern und entprellt senden. */
+    fun acHoldEnd() = withAc { id, ac -> acController.release(id, ac) }
+
+    private inline fun withAc(action: (String, SavedAc) -> Unit) {
         if (_state.value.recording != null) return
         val current = _state.value.current ?: return
-        acController.perform(current.id, current.ac ?: return, action)
+        action(current.id, current.ac ?: return)
     }
 
     /** Anzeige für die Klimaanlage von [remote]; null ohne (lesbare) Klimaanlage. */
     fun acView(remote: SavedRemote): AcView? = remote.ac?.let(acController::view)
 
-    /** Merkt den Zustand; scheitert das Speichern, gilt er trotzdem für diese Sitzung. */
-    private fun acChanged(roomId: String, ac: AcState) {
-        storing { store.updateAcState(roomId, ac) }
-        fun SavedRemote.changed() = if (id == roomId && this.ac != null) copy(ac = this.ac.copy(state = ac)) else this
-        _state.update { s -> s.copy(current = s.current?.changed(), remotes = s.remotes.map { it.changed() }) }
+    /** Zeigt den Zustand und merkt ihn ([store]); scheitert das Speichern, gilt er trotzdem für diese Sitzung. */
+    private fun acChanged(roomId: String, ac: AcState, store: Boolean) {
+        if (store) storing { this.store.updateAcState(roomId, ac) }
+        updateRoom(roomId) { r -> r.ac?.let { r.copy(ac = it.copy(state = ac)) } ?: r }
     }
 
-    /** Merkt die gezeigte Seite des Raums (für die Rückkehr zur Fernbedienung und den Raumwechsel). */
+    /** Merkt die gezeigte Wischseite des Raums dauerhaft (auch nach Neustart). */
     fun showRoomPage(roomId: String, page: RoomPage) {
-        _state.update { it.copy(roomPages = it.roomPages + (roomId to page)) }
+        if ((_state.value.remotes.firstOrNull { it.id == roomId }?.lastPage ?: RoomPage.TV) == page) return
+        storing { store.setLastPage(roomId, page) }
+        updateRoom(roomId) { it.copy(lastPage = page) }
+    }
+
+    /** Ändert den Raum in [AppUiState.current] und [AppUiState.remotes], ohne die Reihenfolge zu ändern. */
+    private fun updateRoom(roomId: String, change: (SavedRemote) -> SavedRemote) {
+        fun SavedRemote.changed() = if (id == roomId) change(this) else this
+        _state.update { s -> s.copy(current = s.current?.changed(), remotes = s.remotes.map { it.changed() }) }
     }
 
     // ---- Fernbedienungen ----
@@ -344,7 +356,8 @@ class AppController(
 
     /** Zeigt die Fernbedienung im Aufnahmemodus; eine laufende Automation bzw. ein Suchlauf hält an. */
     private fun startRecording(recording: Recording, existing: List<AutomationStep>) {
-        if (_state.value.current == null) return
+        // Ohne Fernseher gibt es nichts aufzunehmen (Klima-Tasten sind nicht aufnehmbar).
+        if (_state.value.current?.hasTv != true) return
         automationRunner.cancel()
         if (scanRunner?.running?.value == true) stopScan()
         recorder.start(existing)

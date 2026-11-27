@@ -12,7 +12,11 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CircleShape
@@ -65,8 +69,8 @@ internal val PressShade = SemanticsPropertyKey<Float>("PressShade")
 private var SemanticsPropertyReceiver.pressShadeValue by PressShade
 
 /**
- * Zählt gehaltene Tasten (Lautstärke, Kanal, Klima −/+), damit das Wischen zwischen TV und Klima pausiert,
- * solange eine davon gedrückt ist: die Taste verbraucht die Geste, ein Verrutschen des Fingers blättert nicht.
+ * Wischbereich zwischen TV und Klima. Zählt gehaltene Tasten (Lautstärke, Kanal, Pfeile, Klima −/+), damit das
+ * Wischen pausiert, solange eine davon gehalten wird: ein Verrutschen des Fingers blättert dann nicht.
  */
 @Stable
 class SwipeLock {
@@ -76,13 +80,17 @@ class SwipeLock {
     val locked get() = holds > 0
 }
 
-/** Sperre des umgebenden Wischbereichs (null = keiner). */
+/** Sperre des umgebenden Wischbereichs (null = keiner; Tasten senden dann wie gewohnt beim Herunterdrücken). */
 val LocalSwipeLock = staticCompositionLocalOf<SwipeLock?> { null }
 
 /**
  * Tastenfläche: Tag `key_<key>`, Alpha 0,35 und "disabled" für Semantik, wenn die Taste fehlt.
- * Gemeinsam für TV- und Klima-Tasten (Schatten, Verlauf, Abdunkeln beim Drücken). [holdsGesture]: solange
- * gedrückt, ist [LocalSwipeLock] gesperrt.
+ * Gemeinsam für TV- und Klima-Tasten (Schatten, Verlauf, Abdunkeln beim Drücken).
+ *
+ * Im Wischbereich ([LocalSwipeLock] gesetzt) wird erst entschieden, ob die Geste ein Wischen ist: Tippen löst
+ * [onTap] beim Loslassen aus, aber nur ohne Bewegung über die Touch-Slop. Haltetasten ([holdsGesture]) starten
+ * [onPressStart] erst nach der Long-Press-Zeit und sperren ab dann das Wischen; [onLongPress] ebenso nach dieser Zeit.
+ * Bewegt sich der Finger vorher über die Slop, passiert nichts und der Pager blättert.
  */
 @Composable
 internal fun PressableKey(
@@ -151,19 +159,57 @@ internal fun PressableKey(
                     true
                 } else disabled()
             }
-            .pointerInput(enabled) {
+            .pointerInput(enabled, swipeLock) {
                 if (!enabled) return@pointerInput
+                if (swipeLock != null) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        haptic()
+                        scope.launch { pressShade.snapTo(PRESS_SHADE) }
+                        var locked = false
+                        var release: (() -> Unit)? = null
+                        try {
+                            val holdStart = pressStart.takeIf { holdsGesture }
+                            val long = longPress
+                            val tapped = if (holdStart != null || long != null) {
+                                withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                                    awaitTapOrSlop(down, viewConfiguration.touchSlop)
+                                }
+                            } else {
+                                awaitTapOrSlop(down, viewConfiguration.touchSlop)
+                            }
+                            when (tapped) {
+                                true -> tap()
+                                false -> Unit
+                                null -> {
+                                    if (holdStart != null) {
+                                        swipeLock.holds++
+                                        locked = true
+                                        release = holdStart()
+                                    } else {
+                                        long?.invoke()
+                                    }
+                                    do {
+                                        val event = awaitPointerEvent()
+                                    } while (event.changes.any { it.pressed })
+                                }
+                            }
+                        } finally {
+                            if (locked) swipeLock.holds--
+                            release?.invoke()
+                            scope.launch { pressShade.animateTo(0f, tween(PRESS_FADE_MS)) }
+                        }
+                    }
+                    return@pointerInput
+                }
                 detectTapGestures(
                     onPress = {
                         haptic()
                         scope.launch { pressShade.snapTo(PRESS_SHADE) }
-                        val lock = swipeLock.takeIf { holdsGesture }
-                        lock?.let { it.holds++ }
                         val release = pressStart?.invoke()
                         try {
                             tryAwaitRelease()
                         } finally {
-                            lock?.let { it.holds-- }
                             release?.invoke()
                             scope.launch { pressShade.animateTo(0f, tween(PRESS_FADE_MS)) }
                         }
@@ -186,8 +232,24 @@ internal fun PressableKey(
 }
 
 /**
- * Normale Taste. Nicht wiederholende Tasten senden beim Herunterdrücken, Tasten aus
- * [Keys.REPEATING] wiederholen, bis losgelassen wird.
+ * Wartet auf Loslassen (true = Tippen) oder Bewegung über [slop] bzw. Übernahme durch andere (false).
+ */
+private suspend fun AwaitPointerEventScope.awaitTapOrSlop(down: PointerInputChange, slop: Float): Boolean {
+    while (true) {
+        val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: return false
+        if (change.isConsumed) return false
+        if (!change.pressed) {
+            change.consume()
+            return true
+        }
+        if ((change.position - down.position).getDistance() > slop) return false
+    }
+}
+
+/**
+ * Normale Taste. Nicht wiederholende Tasten senden beim Herunterdrücken (im Wischbereich beim Loslassen),
+ * Tasten aus [Keys.REPEATING] wiederholen, bis losgelassen wird (im Wischbereich: Tippen sendet einmal,
+ * Halten startet die Wiederholung nach der Long-Press-Zeit).
  */
 @Composable
 fun KeyButton(

@@ -20,6 +20,8 @@ data class SavedRemote(
     val lastUsed: Long,
     val automations: List<Automation> = emptyList(),
     val ac: SavedAc? = null,
+    /** Zuletzt gezeigte Wischseite (Raum mit Fernseher und Klimaanlage); null = TV. */
+    val lastPage: RoomPage? = null,
 ) {
     val hasTv get() = keys.isNotEmpty()
 
@@ -40,6 +42,9 @@ interface RemoteStorage {
 
     /** Neuer Zustand der Klimaanlage des Raums (ohne Klimaanlage: keine Änderung). */
     fun updateAcState(id: String, state: AcState)
+
+    /** Merkt die zuletzt gezeigte Wischseite des Raums. */
+    fun setLastPage(id: String, page: RoomPage)
 }
 
 /** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
@@ -75,6 +80,9 @@ class RemoteStore(private val file: File) : RemoteStorage {
 
     @Synchronized
     override fun updateAcState(id: String, state: AcState) = update(id) { r -> r.copy(ac = r.ac?.copy(state = state)) }
+
+    @Synchronized
+    override fun setLastPage(id: String, page: RoomPage) = update(id) { it.copy(lastPage = page) }
 
     @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()

@@ -26,6 +26,7 @@ class SavedAcTest {
         assertEquals(setOf("POWER"), r.keys.keys)
         assertEquals(1, r.automations.size)
         assertNull(r.ac)
+        assertNull(r.lastPage)
         assertTrue(r.hasTv)
     }
 
@@ -64,6 +65,15 @@ class SavedAcTest {
         assertNull(RemoteStore(file()).all().single().ac)
         store.setAc("unbekannt", testAc())
         assertEquals(1, store.all().size)
+    }
+
+    @Test fun lastPageIsStored() {
+        val store = RemoteStore(file())
+        store.add(SavedRemote(id = "a", brand = "LG", codeLabel = "Code 1", lastUsed = 1, ac = testAc()))
+        store.setLastPage("a", RoomPage.AC)
+        assertEquals(RoomPage.AC, RemoteStore(file()).all().single().lastPage)
+        store.setLastPage("a", RoomPage.TV)
+        assertEquals(RoomPage.TV, RemoteStore(file()).all().single().lastPage)
     }
 
     @Test fun fahrenheitDetectedFromMaxTemp() {

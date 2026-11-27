@@ -86,7 +86,8 @@ fun AutomationEditorScreen(
     onCancelRun: () -> Unit,
     onSave: (Automation) -> Unit,
     onCancel: () -> Unit,
-    onRecord: (String, List<AutomationStep>) -> Unit = { _, _ -> },
+    /** null: kein Knopf „Aufnehmen“ (Raum ohne Fernseher). */
+    onRecord: ((String, List<AutomationStep>) -> Unit)? = { _, _ -> },
     draft: AutomationDraft? = null,
     template: AutomationTemplate? = null,
 ) {
@@ -183,9 +184,11 @@ fun AutomationEditorScreen(
                     picking = true
                 }
             }
-            item {
-                WideButton(stringResource(R.string.rec_into), "auto_record", PowerBrush, Modifier.fillMaxWidth()) {
-                    onRecord(name, steps.toList())
+            if (onRecord != null) {
+                item {
+                    WideButton(stringResource(R.string.rec_into), "auto_record", PowerBrush, Modifier.fillMaxWidth()) {
+                        onRecord(name, steps.toList())
+                    }
                 }
             }
         }

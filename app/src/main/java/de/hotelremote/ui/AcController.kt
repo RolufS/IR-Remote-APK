@@ -85,51 +85,75 @@ internal object AcRules {
 
 /**
  * Bedient die Klimaanlage des aktuellen Raums. Jede Änderung meldet den neuen Zustand an [onChange]
- * (Speichern und Anzeige). Gesendet wird immer der vollständige Zustand: Änderungen an Temperatur, Modus,
- * Lüfter und Swing entprellt (der letzte Zustand nach [debounceMs]), Ein/Aus sofort. Ausgeschaltet werden
- * Änderungen nur gemerkt; Einschalten sendet den gemerkten Zustand, Ausschalten `off`.
+ * (Anzeige; mit `store = true` auch Speichern). Gesendet wird immer der vollständige Zustand: Änderungen an
+ * Temperatur, Modus, Lüfter und Swing entprellt (der letzte Zustand nach [debounceMs]), Ein/Aus sofort.
+ * Ausgeschaltet werden Änderungen nur gemerkt; Einschalten sendet den gemerkten Zustand, Ausschalten `off`.
+ * Gehaltene −/+ ([perform] mit `held`) ändern nur die Anzeige; erst [release] speichert und startet das Entprellen.
  */
 class AcController(
     private val scope: CoroutineScope,
     private val send: (IrSignal) -> Unit,
-    private val onChange: (roomId: String, state: AcState) -> Unit,
+    private val onChange: (roomId: String, state: AcState, store: Boolean) -> Unit,
     private val debounceMs: Long = DEBOUNCE_MS,
 ) {
-    private var cached: Pair<String, AcCodes?>? = null
+    /** Dekodierte Kommandos je commands-String (wenige Einträge; null = unlesbar). */
+    private val cache = object : LinkedHashMap<String, AcCodes?>(CACHE_SIZE, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AcCodes?>) = size > CACHE_SIZE
+    }
     private val pending = HashMap<String, Job>()
 
-    /** Dekodiert die Kommandos einmal je Klimaanlage; null, wenn die gespeicherte Kopie unlesbar ist. */
+    /** Räume mit gehaltener −/+-Taste; Wert: ob sich der Zustand dabei geändert hat. */
+    private val holding = HashMap<String, Boolean>()
+
     private fun codes(ac: SavedAc): AcCodes? {
-        cached?.let { (commands, codes) -> if (commands == ac.commands) return codes }
+        if (cache.containsKey(ac.commands)) return cache[ac.commands]
         val codes = try {
             ac.decodeCodes()
         } catch (e: Exception) {
             null
         }
-        cached = ac.commands to codes
+        cache[ac.commands] = codes
         return codes
     }
 
     fun view(ac: SavedAc): AcView? = codes(ac)?.let { AcRules.view(it, ac) }
 
-    fun perform(roomId: String, ac: SavedAc, action: AcAction) {
+    /** [held]: Schritt einer gehaltenen −/+-Taste – nur anzeigen, bis [release]. */
+    fun perform(roomId: String, ac: SavedAc, action: AcAction, held: Boolean = false) {
         val codes = codes(ac) ?: return
+        if (held && roomId !in holding) holding[roomId] = false
         val new = AcRules.apply(codes, ac.state, action)
         if (new == ac.state) return
-        onChange(roomId, new)
-        when {
-            action == AcAction.Power -> {
-                pending.remove(roomId)?.cancel()
-                transmit(codes, new)
-            }
-            new.power -> {
-                pending.remove(roomId)?.cancel()
-                pending[roomId] = scope.launch {
-                    delay(debounceMs)
-                    pending.remove(roomId)
-                    transmit(codes, new)
-                }
-            }
+        if (held) {
+            holding[roomId] = true
+            pending.remove(roomId)?.cancel()
+            onChange(roomId, new, false)
+            return
+        }
+        onChange(roomId, new, true)
+        if (action == AcAction.Power) {
+            pending.remove(roomId)?.cancel()
+            transmit(codes, new)
+        } else {
+            schedule(roomId, codes, new)
+        }
+    }
+
+    /** −/+ losgelassen: [ac] ist der Stand nach den gehaltenen Schritten; speichern und entprellt senden. */
+    fun release(roomId: String, ac: SavedAc) {
+        if (holding.remove(roomId) != true) return
+        val codes = codes(ac) ?: return
+        onChange(roomId, ac.state, true)
+        schedule(roomId, codes, ac.state)
+    }
+
+    private fun schedule(roomId: String, codes: AcCodes, s: AcState) {
+        pending.remove(roomId)?.cancel()
+        if (!s.power) return
+        pending[roomId] = scope.launch {
+            delay(debounceMs)
+            pending.remove(roomId)
+            transmit(codes, s)
         }
     }
 
@@ -139,5 +163,6 @@ class AcController(
 
     companion object {
         const val DEBOUNCE_MS = 300L
+        private const val CACHE_SIZE = 4
     }
 }

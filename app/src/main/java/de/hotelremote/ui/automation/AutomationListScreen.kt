@@ -57,7 +57,8 @@ fun AutomationListScreen(
     onEdit: (String?) -> Unit,
     onDelete: (String) -> Unit,
     onBack: () -> Unit,
-    onRecord: () -> Unit = {},
+    /** null: kein Knopf „Aufnehmen“ (Raum ohne Fernseher). */
+    onRecord: (() -> Unit)? = {},
     templates: TemplateSections = TemplateSections(emptyList(), emptyList()),
     onTemplate: (AutomationTemplate) -> Unit = {},
 ) {
@@ -110,7 +111,9 @@ fun AutomationListScreen(
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             WideButton(stringResource(R.string.auto_new), "automation_new", SourceBrush, Modifier.weight(1.3f)) { onEdit(null) }
-            WideButton(stringResource(R.string.rec_start), "automation_record", PowerBrush, Modifier.weight(1f), onClick = onRecord)
+            onRecord?.let {
+                WideButton(stringResource(R.string.rec_start), "automation_record", PowerBrush, Modifier.weight(1f), onClick = it)
+            }
         }
     }
 

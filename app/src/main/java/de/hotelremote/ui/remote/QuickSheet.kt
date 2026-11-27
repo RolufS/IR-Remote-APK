@@ -57,7 +57,8 @@ fun QuickSheet(
     onTimer: () -> Unit,
     onCancelTimer: () -> Unit,
     onEdit: () -> Unit,
-    onRecord: () -> Unit,
+    /** null: kein Eintrag „Aufnehmen“ (Raum ohne Fernseher). */
+    onRecord: (() -> Unit)?,
     onTimerExpired: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -89,7 +90,7 @@ fun QuickSheetContent(
     onTimer: () -> Unit,
     onCancelTimer: () -> Unit,
     onEdit: () -> Unit,
-    onRecord: () -> Unit = {},
+    onRecord: (() -> Unit)? = {},
 ) {
     Column(
         Modifier
@@ -107,7 +108,7 @@ fun QuickSheetContent(
         }
         // Noch keine eigene Automation: auf die Sleep-Timer-Vorlagen (in den Automationen) hinweisen.
         if (automations.isEmpty()) SheetItem(stringResource(R.string.tpl_show), "quick_templates", onClick = onEdit)
-        SheetItem(stringResource(R.string.rec_new_quick), "quick_record", onClick = onRecord)
+        onRecord?.let { SheetItem(stringResource(R.string.rec_new_quick), "quick_record", onClick = it) }
         if (timer == null) {
             SheetItem(stringResource(R.string.timer_title), "quick_timer", onClick = onTimer)
         } else {
