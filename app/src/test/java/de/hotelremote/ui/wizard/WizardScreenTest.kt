@@ -89,7 +89,7 @@ class WizardScreenTest {
     @Test fun aboutShowsPrivacyNote() {
         rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = false, onBack = {}) } }
         rule.onNodeWithTag("about_privacy")
-            .assertTextContains("Datenschutz: keine Daten, kein Internet.", substring = true)
+            .assertTextContains("Nur wenn du die Außentemperatur einschaltest", substring = true)
             .assertTextContains("github.com/RolufS/IR-Remote-APK/blob/main/PRIVACY.md", substring = true)
     }
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -72,6 +73,8 @@ class AcPanel(
     val onHoldEnd: () -> Unit = {},
     val page: RoomPage = RoomPage.TV,
     val onPage: (RoomPage) -> Unit = {},
+    /** Außentemperatur und Klima-Automatik; null = ohne (nur Platz frei gehalten). */
+    val climate: AcClimate? = null,
 )
 
 /** −/+ gehalten: so oft wird ein weiterer Schritt ausgelöst. */
@@ -82,8 +85,8 @@ private const val OFF_ALPHA = 0.4f
 
 /**
  * Klima-Bildschirm im Stil der TV-Fernbedienung: oben Ein/Aus, darunter die Anzeige (Soll-Temperatur, Modus,
- * Lüfter, Swing; ausgeschaltet gedimmt), große −/+ (Halten wiederholt), Modus, Lüfter und Swing.
- * Die Zeile für die Außentemperatur und die Taste Klima-Automatik sind als leerer Platz vorgesehen.
+ * Lüfter, Swing; ausgeschaltet gedimmt, darunter die Außentemperatur), große −/+ (Halten wiederholt), Modus, Lüfter
+ * und Swing, unten die Taste Klima-Automatik (zeigt, wenn sie läuft, ihr Ziel).
  */
 @Composable
 fun AcScreen(panel: AcPanel, modifier: Modifier = Modifier) {
@@ -108,7 +111,7 @@ fun AcScreen(panel: AcPanel, modifier: Modifier = Modifier) {
                 Icon(PowerIcon, null, Modifier.size(26.dp), tint = Color.White)
             }
         }
-        Display(view, Modifier.weight(3f))
+        Display(view, panel.climate, Modifier.weight(3f))
         // −/+ wie das Tastenfeld des Fernsehers immer links/rechts, auch bei Arabisch.
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Row(Modifier.fillMaxWidth().weight(2f), horizontalArrangement = Arrangement.spacedBy(Gap)) {
@@ -135,13 +138,14 @@ fun AcScreen(panel: AcPanel, modifier: Modifier = Modifier) {
                 ) { action(AcAction.CycleSwing) }
             }
         }
-        // Platz für die Taste Klima-Automatik (folgt mit Task 34).
-        Box(Modifier.fillMaxWidth().weight(0.9f).testTag("ac_auto_slot"))
+        Box(Modifier.fillMaxWidth().weight(0.9f).testTag("ac_auto_slot")) {
+            panel.climate?.let { AutoKey(it, view.fahrenheit) }
+        }
     }
 }
 
 @Composable
-private fun Display(view: AcView, modifier: Modifier) {
+private fun Display(view: AcView, climate: AcClimate?, modifier: Modifier) {
     val s = view.state
     val alpha = if (s.power) 1f else OFF_ALPHA
     Column(
@@ -194,10 +198,50 @@ private fun Display(view: AcView, modifier: Modifier) {
                 modifier = Modifier.testTag("ac_off").padding(top = 4.dp),
             )
         }
-        // Platz für die Zeile Außentemperatur (folgt mit Task 34).
-        Box(Modifier.height(18.dp).testTag("ac_outdoor_slot"))
+        Box(Modifier.padding(top = 4.dp).testTag("ac_outdoor_slot")) {
+            climate?.let { OutdoorLine(it, view.fahrenheit) }
+        }
     }
 }
+
+/** Taste Klima-Automatik: öffnet die Einstellung; läuft sie in diesem Raum, grün mit „Läuft · 26 °C“. */
+@Composable
+private fun AutoKey(climate: AcClimate, fahrenheit: Boolean) {
+    val running = climate.autoRunning
+    PressableKey(
+        key = "ac_auto",
+        enabled = true,
+        modifier = Modifier.fillMaxSize(),
+        shape = KeyShape,
+        brush = if (running) AutoRunningBrush else KeyBrush,
+        onTap = climate.onAuto,
+        onLongPress = null,
+        onPressStart = null,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                stringResource(R.string.acauto_title),
+                color = RemoteColors.KeyText,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+            if (running) {
+                val target = climate.autoTarget
+                Text(
+                    if (target != null) stringResource(R.string.acauto_key_running, acTempText(target, fahrenheit))
+                    else stringResource(R.string.acauto_key_started),
+                    color = RemoteColors.KeyText.copy(alpha = 0.85f),
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    modifier = Modifier.testTag("ac_auto_running"),
+                )
+            }
+        }
+    }
+}
+
+private val AutoRunningBrush = Brush.verticalGradient(listOf(RemoteColors.YesTop, RemoteColors.YesBottom))
 
 /**
  * Große −/+-Taste: Tippen ein Schritt ([onTap]), Halten wiederholt etwa alle [AC_HOLD_REPEAT_MS] ([onHoldStep],

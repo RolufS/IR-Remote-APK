@@ -5,6 +5,7 @@ import de.hotelremote.automation.AutomationRecorder
 import de.hotelremote.automation.AutomationResult
 import de.hotelremote.automation.AutomationRunner
 import de.hotelremote.automation.AutomationTemplate
+import de.hotelremote.data.AcAutoSettings
 import de.hotelremote.data.AcBrand
 import de.hotelremote.data.AcCatalog
 import de.hotelremote.data.AcState
@@ -49,6 +50,12 @@ sealed interface Screen {
     data object Automations : Screen
     data object QuickControls : Screen
 
+    /** Einstellungen der Klima-Automatik des aktuellen Raums. */
+    data object AcAuto : Screen
+
+    /** Außentemperatur ein/aus und Ort; danach zurück zu [returnTo]. */
+    data class WeatherSetup(val returnTo: Screen = Remote) : Screen
+
     /**
      * Editor; [automationId] null = neue Automation; [draft] ersetzt Name und Schritte (z. B. nach einer Aufnahme).
      * [template]: Vorlage, aus der der Entwurf stammt (der Editor zeigt deren Hinweis).
@@ -79,7 +86,15 @@ data class Recording(
 )
 
 /** Snackbar-Meldungen; App.kt setzt sie in Texte der aktuellen Sprache um. */
-enum class UiMessage { SAVE_FAILED, LOAD_FAILED, SEND_FAILED, KEYS_MISSING, AUTOMATION_BUSY, TIMER_NO_NOTIFICATIONS }
+enum class UiMessage {
+    SAVE_FAILED, LOAD_FAILED, SEND_FAILED, KEYS_MISSING, AUTOMATION_BUSY, TIMER_NO_NOTIFICATIONS,
+
+    /** Klimaanlage in der App ausgeschaltet: die Klima-Automatik ist gestoppt. */
+    AC_AUTO_STOPPED,
+
+    /** Außentemperatur ausgeschaltet: die Klima-Automatik ist gestoppt. */
+    AC_AUTO_STOPPED_WEATHER,
+}
 
 data class AppUiState(
     val loading: Boolean = true,
@@ -128,6 +143,8 @@ class AppController(
     recorderClock: () -> Long = { System.nanoTime() / 1_000_000 },
     /** Klima-Datenbank (eigenes Asset); ohne Angabe nicht vorhanden. */
     private val openAcCatalog: () -> AcCatalog = { error("Keine Klima-Datenbank") },
+    /** Stoppt die Klima-Automatik, wenn sie für den Raum läuft; liefert, ob sie lief. */
+    private val stopAcAuto: (roomId: String) -> Boolean = { false },
 ) {
     private val _state = MutableStateFlow(
         AppUiState(
@@ -239,8 +256,16 @@ class AppController(
 
     // ---- Klimaanlage ----
 
-    /** Bedienschritt an der Klimaanlage des aktuellen Raums; während einer Aufnahme gesperrt (nicht aufnehmbar). */
-    fun ac(action: AcAction) = withAc { id, ac -> acController.perform(id, ac, action) }
+    /**
+     * Bedienschritt an der Klimaanlage des aktuellen Raums; während einer Aufnahme gesperrt (nicht aufnehmbar).
+     * Ausschalten stoppt eine laufende Klima-Automatik des Raums (mit Hinweis).
+     */
+    fun ac(action: AcAction) = withAc { id, ac ->
+        acController.perform(id, ac, action)
+        if (action == AcAction.Power && _state.value.current?.ac?.state?.power == false && stopAcAuto(id)) {
+            showMessage(UiMessage.AC_AUTO_STOPPED)
+        }
+    }
 
     /** Schritt einer gehaltenen −/+-Taste: nur anzeigen; gesendet und gespeichert wird nach [acHoldEnd]. */
     fun acHoldStep(action: AcAction) = withAc { id, ac -> acController.perform(id, ac, action, held = true) }
@@ -257,10 +282,27 @@ class AppController(
     /** Anzeige für die Klimaanlage von [remote]; null ohne (lesbare) Klimaanlage. */
     fun acView(remote: SavedRemote): AcView? = remote.ac?.let(acController::view)
 
+    /** Lüfterstufen, die die Klima-Automatik von [remote] anbieten kann. */
+    fun acAutoFans(remote: SavedRemote): List<String> = remote.ac?.let(acController::autoFans).orEmpty()
+
     /** Zeigt den Zustand und merkt ihn ([store]); scheitert das Speichern, gilt er trotzdem für diese Sitzung. */
     private fun acChanged(roomId: String, ac: AcState, store: Boolean) {
         if (store) storing { this.store.updateAcState(roomId, ac) }
         updateRoom(roomId) { r -> r.ac?.let { r.copy(ac = it.copy(state = ac)) } ?: r }
+    }
+
+    /** Zustand, den die Klima-Automatik gesendet und schon gespeichert hat: nur anzeigen. */
+    fun acStateSent(roomId: String, state: AcState) {
+        updateRoom(roomId) { r -> r.ac?.takeIf { it.state != state }?.let { r.copy(ac = it.copy(state = state)) } ?: r }
+    }
+
+    /** Speichert die Einstellungen der Klima-Automatik des aktuellen Raums; true, wenn gespeichert. */
+    fun setAcAuto(settings: AcAutoSettings): Boolean {
+        val current = _state.value.current ?: return false
+        if (current.ac == null) return false
+        storing { store.setAcAuto(current.id, settings) } ?: return false
+        updateRoom(current.id) { r -> r.ac?.let { r.copy(ac = it.copy(auto = settings)) } ?: r }
+        return true
     }
 
     /** Merkt die gezeigte Wischseite des Raums dauerhaft (auch nach Neustart). */
@@ -310,6 +352,7 @@ class AppController(
     }
 
     fun delete(id: String) {
+        stopAcAuto(id)
         val remotes = storing {
             store.delete(id)
             store.all()
@@ -596,6 +639,8 @@ class AppController(
     /** Speichert die gefundene Klimaanlage als neuen Raum bzw. in [AppUiState.wizardRoom]; danach die Klima-Seite. */
     fun saveAcWizard(name: String?) {
         val ac = (acMachine?.state as? AcWizardState.Save)?.ac ?: return
+        // Eine ersetzte Klimaanlage nimmt ihre Automatik mit.
+        _state.value.wizardRoom?.let(stopAcAuto)
         saveRoom(RoomPage.AC, name, { it.copy(ac = ac) }) { id -> store.setAc(id, ac) }
     }
 
@@ -636,6 +681,7 @@ class AppController(
             delete(roomId)
             return
         }
+        if (kind == DeviceKind.AC) stopAcAuto(roomId)
         val remotes = storing {
             if (kind == DeviceKind.TV) store.setTv(roomId, "", "", emptyMap()) else store.setAc(roomId, null)
             store.all()

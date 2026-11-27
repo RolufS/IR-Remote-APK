@@ -36,6 +36,8 @@ data class SavedAc(
     /** Base64 des Blobs aus `ac_device.commands` (Format siehe [AcCodes]). */
     val commands: String,
     val state: AcState,
+    /** Einstellungen der Klima-Automatik (in der Einheit des Geräts); null = Standard. */
+    val auto: AcAutoSettings? = null,
 ) {
     val title get() = "$brand · $deviceLabel"
 
@@ -48,6 +50,29 @@ data class SavedAc(
         fun encodeCommands(blob: ByteArray): String = Base64.encode(blob)
     }
 }
+
+/**
+ * Klima-Automatik „kühler als draußen“: Ziel = draußen − [offset], nicht unter [notColderThan] und (wenn gesetzt)
+ * nicht über [notWarmerThan]. Alle Werte in der Einheit des Geräts (°C bzw. °F), Modus immer Kühlen.
+ */
+@Serializable
+data class AcAutoSettings(
+    val offset: Double,
+    val notColderThan: Double,
+    val notWarmerThan: Double? = null,
+    val fan: String = "auto",
+) {
+    companion object {
+        /** 5 °C kühler, nicht unter 25 °C; bei °F-Geräten umgerechnet (9 °F, 77 °F). */
+        fun defaults(fahrenheit: Boolean) = if (fahrenheit) AcAutoSettings(9.0, 77.0) else AcAutoSettings(5.0, 25.0)
+
+        /** Erlaubter Abstand: 1–10 °C bzw. 2–18 °F. */
+        fun offsetRange(fahrenheit: Boolean) = if (fahrenheit) 2.0..18.0 else 1.0..10.0
+    }
+}
+
+/** Einstellungen der Automatik, ohne gespeicherte die Standardwerte in der Einheit des Geräts. */
+val SavedAc.autoSettings get() = auto ?: AcAutoSettings.defaults(fahrenheit)
 
 /**
  * SmartIR kennt kein Einheitenfeld; einige Geräte haben Werte etwa 60–88 (°F). Celsius-Geräte enden bei etwa 32,

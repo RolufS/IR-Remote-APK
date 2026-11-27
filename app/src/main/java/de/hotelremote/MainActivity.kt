@@ -25,12 +25,13 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Start und Rückkehr (z. B. aus den Einstellungen): Sleep-Timer-Alarm neu setzen, ggf. genau; Schnellsteuerung
-     * (Widget, Sperrbildschirm-Benachrichtigung) auffrischen.
+     * (Widget, Sperrbildschirm-Benachrichtigung) auffrischen; Klima-Automatik neu planen.
      */
     override fun onResume() {
         super.onResume()
         vm.rearmSleepTimer()
         vm.refreshQuickControls()
+        vm.resumeClimate()
     }
 
     /**

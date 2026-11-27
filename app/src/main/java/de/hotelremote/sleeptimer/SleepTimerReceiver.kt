@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import de.hotelremote.acauto.AcAutoGraph
 import de.hotelremote.data.RemoteStore
 import de.hotelremote.quick.QuickControls
 import kotlinx.coroutines.CoroutineScope
@@ -62,13 +63,14 @@ class SleepTimerReceiver : BroadcastReceiver() {
 
 /**
  * Nach Neustart (oder App-Update): offenen Timer neu planen, abgelaufenen verwerfen; die Sperrbildschirm-Steuerung
- * wieder anzeigen, wenn sie eingeschaltet ist.
+ * wieder anzeigen, wenn sie eingeschaltet ist; eine laufende Klima-Automatik neu planen.
  */
 class SleepTimerBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             SleepTimerGraph.scheduler(context).restoreAfterBoot()
             QuickControls.refresh(context)
+            AcAutoGraph.scheduler(context).restoreAfterBoot()
         }
     }
 }

@@ -21,6 +21,14 @@ class AboutScreenTest {
     /** Die Version kommt aus dem Build, nicht aus den Übersetzungen. */
     @Test fun showsVersionFromBuild() {
         rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = false, onBack = {}) } }
-        rule.onNodeWithText("Fernbedienung ${BuildConfig.VERSION_NAME} – werbefrei, ohne Internet.").assertExists()
+        rule.onNodeWithText("Fernbedienung ${BuildConfig.VERSION_NAME} – werbefrei; Internet nur für die optionale Außentemperatur.")
+            .assertExists()
+    }
+
+    /** Quellen der Klima-Codes und der Wetterdaten mit Lizenz. */
+    @Test fun namesSmartIrAndOpenMeteo() {
+        rule.setContent { HotelRemoteTheme { AboutScreen(meta = emptyMap(), dbError = false, onBack = {}) } }
+        rule.onNodeWithText("Klima-Codes: SmartIR (MIT), github.com/smartHomeHub/SmartIR").assertExists()
+        rule.onNodeWithText("Wetterdaten: Open-Meteo.com (CC BY 4.0)").assertExists()
     }
 }

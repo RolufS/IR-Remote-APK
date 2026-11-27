@@ -34,7 +34,10 @@ import de.hotelremote.R
 import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.theme.RemoteColors
 
-/** Über-Seite: Kurztext, Datenschutz-Hinweis und Herkunft der Code-Daten aus der `meta`-Tabelle. */
+/**
+ * Über-Seite: Kurztext, Datenschutz-Hinweis, Herkunft der TV-Code-Daten aus der `meta`-Tabelle sowie Quellen der
+ * Klima-Codes (SmartIR, MIT) und der Wetterdaten (Open-Meteo, CC BY 4.0).
+ */
 @Composable
 fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit) {
     val backDesc = stringResource(R.string.cd_back)
@@ -85,6 +88,8 @@ fun AboutScreen(meta: Map<String, String>, dbError: Boolean, onBack: () -> Unit)
                 }
                 Body(stringResource(R.string.about_counts, meta["code_sets"].orEmpty(), meta["brands"].orEmpty()))
             }
+            Body(stringResource(R.string.about_smartir), Modifier.testTag("about_smartir"))
+            Body(stringResource(R.string.weather_source_full), Modifier.testTag("about_weather"))
         }
     }
 }

@@ -21,8 +21,8 @@ class ManifestTest {
         assertEquals("true", ir.getAttributeNS(android, "required"))
     }
 
-    /** Keine neuen Berechtigungen, insbesondere kein INTERNET (Datensicherheit „keine Daten“). */
-    @Test fun permissionsUnchanged() {
+    /** Keine neuen Berechtigungen außer INTERNET (nur für die optionale Außentemperatur, Standard aus). */
+    @Test fun onlyInternetAdded() {
         assertEquals(
             setOf(
                 "android.permission.TRANSMIT_IR",
@@ -30,8 +30,15 @@ class ManifestTest {
                 "android.permission.POST_NOTIFICATIONS",
                 "android.permission.RECEIVE_BOOT_COMPLETED",
                 "android.permission.VIBRATE",
+                "android.permission.INTERNET",
             ),
             elements("uses-permission").map { it.getAttributeNS(android, "name") }.toSet(),
         )
+    }
+
+    /** Die Receiver der Klima-Automatik sind nur für die eigenen PendingIntents. */
+    @Test fun acAutoReceiverNotExported() {
+        val receiver = elements("receiver").single { it.getAttributeNS(android, "name") == ".acauto.AcAutoReceiver" }
+        assertEquals("false", receiver.getAttributeNS(android, "exported"))
     }
 }

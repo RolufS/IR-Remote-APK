@@ -1,5 +1,6 @@
 package de.hotelremote.ui
 
+import de.hotelremote.acauto.acAutoFans
 import de.hotelremote.data.AcCodes
 import de.hotelremote.data.AcState
 import de.hotelremote.data.SavedAc
@@ -117,6 +118,9 @@ class AcController(
     }
 
     fun view(ac: SavedAc): AcView? = codes(ac)?.let { AcRules.view(it, ac) }
+
+    /** Lüfterstufen im Kühlmodus (Auswahl der Klima-Automatik); leer, wenn die Kommandos unlesbar sind. */
+    fun autoFans(ac: SavedAc): List<String> = codes(ac)?.let(::acAutoFans).orEmpty()
 
     /** [held]: Schritt einer gehaltenen −/+-Taste – nur anzeigen, bis [release]. */
     fun perform(roomId: String, ac: SavedAc, action: AcAction, held: Boolean = false) {

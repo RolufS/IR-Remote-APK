@@ -9,7 +9,11 @@ import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import de.hotelremote.acauto.AcAutoGraph
+import de.hotelremote.acauto.AcAutoRunner
+import de.hotelremote.data.AcAutoSettings
 import de.hotelremote.data.AcCodeDatabase
+import de.hotelremote.data.RoomPage
 import de.hotelremote.data.CodeDatabase
 import de.hotelremote.data.CodeRepository
 import de.hotelremote.data.RemoteStore
@@ -36,6 +40,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -48,9 +53,22 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         controller.showMessage(UiMessage.SEND_FAILED)
     }
     private val languageChoice = LanguageChoice(app.getSharedPreferences(LanguageChoice.PREFS, Context.MODE_PRIVATE))
+    private val remotesFile = File(app.filesDir, "remotes.json")
+
+    private val acAutoScheduler = AcAutoGraph.scheduler(app)
+    private val outdoorWeather = AcAutoGraph.weather(app)
+
+    /** Außentemperatur und Klima-Automatik; in der App wird über die Warteschlange gesendet. */
+    val climate = ClimateController(
+        weatherSource = outdoorWeather,
+        scheduler = acAutoScheduler,
+        runner = AcAutoRunner(acAutoScheduler, RemoteStore(remotesFile), outdoorWeather, sender::press),
+        scope = viewModelScope,
+        io = Dispatchers.IO,
+    )
 
     val controller: AppController = AppController(
-        store = RemoteStore(File(app.filesDir, "remotes.json")),
+        store = RemoteStore(remotesFile),
         openCatalog = { CodeRepository(CodeDatabase.open(app)) },
         send = sender::press,
         scope = viewModelScope,
@@ -60,6 +78,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         hold = sender::hold,
         recorderClock = SystemClock::elapsedRealtime,
         openAcCatalog = { AcCodeDatabase.open(app) },
+        stopAcAuto = climate::stopAutoFor,
     )
 
     private val timerScheduler = SleepTimerGraph.scheduler(app)
@@ -137,6 +156,14 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
     }
 
     init {
+        // Von der Klima-Automatik gesendete Zustände (auch aus dem Receiver im selben Prozess) anzeigen.
+        viewModelScope.launch {
+            acAutoScheduler.state
+                .map { run -> run?.sent?.let { run.roomId to it } }
+                .distinctUntilChanged()
+                .filterNotNull()
+                .collect { (roomId, state) -> controller.acStateSent(roomId, state) }
+        }
         // Nach dem Laden und bei jedem Wechsel (oder Umbenennen) der aktuellen = zuletzt benutzten Fernbedienung.
         viewModelScope.launch {
             controller.state
@@ -149,6 +176,26 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
 
     /** Rückkehr in die App: Alarm neu setzen (kann verloren gegangen sein), ggf. jetzt genau. */
     fun rearmSleepTimer() = timerScheduler.rearm()
+
+    /** Rückkehr in die App: Wetter neu lesen, Alarm der Klima-Automatik neu setzen. */
+    fun resumeClimate() {
+        climate.resumed()
+        val s = controller.state.value
+        val room = s.current
+        // Klima-Seite sichtbar: ein älterer Wert wird beim Zurückkehren erneuert.
+        if (s.screen == Screen.Remote && room?.ac != null && (!room.hasTv || room.lastPage == RoomPage.AC)) climate.acScreenShown()
+    }
+
+    /** Außentemperatur aus: eine laufende Automatik endet (mit Hinweis). */
+    fun setWeatherEnabled(on: Boolean) {
+        if (climate.setWeatherEnabled(on)) controller.showMessage(UiMessage.AC_AUTO_STOPPED_WEATHER)
+    }
+
+    /** Neue Einstellungen der Automatik des aktuellen Raums; läuft sie dort, wird gleich neu gerechnet. */
+    fun setAcAuto(settings: AcAutoSettings) {
+        val id = controller.state.value.current?.id ?: return
+        if (controller.setAcAuto(settings)) climate.settingsChanged(id)
+    }
 
     /** Nur neu lesen (z. B. ob der Receiver den Timer inzwischen ausgeführt hat). */
     fun reloadSleepTimer() = timerScheduler.reload()

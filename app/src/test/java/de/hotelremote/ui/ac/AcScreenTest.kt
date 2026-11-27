@@ -13,6 +13,9 @@ import de.hotelremote.data.AcState
 import de.hotelremote.ui.AcAction
 import de.hotelremote.ui.AcView
 import de.hotelremote.ui.theme.HotelRemoteTheme
+import de.hotelremote.weather.Place
+import de.hotelremote.weather.Reading
+import de.hotelremote.weather.WeatherSettings
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -43,8 +46,8 @@ class AcScreenTest {
     private val holdSteps = mutableListOf<AcAction>()
     private var holdEnds = 0
 
-    private fun show(view: AcView) {
-        val panel = AcPanel(view, { actions += it }, { holdSteps += it }, { holdEnds++ })
+    private fun show(view: AcView, climate: AcClimate? = null) {
+        val panel = AcPanel(view, { actions += it }, { holdSteps += it }, { holdEnds++ }, climate = climate)
         rule.setContent { HotelRemoteTheme { AcScreen(panel) } }
     }
 
@@ -127,4 +130,63 @@ class AcScreenTest {
         assertEquals(listOf<AcAction>(AcAction.Cooler), holdSteps)
         assertEquals(1, holdEnds)
     }
+
+    private var outdoorTaps = 0
+    private var autoTaps = 0
+    private val now = 10_000_000L
+
+    private fun climate(weather: WeatherSettings, running: Boolean = false, target: Double? = null, refreshing: Boolean = false) =
+        AcClimate(weather, refreshing = refreshing, autoRunning = running, autoTarget = target,
+            onOutdoor = { outdoorTaps++ }, onAuto = { autoTaps++ }, now = { now })
+
+    @Test
+    fun weatherOffShowsSubtleLinkToSetup() {
+        show(acView(), climate(WeatherSettings()))
+        rule.onNodeWithTag("ac_outdoor").assertDoesNotExist()
+        rule.onNodeWithTag("ac_outdoor_link").assertTextEquals("Außentemperatur anzeigen").performClick()
+        assertEquals(1, outdoorTaps)
+    }
+
+    @Test
+    fun outdoorLineWithPlaceAgeAndSource() {
+        show(acView(), climate(WeatherSettings(true, PLACE, Reading(31.2, now - 12 * 60_000L))))
+        rule.onNodeWithTag("ac_outdoor_text", useUnmergedTree = true).assertTextEquals("Draußen 31 °C · Pattaya · vor 12 min")
+        rule.onNodeWithText("Wetterdaten: Open-Meteo.com").assertExists()
+        rule.onNodeWithTag("ac_outdoor").performClick()
+        assertEquals(1, outdoorTaps)
+    }
+
+    @Test
+    fun outdoorLineMarksOldValueAndUsesFahrenheit() {
+        show(acView(fahrenheit = true), climate(WeatherSettings(true, PLACE, Reading(30.0, now - 3 * 60 * 60_000L))))
+        rule.onNodeWithTag("ac_outdoor_text", useUnmergedTree = true).assertTextEquals("Draußen 86 °F · Pattaya · vor 3 h · veraltet")
+    }
+
+    @Test
+    fun outdoorLineWithoutValueYet() {
+        show(acView(), climate(WeatherSettings(true, PLACE), refreshing = true))
+        rule.onNodeWithTag("ac_outdoor_text", useUnmergedTree = true).assertTextEquals("Draußen … · Pattaya")
+    }
+
+    @Test
+    fun outdoorLineWhenUnreachable() {
+        show(acView(), climate(WeatherSettings(true, PLACE)))
+        rule.onNodeWithTag("ac_outdoor_text", useUnmergedTree = true).assertTextEquals("Wetter nicht erreichbar · Pattaya")
+    }
+
+    @Test
+    fun autoKeyOpensSettingsAndShowsRunningTarget() {
+        show(acView(), climate(WeatherSettings()))
+        rule.onNodeWithTag("ac_auto_running", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("key_ac_auto").performClick()
+        assertEquals(1, autoTaps)
+    }
+
+    @Test
+    fun runningAutomationIsShown() {
+        show(acView(), climate(WeatherSettings(true, PLACE), running = true, target = 26.0))
+        rule.onNodeWithTag("ac_auto_running", useUnmergedTree = true).assertTextEquals("Läuft · 26 °C")
+    }
 }
+
+private val PLACE = Place("Pattaya", 12.9, 100.9, "Thailand", "Chon Buri")

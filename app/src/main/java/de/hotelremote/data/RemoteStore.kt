@@ -48,6 +48,9 @@ interface RemoteStorage {
 
     /** Merkt die zuletzt gezeigte Wischseite des Raums. */
     fun setLastPage(id: String, page: RoomPage)
+
+    /** Einstellungen der Klima-Automatik des Raums (ohne Klimaanlage: keine Änderung). */
+    fun setAcAuto(id: String, settings: AcAutoSettings)
 }
 
 /** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
@@ -90,6 +93,9 @@ class RemoteStore(private val file: File) : RemoteStorage {
 
     @Synchronized
     override fun setLastPage(id: String, page: RoomPage) = update(id) { it.copy(lastPage = page) }
+
+    @Synchronized
+    override fun setAcAuto(id: String, settings: AcAutoSettings) = update(id) { r -> r.copy(ac = r.ac?.copy(auto = settings)) }
 
     @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()

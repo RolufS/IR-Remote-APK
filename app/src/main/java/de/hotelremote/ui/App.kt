@@ -1,6 +1,10 @@
 package de.hotelremote.ui
 
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -24,11 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.hotelremote.R
 import de.hotelremote.data.RoomPage
@@ -36,7 +42,11 @@ import de.hotelremote.automation.SleepTemplates
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.quick.WidgetConfigActivity
 import de.hotelremote.ui.about.AboutScreen
+import de.hotelremote.sleeptimer.AndroidSleepTimerNotifier
+import de.hotelremote.ui.ac.AcAutoScreen
+import de.hotelremote.ui.ac.AcClimate
 import de.hotelremote.ui.ac.AcPanel
+import de.hotelremote.ui.ac.WeatherSetupScreen
 import de.hotelremote.ui.automation.AutomationEditorScreen
 import de.hotelremote.ui.automation.AutomationListScreen
 import de.hotelremote.ui.automation.AutomationProgressBar
@@ -73,6 +83,9 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val quickPrefs by vm.quickPrefs.collectAsStateWithLifecycle()
     val quickWidgets by vm.quickWidgets.collectAsStateWithLifecycle()
     val recordedSteps by c.recordedSteps.collectAsStateWithLifecycle()
+    val weather by vm.climate.weather.collectAsStateWithLifecycle()
+    val weatherUi by vm.climate.ui.collectAsStateWithLifecycle()
+    val acAutoRun by vm.climate.run.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     // ⋮ „Klimaanlage ersetzen“: Rückfrage für diesen Raum.
     var replaceAcFor by rememberSaveable { mutableStateOf<String?>(null) }
@@ -92,6 +105,26 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     var timerRequest by rememberSaveable(stateSaver = TimerRequestSaver) { mutableStateOf<TimerRequest?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val languageTag = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]?.toLanguageTag() ?: "en"
+    // Start der Klima-Automatik: vorher (ab Android 13) die Erlaubnis für ihre Benachrichtigung erfragen.
+    var autoStartRoom by rememberSaveable { mutableStateOf<String?>(null) }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        autoStartRoom?.let(vm.climate::startAuto)
+        autoStartRoom = null
+    }
+    val startAuto = { roomId: String ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !AndroidSleepTimerNotifier.canPostNotifications(context)) {
+            autoStartRoom = roomId
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            vm.climate.startAuto(roomId)
+        }
+    }
+    // Klima-Seite sichtbar: Außentemperatur erneuern, wenn sie älter als 15 min ist.
+    val acVisible = state.screen == Screen.Remote && state.current?.let { it.ac != null && (!it.hasTv || it.lastPage == RoomPage.AC) } == true
+    LaunchedEffect(acVisible, state.current?.id, weather.active) {
+        if (acVisible) vm.climate.acScreenShown()
+    }
     LaunchedEffect(state.message) {
         val msg = state.message ?: return@LaunchedEffect
         val text = when (msg) {
@@ -178,8 +211,34 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onAddDevice = c::addDevice,
                 onRemoveDevice = c::removeDevice,
             )
+            state.screen is Screen.WeatherSetup -> {
+                val returnTo = (state.screen as Screen.WeatherSetup).returnTo
+                WeatherSetupScreen(
+                    weather = weather,
+                    ui = weatherUi,
+                    onEnabled = vm::setWeatherEnabled,
+                    onSearch = { vm.climate.search(it, languageTag) },
+                    onChoose = {
+                        vm.climate.choose(it)
+                        c.show(returnTo)
+                    },
+                    onBack = { c.show(returnTo) },
+                )
+            }
             state.screen == Screen.About -> AboutScreen(meta = state.meta, dbError = state.dbError, onBack = { c.show(Screen.Remote) })
             current == null -> Unit
+            state.screen == Screen.AcAuto && current.ac != null -> AcAutoScreen(
+                roomId = current.id,
+                ac = current.ac,
+                fans = remember(current.ac.commands) { c.acAutoFans(current) },
+                weather = weather,
+                run = acAutoRun,
+                onSettings = vm::setAcAuto,
+                onStart = { startAuto(current.id) },
+                onStop = vm.climate::stopAuto,
+                onWeatherSetup = { c.show(Screen.WeatherSetup(returnTo = Screen.AcAuto)) },
+                onBack = { c.show(Screen.Remote) },
+            )
             state.screen == Screen.ExtraKeys -> ExtraKeysScreen(current, vm, onBack = { c.show(Screen.Remote) }, recording = recording)
             state.screen == Screen.Automations -> AutomationListScreen(
                 automations = current.automations,
@@ -252,6 +311,15 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                         onHoldEnd = c::acHoldEnd,
                         page = current.lastPage ?: RoomPage.TV,
                         onPage = { c.showRoomPage(current.id, it) },
+                        climate = AcClimate(
+                            weather = weather,
+                            refreshing = weatherUi.refreshing,
+                            refreshFailed = weatherUi.refreshFailed,
+                            autoRunning = acAutoRun?.roomId == current.id,
+                            autoTarget = acAutoRun?.takeIf { it.roomId == current.id }?.target,
+                            onOutdoor = { if (weather.active) vm.climate.refresh() else c.show(Screen.WeatherSetup()) },
+                            onAuto = { c.show(Screen.AcAuto) },
+                        ),
                     )
                 },
             )
@@ -349,4 +417,6 @@ private val UiMessage.text: Int
         UiMessage.KEYS_MISSING -> R.string.auto_keys_missing
         UiMessage.AUTOMATION_BUSY -> R.string.auto_busy
         UiMessage.TIMER_NO_NOTIFICATIONS -> R.string.timer_no_notifications
+        UiMessage.AC_AUTO_STOPPED -> R.string.acauto_stopped_off
+        UiMessage.AC_AUTO_STOPPED_WEATHER -> R.string.acauto_stopped_weather
     }

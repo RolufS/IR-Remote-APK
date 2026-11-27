@@ -1,6 +1,7 @@
 package de.hotelremote.sleeptimer
 
 import de.hotelremote.Keys
+import de.hotelremote.data.AcAutoSettings
 import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
@@ -19,9 +20,12 @@ import org.junit.Test
 internal class FakeTransmitter(var fail: Boolean = false) : IrTransmitter {
     override val available = true
     val sent = mutableListOf<Int>()
+    /** Vollständige Muster (für Klima-Signale). */
+    val patterns = mutableListOf<List<Int>>()
     override fun transmit(freq: Int, pattern: IntArray) {
         if (fail) throw UnsupportedOperationException("Kein Infrarot-Sender")
         sent += pattern.first()
+        patterns += pattern.toList()
     }
 }
 
@@ -36,6 +40,7 @@ internal class ListStorage(private val list: List<SavedRemote>) : RemoteStorage 
     override fun setAc(id: String, ac: SavedAc?) = Unit
     override fun updateAcState(id: String, state: AcState) = Unit
     override fun setLastPage(id: String, page: RoomPage) = Unit
+    override fun setAcAuto(id: String, settings: AcAutoSettings) = Unit
 }
 
 private fun sig(n: Int) = IrSignal(freq = 38000, frame = listOf(n, 100, 200), periodMs = 100)

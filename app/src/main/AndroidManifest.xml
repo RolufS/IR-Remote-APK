@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Schnellsteuerung: kurzes Vibrieren als Bestätigung (normale Berechtigung, keine Rückfrage). -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Nur für die optionale Außentemperatur (Standard aus): Ortssuche und Temperatur von Open-Meteo. Ohne
+         Einschalten baut die App keine Verbindung auf. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Nur Handys mit Infrarot-Sender: Google Play blendet die App auf Geräten ohne IR aus. Per APK-Sideload
          installiert sie weiterhin überall (Android prüft uses-feature beim Installieren nicht); ohne IR-Sender
          zeigt sie wie bisher den Hinweis. -->
@@ -36,6 +39,10 @@
         </activity>
         <receiver
             android:name=".sleeptimer.SleepTimerReceiver"
+            android:exported="false" />
+        <!-- Klima-Automatik: Alarm alle 30 min und „Stopp“ aus der Benachrichtigung. -->
+        <receiver
+            android:name=".acauto.AcAutoReceiver"
             android:exported="false" />
         <receiver
             android:name=".sleeptimer.SleepTimerBootReceiver"

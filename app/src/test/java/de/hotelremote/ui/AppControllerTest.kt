@@ -2,6 +2,7 @@ package de.hotelremote.ui
 
 import de.hotelremote.Keys
 import de.hotelremote.automation.SleepTemplates
+import de.hotelremote.data.AcAutoSettings
 import de.hotelremote.data.AcBrand
 import de.hotelremote.data.AcCatalog
 import de.hotelremote.data.AcDevice
@@ -85,6 +86,9 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
     override fun setLastPage(id: String, page: RoomPage) = write {
         list.replaceAll { if (it.id == id) it.copy(lastPage = page) else it }
     }
+    override fun setAcAuto(id: String, settings: AcAutoSettings) = write {
+        list.replaceAll { if (it.id == id) it.copy(ac = it.ac?.copy(auto = settings)) else it }
+    }
 }
 
 /** Eine Marke mit einem Code-Satz (POWER, MUTE) und zwei Suchlauf-Einträgen. */
@@ -122,6 +126,7 @@ class AppControllerTest {
         recorderClock: () -> Long = { 0L },
         catalog: () -> CodeCatalog = { FakeCatalog() },
         acCatalog: () -> AcCatalog = { FakeAcCatalog() },
+        stopAcAuto: (String) -> Boolean = { false },
     ): AppController {
         val d = StandardTestDispatcher(testScheduler)
         return AppController(
@@ -136,6 +141,7 @@ class AppControllerTest {
             hold = hold ?: { sent += it; null },
             recorderClock = recorderClock,
             openAcCatalog = acCatalog,
+            stopAcAuto = stopAcAuto,
         ).also { runCurrent() }
     }
 
@@ -549,6 +555,68 @@ class AppControllerTest {
         lastUsed = lastUsed,
         ac = testAc(),
     )
+
+    @Test fun turningAcOffStopsRunningAutomationWithHint() = runTest {
+        val stopped = mutableListOf<String>()
+        var running = true
+        val c = controller(FakeStorage(listOf(acRoom())), stopAcAuto = { stopped += it; running.also { running = false } })
+        // testAc ist eingeschaltet: Ein/Aus schaltet aus.
+        c.ac(AcAction.Power)
+        assertEquals(listOf("k"), stopped)
+        assertEquals(UiMessage.AC_AUTO_STOPPED, c.state.value.message)
+        c.clearMessage()
+        // Einschalten und andere Tasten stoppen nichts; Ausschalten ohne laufende Automatik ohne Hinweis.
+        c.ac(AcAction.Power)
+        c.ac(AcAction.Warmer)
+        assertEquals(1, stopped.size)
+        c.ac(AcAction.Power)
+        assertEquals(2, stopped.size)
+        assertNull(c.state.value.message)
+    }
+
+    @Test fun removingAcOrRoomStopsAutomation() = runTest {
+        val stopped = mutableListOf<String>()
+        val c = controller(FakeStorage(listOf(acRoom("k"), acRoom("m", 1))), stopAcAuto = { stopped += it; true })
+        c.removeDevice("k", DeviceKind.TV)
+        assertTrue(stopped.isEmpty())
+        c.removeDevice("k", DeviceKind.AC)
+        assertEquals(listOf("k"), stopped)
+        c.delete("m")
+        assertEquals(listOf("k", "m"), stopped)
+    }
+
+    @Test fun replacingAcStopsItsAutomation() = runTest {
+        val stopped = mutableListOf<String>()
+        val c = controller(FakeStorage(listOf(acRoom("k"))), stopAcAuto = { stopped += it; true })
+        c.addDevice("k", DeviceKind.AC)
+        assertTrue(stopped.isEmpty())
+        c.findAc()
+        assertEquals(listOf("k"), stopped)
+    }
+
+    @Test fun acAutoSettingsAreStoredPerRoom() = runTest {
+        val store = FakeStorage(listOf(acRoom("k"), remote("a", 1)))
+        val c = controller(store)
+        val s = AcAutoSettings(6.0, 24.0, 27.0, "low")
+        assertTrue(c.setAcAuto(s))
+        assertEquals(s, store.list.first { it.id == "k" }.ac?.auto)
+        assertEquals(s, c.state.value.current?.ac?.auto)
+        assertEquals(listOf("auto", "low"), c.acAutoFans(c.state.value.current!!))
+        store.failWrite = true
+        assertFalse(c.setAcAuto(s.copy(offset = 7.0)))
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        c.switchTo("a")
+        assertFalse(c.setAcAuto(s))
+    }
+
+    @Test fun stateSentByAutomationIsShownWithoutStoring() = runTest {
+        val store = FakeStorage(listOf(acRoom("k")))
+        val c = controller(store)
+        val sentState = AcState(true, "cool", 23.0, "auto")
+        c.acStateSent("k", sentState)
+        assertEquals(sentState, c.state.value.current?.ac?.state)
+        assertEquals(0, store.writes)
+    }
 
     @Test fun acActionUpdatesStateStoresAndSendsAfterDebounce() = runTest {
         val store = FakeStorage(listOf(acRoom(), remote("a", 1)))
