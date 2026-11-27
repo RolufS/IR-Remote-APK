@@ -2,11 +2,13 @@ package de.hotelremote.ui
 
 import de.hotelremote.Keys
 import de.hotelremote.automation.SleepTemplates
+import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
 import de.hotelremote.data.Brand
 import de.hotelremote.data.CodeCatalog
 import de.hotelremote.data.RemoteStorage
+import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.data.ScanEntry
 import de.hotelremote.ir.IrSignal
@@ -57,6 +59,12 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
     }
     override fun updateAutomations(id: String, automations: List<Automation>) = write {
         list.replaceAll { if (it.id == id) it.copy(automations = automations) else it }
+    }
+    override fun setAc(id: String, ac: SavedAc?) = write {
+        list.replaceAll { if (it.id == id) it.copy(ac = ac) else it }
+    }
+    override fun updateAcState(id: String, state: AcState) = write {
+        list.replaceAll { if (it.id == id) it.copy(ac = it.ac?.copy(state = state)) else it }
     }
 }
 

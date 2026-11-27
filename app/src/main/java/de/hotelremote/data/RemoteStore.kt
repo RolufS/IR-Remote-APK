@@ -6,18 +6,24 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import java.io.File
 
-/** Gespeicherte Fernbedienung mit eigener Kopie aller Signale (unabhängig von der Code-Datenbank). */
+/**
+ * Gespeicherter Raum: Fernseher ([keys], eigene Kopie aller Signale, unabhängig von der Code-Datenbank) und/oder
+ * Klimaanlage ([ac]). Ein reiner Klima-Raum hat keine Tasten; [brand] und [codeLabel] sind dann leer.
+ */
 @Serializable
 data class SavedRemote(
     val id: String,
     val name: String? = null,
-    val brand: String,
-    val codeLabel: String,
-    val keys: Map<String, IrSignal>,
+    val brand: String = "",
+    val codeLabel: String = "",
+    val keys: Map<String, IrSignal> = emptyMap(),
     val lastUsed: Long,
     val automations: List<Automation> = emptyList(),
+    val ac: SavedAc? = null,
 ) {
-    val title get() = name?.takeIf { it.isNotBlank() } ?: "$brand · $codeLabel"
+    val hasTv get() = keys.isNotEmpty()
+
+    val title get() = name?.takeIf { it.isNotBlank() } ?: if (!hasTv && ac != null) ac.title else "$brand · $codeLabel"
 }
 
 /** Ablage der gespeicherten Fernbedienungen; Schreibfehler als [java.io.IOException]. */
@@ -28,6 +34,12 @@ interface RemoteStorage {
     fun delete(id: String)
     fun markUsed(id: String, now: Long)
     fun updateAutomations(id: String, automations: List<Automation>)
+
+    /** Setzt die Klimaanlage des Raums; null entfernt sie. */
+    fun setAc(id: String, ac: SavedAc?)
+
+    /** Neuer Zustand der Klimaanlage des Raums (ohne Klimaanlage: keine Änderung). */
+    fun updateAcState(id: String, state: AcState)
 }
 
 /** JSON-Datei mit gespeicherten Fernbedienungen; Schreiben atomar über `<file>.tmp`. */
@@ -59,12 +71,21 @@ class RemoteStore(private val file: File) : RemoteStorage {
     override fun updateAutomations(id: String, automations: List<Automation>) = update(id) { it.copy(automations = automations) }
 
     @Synchronized
+    override fun setAc(id: String, ac: SavedAc?) = update(id) { it.copy(ac = ac) }
+
+    @Synchronized
+    override fun updateAcState(id: String, state: AcState) = update(id) { r -> r.copy(ac = r.ac?.copy(state = state)) }
+
+    @Synchronized
     fun lastUsed(): SavedRemote? = all().firstOrNull()
 
+    /** Ändert den Eintrag [id]; ist er unbekannt oder bleibt er gleich, wird nicht geschrieben. */
     private fun update(id: String, change: (SavedRemote) -> SavedRemote) {
         val list = load()
-        if (list.none { it.id == id }) return
-        save(list.map { if (it.id == id) change(it) else it })
+        val old = list.firstOrNull { it.id == id } ?: return
+        val new = change(old)
+        if (new == old) return
+        save(list.map { if (it.id == id) new else it })
     }
 
     private fun load(): List<SavedRemote> {
