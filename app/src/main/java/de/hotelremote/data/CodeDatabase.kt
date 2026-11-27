@@ -8,22 +8,27 @@ import java.io.File
 import java.io.InputStream
 
 object CodeDatabase {
+    /**
+     * Kopiert das Asset `<name>.db` je Installationsstand einmal nach noBackupFilesDir
+     * (`<name>-<stamp>.db`), räumt ältere Kopien desselben Namens weg und öffnet nur lesend.
+     */
     fun open(
         context: Context,
         stamp: Long = installStamp(context),
-        source: () -> InputStream = { context.assets.open("codes.db") },
+        name: String = "codes",
+        source: () -> InputStream = { context.assets.open("$name.db") },
     ): SQLiteDatabase {
         val dir = context.noBackupFilesDir
-        val target = File(dir, "codes-$stamp.db")
+        val target = File(dir, "$name-$stamp.db")
         if (!target.exists()) {
-            val tmp = File(dir, "codes-$stamp.db.tmp")
+            val tmp = File(dir, "$name-$stamp.db.tmp")
             source().use { input -> tmp.outputStream().use { input.copyTo(it) } }
             if (!tmp.renameTo(target)) {
                 tmp.delete()
                 error("Code-Datenbank konnte nicht angelegt werden")
             }
         }
-        dir.listFiles { f -> f.name.startsWith("codes-") && f.name.endsWith(".db") && f.name != target.name }
+        dir.listFiles { f -> f.name.startsWith("$name-") && f.name.endsWith(".db") && f.name != target.name }
             ?.forEach { it.delete() }
         return SQLiteDatabase.openDatabase(target.path, null, SQLiteDatabase.OPEN_READONLY)
     }
