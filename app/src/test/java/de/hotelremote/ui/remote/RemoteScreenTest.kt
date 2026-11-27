@@ -21,6 +21,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.up
 import de.hotelremote.Keys
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.data.testAc
 import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ir.IrSignal
 import de.hotelremote.ui.theme.HotelRemoteTheme
@@ -290,6 +291,29 @@ class RemoteScreenTest {
         rule.onNodeWithText("Automationen").assertDoesNotExist()
         rule.onNodeWithText("Weitere Tasten").performClick()
         assertEquals(listOf(RemoteMenu.EXTRA_KEYS), menus)
+    }
+
+    @Test
+    fun menuOffersAddAcForTvRoom() {
+        val menus = mutableListOf<RemoteMenu>()
+        show(remote("MUTE"), onMenu = { menus += it })
+        rule.onNodeWithTag("header_menu").performClick()
+        rule.onNodeWithText("Fernseher hinzufügen").assertDoesNotExist()
+        rule.onNodeWithText("Klimaanlage ersetzen").assertDoesNotExist()
+        rule.onNodeWithText("Klimaanlage hinzufügen").performClick()
+        assertEquals(listOf(RemoteMenu.ADD_AC), menus)
+    }
+
+    @Test
+    fun menuOffersReplaceAcAndAddTvForPureAcRoom() {
+        val menus = mutableListOf<RemoteMenu>()
+        show(SavedRemote(id = "k", lastUsed = 0, ac = testAc()), onMenu = { menus += it })
+        rule.onNodeWithTag("header_menu").performClick()
+        rule.onNodeWithText("Klimaanlage hinzufügen").assertDoesNotExist()
+        rule.onNodeWithText("Klimaanlage ersetzen").performClick()
+        rule.onNodeWithTag("header_menu").performClick()
+        rule.onNodeWithText("Fernseher hinzufügen").performClick()
+        assertEquals(listOf(RemoteMenu.ADD_AC, RemoteMenu.ADD_TV), menus)
     }
 
     /** Über dem Sperrbildschirm: kein ☰, kein ⚡, kein Umschalten, ⋮ nur „Weitere Tasten“; Tasten senden. */

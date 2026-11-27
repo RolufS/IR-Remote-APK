@@ -37,6 +37,9 @@ interface RemoteStorage {
     fun markUsed(id: String, now: Long)
     fun updateAutomations(id: String, automations: List<Automation>)
 
+    /** Setzt den Fernseher des Raums; leere [keys] (und leere Texte) entfernen ihn. */
+    fun setTv(id: String, brand: String, codeLabel: String, keys: Map<String, IrSignal>)
+
     /** Setzt die Klimaanlage des Raums; null entfernt sie. */
     fun setAc(id: String, ac: SavedAc?)
 
@@ -74,6 +77,10 @@ class RemoteStore(private val file: File) : RemoteStorage {
 
     @Synchronized
     override fun updateAutomations(id: String, automations: List<Automation>) = update(id) { it.copy(automations = automations) }
+
+    @Synchronized
+    override fun setTv(id: String, brand: String, codeLabel: String, keys: Map<String, IrSignal>) =
+        update(id) { it.copy(brand = brand, codeLabel = codeLabel, keys = keys) }
 
     @Synchronized
     override fun setAc(id: String, ac: SavedAc?) = update(id) { it.copy(ac = ac) }

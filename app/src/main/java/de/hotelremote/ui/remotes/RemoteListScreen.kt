@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.hotelremote.R
 import de.hotelremote.data.SavedRemote
+import de.hotelremote.ui.DeviceKind
 import de.hotelremote.ui.backArrow
 import de.hotelremote.ui.remote.SourceBrush
 import de.hotelremote.ui.theme.RemoteColors
@@ -50,7 +51,10 @@ import de.hotelremote.ui.theme.RemoteColors
 private val RowColor = Color(0xFF36383D)
 private val CurrentRowColor = Color(0xFF45484F)
 
-/** Liste der gespeicherten Fernbedienungen: Tippen wechselt, langes Drücken öffnet Umbenennen/Löschen. */
+/**
+ * Liste der gespeicherten Räume: Tippen wechselt, langes Drücken öffnet Umbenennen, Geräte hinzufügen/entfernen
+ * und Löschen. Entfernen des letzten Geräts löscht den Raum (die Rückfrage sagt das).
+ */
 @Composable
 fun RemoteListScreen(
     remotes: List<SavedRemote>,
@@ -60,10 +64,14 @@ fun RemoteListScreen(
     onDelete: (String) -> Unit,
     onNew: () -> Unit,
     onBack: () -> Unit,
+    onAddDevice: (String, DeviceKind) -> Unit = { _, _ -> },
+    onRemoveDevice: (String, DeviceKind) -> Unit = { _, _ -> },
 ) {
     var actionsFor by rememberSaveable { mutableStateOf<String?>(null) }
     var renameFor by rememberSaveable { mutableStateOf<String?>(null) }
     var deleteFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var replaceAcFor by rememberSaveable { mutableStateOf<String?>(null) }
+    var removeFor by rememberSaveable { mutableStateOf<Pair<String, DeviceKind>?>(null) }
     val backDesc = stringResource(R.string.cd_back)
     Column(
         Modifier
@@ -117,20 +125,33 @@ fun RemoteListScreen(
     }
 
     remotes.firstOrNull { it.id == actionsFor }?.let { r ->
+        @Composable
+        fun Action(label: Int, tag: String, action: () -> Unit) = TextButton(
+            onClick = {
+                actionsFor = null
+                action()
+            },
+            modifier = Modifier.fillMaxWidth().testTag(tag),
+        ) { Text(stringResource(label), Modifier.fillMaxWidth()) }
         AlertDialog(
             onDismissRequest = { actionsFor = null },
             title = { Text(r.title) },
-            confirmButton = {
-                TextButton(onClick = {
-                    actionsFor = null
-                    renameFor = r.id
-                }) { Text(stringResource(R.string.list_rename)) }
+            text = {
+                Column {
+                    Action(R.string.list_rename, "action_rename") { renameFor = r.id }
+                    if (r.ac != null) {
+                        Action(R.string.menu_replace_ac, "action_add_ac") { replaceAcFor = r.id }
+                    } else {
+                        Action(R.string.menu_add_ac, "action_add_ac") { onAddDevice(r.id, DeviceKind.AC) }
+                    }
+                    if (!r.hasTv) Action(R.string.menu_add_tv, "action_add_tv") { onAddDevice(r.id, DeviceKind.TV) }
+                    if (r.hasTv) Action(R.string.list_remove_tv, "action_remove_tv") { removeFor = r.id to DeviceKind.TV }
+                    if (r.ac != null) Action(R.string.list_remove_ac, "action_remove_ac") { removeFor = r.id to DeviceKind.AC }
+                    Action(R.string.list_delete, "action_delete") { deleteFor = r.id }
+                }
             },
-            dismissButton = {
-                TextButton(onClick = {
-                    actionsFor = null
-                    deleteFor = r.id
-                }) { Text(stringResource(R.string.list_delete)) }
+            confirmButton = {
+                TextButton(onClick = { actionsFor = null }) { Text(stringResource(R.string.list_cancel)) }
             },
         )
     }
@@ -176,7 +197,72 @@ fun RemoteListScreen(
             },
         )
     }
+
+    remotes.firstOrNull { it.id == replaceAcFor }?.let { r ->
+        ReplaceAcDialog(
+            r.title,
+            onConfirm = {
+                replaceAcFor = null
+                onAddDevice(r.id, DeviceKind.AC)
+            },
+            onDismiss = { replaceAcFor = null },
+        )
+    }
+
+    removeFor?.let { (id, kind) ->
+        val r = remotes.firstOrNull { it.id == id } ?: return@let
+        val last = if (kind == DeviceKind.TV) r.ac == null else !r.hasTv
+        AlertDialog(
+            onDismissRequest = { removeFor = null },
+            text = {
+                Text(
+                    stringResource(
+                        when {
+                            last -> R.string.list_remove_last_confirm
+                            kind == DeviceKind.TV -> R.string.list_remove_tv_confirm
+                            else -> R.string.list_remove_ac_confirm
+                        },
+                        r.title,
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        removeFor = null
+                        onRemoveDevice(id, kind)
+                    },
+                    modifier = Modifier.testTag("remove_confirm"),
+                ) { Text(stringResource(if (last) R.string.list_delete else R.string.list_remove)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { removeFor = null }) { Text(stringResource(R.string.list_cancel)) }
+            },
+        )
+    }
 }
+
+/** Rückfrage vor „Klimaanlage ersetzen“: ersetzt wird erst beim Speichern der neuen. */
+@Composable
+fun ReplaceAcDialog(roomTitle: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = { Text(stringResource(R.string.replace_ac_confirm, roomTitle)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm, modifier = Modifier.testTag("replace_ac_confirm")) {
+                Text(stringResource(R.string.replace_ac))
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.list_cancel)) } },
+    )
+}
+
+/** „TV · Klima“: die Geräte des Raums. */
+@Composable
+private fun devicesLine(r: SavedRemote): String = listOfNotNull(
+    stringResource(R.string.room_page_tv).takeIf { r.hasTv },
+    stringResource(R.string.room_page_ac).takeIf { r.ac != null },
+).joinToString(" · ")
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -193,7 +279,8 @@ private fun RemoteRow(r: SavedRemote, isCurrent: Boolean, onClick: () -> Unit, o
     ) {
         Text(r.title, color = RemoteColors.KeyText, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         Text(
-            stringResource(R.string.list_subtitle, r.brand, r.codeLabel),
+            devicesLine(r),
+            modifier = Modifier.testTag("devices_" + r.id),
             color = RemoteColors.KeyText.copy(alpha = 0.55f),
             fontSize = 13.sp,
         )

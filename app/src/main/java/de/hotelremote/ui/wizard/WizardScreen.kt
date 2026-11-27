@@ -60,10 +60,10 @@ import de.hotelremote.ui.theme.HotelRemoteTheme
 import de.hotelremote.ui.theme.RemoteColors
 import de.hotelremote.wizard.WizardState
 
-private val YesBrush = Brush.verticalGradient(listOf(RemoteColors.YesTop, RemoteColors.YesBottom))
-private val FieldColor = Color(0xFF3A3C41)
-private val RowColor = Color(0xFF36383D)
-private val LinkColor = Color(0xFF7FA6E8)
+internal val YesBrush = Brush.verticalGradient(listOf(RemoteColors.YesTop, RemoteColors.YesBottom))
+internal val FieldColor = Color(0xFF3A3C41)
+internal val RowColor = Color(0xFF36383D)
+internal val LinkColor = Color(0xFF7FA6E8)
 
 @Composable
 fun WizardScreen(
@@ -82,6 +82,8 @@ fun WizardScreen(
     onBack: () -> Unit,
     /** Link „Sprache“ auf der Markenwahl; ohne Angabe kein Link. */
     onLanguage: (() -> Unit)? = null,
+    /** Titel des Raums, zu dem der Fernseher hinzugefügt wird (dann kein Namensfeld); null = neuer Raum. */
+    addingTo: String? = null,
 ) {
     // Hinweis vor dem Suchlauf: lokaler Zwischenschritt, kein Zustand des Automaten.
     var intro by rememberSaveable { mutableStateOf(false) }
@@ -122,7 +124,7 @@ fun WizardScreen(
                     is WizardState.Scanning -> Scanning(state, onStopScan)
                     is WizardState.ScanVerify -> ScanVerify(state, onTest, onAnswer)
                     is WizardState.TestInputs -> TestInputs(state, onTest, onAnswer)
-                    is WizardState.Save -> Save(state, savedRemotes, onSave)
+                    is WizardState.Save -> Save(state, savedRemotes, addingTo, onSave)
                     is WizardState.NoMatch -> NoMatch(
                         state,
                         onOtherBrand = onBack,
@@ -161,15 +163,15 @@ fun WizardDbError(onBack: () -> Unit) {
 // ---- Bausteine ----
 
 @Composable
-private fun Title(text: String) =
+internal fun Title(text: String) =
     Text(text, color = RemoteColors.KeyText, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, lineHeight = 26.sp)
 
 @Composable
-private fun Sub(text: String, modifier: Modifier = Modifier) =
+internal fun Sub(text: String, modifier: Modifier = Modifier) =
     Text(text, color = RemoteColors.KeyText.copy(alpha = 0.7f), fontSize = 14.sp, lineHeight = 20.sp, modifier = modifier)
 
 @Composable
-private fun Question(text: String) =
+internal fun Question(text: String) =
     Text(
         text,
         color = RemoteColors.KeyText, fontSize = 16.sp, textAlign = TextAlign.Center,
@@ -177,7 +179,7 @@ private fun Question(text: String) =
     )
 
 @Composable
-private fun Label(text: String) =
+internal fun Label(text: String) =
     Text(
         text,
         color = RemoteColors.KeyText.copy(alpha = 0.5f), fontSize = 11.sp,
@@ -185,7 +187,7 @@ private fun Label(text: String) =
     )
 
 @Composable
-private fun WizardButton(
+internal fun WizardButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -204,7 +206,7 @@ private fun WizardButton(
 }
 
 @Composable
-private fun NoYes(onAnswer: (Boolean) -> Unit, noText: String = stringResource(R.string.wiz_no)) {
+internal fun NoYes(onAnswer: (Boolean) -> Unit, noText: String = stringResource(R.string.wiz_no)) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         WizardButton(noText, { onAnswer(false) }, Modifier.weight(1f))
         WizardButton(stringResource(R.string.wiz_yes), { onAnswer(true) }, Modifier.weight(1f), brush = YesBrush)
@@ -212,7 +214,7 @@ private fun NoYes(onAnswer: (Boolean) -> Unit, noText: String = stringResource(R
 }
 
 @Composable
-private fun Header(left: String, progress: Float? = null) {
+internal fun Header(left: String, progress: Float? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(left, color = RemoteColors.KeyText.copy(alpha = 0.6f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         if (progress != null) {
@@ -225,7 +227,7 @@ private fun Header(left: String, progress: Float? = null) {
 
 /** Großer runder Testknopf in der Mitte des freien Platzes; mit [icon] zeigt er das Symbol, [label] beschreibt es. */
 @Composable
-private fun ColumnScope.BigTestButton(label: String, onClick: () -> Unit, brush: Brush = KeyBrush, icon: ImageVector? = null) {
+internal fun ColumnScope.BigTestButton(label: String, onClick: () -> Unit, brush: Brush = KeyBrush, icon: ImageVector? = null) {
     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
         Box(
             Modifier
@@ -421,7 +423,7 @@ private fun TestInputs(s: WizardState.TestInputs, onTest: () -> Unit, onAnswer: 
 }
 
 @Composable
-private fun Save(s: WizardState.Save, savedRemotes: List<SavedRemote>, onSave: (String?, String) -> Unit) {
+private fun Save(s: WizardState.Save, savedRemotes: List<SavedRemote>, addingTo: String?, onSave: (String?, String) -> Unit) {
     var brand by rememberSaveable(s.brandName) { mutableStateOf(s.brandName) }
     var name by rememberSaveable { mutableStateOf("") }
     Column(
@@ -433,13 +435,12 @@ private fun Save(s: WizardState.Save, savedRemotes: List<SavedRemote>, onSave: (
         CheckLine(stringResource(R.string.wiz_save_hdmi), s.hasInputs, Modifier.testTag("check_hdmi"))
         Label(stringResource(R.string.wiz_field_brand))
         OutlinedTextField(brand, { brand = it }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        Label(stringResource(R.string.wiz_field_name))
-        OutlinedTextField(
-            name, { name = it },
-            placeholder = { Text(stringResource(R.string.wiz_name_hint)) },
-            singleLine = true, modifier = Modifier.fillMaxWidth(),
-        )
-        if (savedRemotes.isNotEmpty()) {
+        if (addingTo != null) {
+            AddingTo(addingTo)
+        } else {
+            NameField(name) { name = it }
+        }
+        if (addingTo == null && savedRemotes.isNotEmpty()) {
             Label(stringResource(R.string.wiz_saved_remotes))
             savedRemotes.forEach { r ->
                 Text(
@@ -461,6 +462,21 @@ private fun Save(s: WizardState.Save, savedRemotes: List<SavedRemote>, onSave: (
         )
     }
 }
+
+/** Optionaler Name eines neuen Raums. */
+@Composable
+internal fun NameField(name: String, onName: (String) -> Unit) {
+    Label(stringResource(R.string.wiz_field_name))
+    OutlinedTextField(
+        name, onName,
+        placeholder = { Text(stringResource(R.string.wiz_name_hint)) },
+        singleLine = true, modifier = Modifier.fillMaxWidth().testTag("wizard_name"),
+    )
+}
+
+/** Hinweis statt Namensfeld: das Gerät kommt in den Raum [room]. */
+@Composable
+internal fun AddingTo(room: String) = Sub(stringResource(R.string.wiz_adding_to, room), Modifier.testTag("wizard_adding_to"))
 
 private fun hasSoundKeys(keys: Map<String, *>) = listOf(Keys.MUTE, Keys.VOL_UP, Keys.VOL_DOWN).any { it in keys }
 

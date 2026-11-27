@@ -90,7 +90,8 @@ import de.hotelremote.ui.automation.RecordingBar
 import de.hotelremote.ui.automation.RecordingBarState
 import de.hotelremote.ui.theme.RemoteColors
 
-enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, QUICK_CONTROLS, WIZARD, LANGUAGE, ABOUT }
+/** Einträge im ⋮-Menü; [ADD_AC] heißt „Klimaanlage ersetzen“, wenn der Raum schon eine hat. */
+enum class RemoteMenu { EXTRA_KEYS, AUTOMATIONS, QUICK_CONTROLS, WIZARD, ADD_AC, ADD_TV, LANGUAGE, ABOUT }
 
 private val SideMargin = 12.dp
 private val Gap = 8.dp
@@ -533,11 +534,13 @@ private fun Header(
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                 // Während der Aufnahme nur „Weitere Tasten“: die anderen Einträge verließen die Fernbedienung.
                 // Über dem Sperrbildschirm ebenso: dort ist nichts änderbar.
-                listOf(
+                listOfNotNull(
                     R.string.menu_extra to RemoteMenu.EXTRA_KEYS,
                     R.string.menu_automations to RemoteMenu.AUTOMATIONS,
                     R.string.menu_quick to RemoteMenu.QUICK_CONTROLS,
                     R.string.menu_wizard to RemoteMenu.WIZARD,
+                    (if (remote.ac != null) R.string.menu_replace_ac else R.string.menu_add_ac) to RemoteMenu.ADD_AC,
+                    (R.string.menu_add_tv to RemoteMenu.ADD_TV).takeIf { !remote.hasTv },
                     R.string.menu_language to RemoteMenu.LANGUAGE,
                     R.string.menu_about to RemoteMenu.ABOUT,
                 ).filter { !(recording || locked) || it.second == RemoteMenu.EXTRA_KEYS }.forEach { (label, menu) ->

@@ -32,6 +32,7 @@ internal class ListStorage(private val list: List<SavedRemote>) : RemoteStorage 
     override fun delete(id: String) = Unit
     override fun markUsed(id: String, now: Long) = Unit
     override fun updateAutomations(id: String, automations: List<Automation>) = Unit
+    override fun setTv(id: String, brand: String, codeLabel: String, keys: Map<String, IrSignal>) = Unit
     override fun setAc(id: String, ac: SavedAc?) = Unit
     override fun updateAcState(id: String, state: AcState) = Unit
     override fun setLastPage(id: String, page: RoomPage) = Unit

@@ -9,6 +9,7 @@ import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import de.hotelremote.data.AcCodeDatabase
 import de.hotelremote.data.CodeDatabase
 import de.hotelremote.data.CodeRepository
 import de.hotelremote.data.RemoteStore
@@ -58,6 +59,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app), KeyHandler, SleepT
         languageChosen = !languageChoice.needed,
         hold = sender::hold,
         recorderClock = SystemClock::elapsedRealtime,
+        openAcCatalog = { AcCodeDatabase.open(app) },
     )
 
     private val timerScheduler = SleepTimerGraph.scheduler(app)

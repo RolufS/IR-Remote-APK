@@ -34,7 +34,14 @@ class WizardScreenTest {
     private var started = 0
     private var languageOpened = 0
 
-    private fun show(state: WizardState, irAvailable: Boolean = true, saved: List<SavedRemote> = emptyList()) {
+    private val saves = mutableListOf<Pair<String?, String>>()
+
+    private fun show(
+        state: WizardState,
+        irAvailable: Boolean = true,
+        saved: List<SavedRemote> = emptyList(),
+        addingTo: String? = null,
+    ) {
         rule.setContent {
             HotelRemoteTheme {
                 WizardScreen(
@@ -43,8 +50,9 @@ class WizardScreenTest {
                     irAvailable = irAvailable,
                     savedRemotes = saved,
                     onPickBrand = {}, onStartScan = { started++ }, onTest = {}, onAnswer = {}, onTvOff = {},
-                    onStopScan = {}, onResumeScan = { resumed += it }, onSave = { _, _ -> }, onBack = {},
+                    onStopScan = {}, onResumeScan = { resumed += it }, onSave = { n, b -> saves += n to b }, onBack = {},
                     onLanguage = { languageOpened++ },
+                    addingTo = addingTo,
                 )
             }
         }
@@ -133,5 +141,21 @@ class WizardScreenTest {
         show(WizardState.PickBrand)
         rule.onNodeWithTag("wizard_language").assertTextContains("Sprache").performClick()
         assertEquals(1, languageOpened)
+    }
+
+    @Test fun saveIntoExistingRoomHasNoNameFieldAndNoSavedList() {
+        val saved = SavedRemote("a", "Zimmer 1", "Samsung", "Code 1", emptyMap(), 0L)
+        show(WizardState.Save("Samsung", "Code 2", mapOf(Keys.POWER to sig()), hasInputs = false), saved = listOf(saved), addingTo = "Zimmer 1")
+        rule.onNodeWithTag("wizard_name").assertDoesNotExist()
+        rule.onNodeWithText("BEREITS GESPEICHERT").assertDoesNotExist()
+        rule.onNodeWithTag("wizard_adding_to").assertTextContains("Wird zu „Zimmer 1“ hinzugefügt.")
+        rule.onNodeWithText("Zur Fernbedienung").performClick()
+        assertEquals(listOf<Pair<String?, String>>(null to "Samsung"), saves)
+    }
+
+    @Test fun saveNewRoomHasNameField() {
+        show(WizardState.Save("Samsung", "Code 2", mapOf(Keys.POWER to sig()), hasInputs = false))
+        rule.onNodeWithTag("wizard_name").assertExists()
+        rule.onNodeWithTag("wizard_adding_to").assertDoesNotExist()
     }
 }

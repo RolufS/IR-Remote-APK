@@ -5,6 +5,8 @@ import de.hotelremote.automation.AutomationRecorder
 import de.hotelremote.automation.AutomationResult
 import de.hotelremote.automation.AutomationRunner
 import de.hotelremote.automation.AutomationTemplate
+import de.hotelremote.data.AcBrand
+import de.hotelremote.data.AcCatalog
 import de.hotelremote.data.AcState
 import de.hotelremote.data.Automation
 import de.hotelremote.data.AutomationStep
@@ -15,6 +17,8 @@ import de.hotelremote.data.RoomPage
 import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.ir.IrSignal
+import de.hotelremote.wizard.AcWizardMachine
+import de.hotelremote.wizard.AcWizardState
 import de.hotelremote.wizard.ScanRunner
 import de.hotelremote.wizard.WizardMachine
 import de.hotelremote.wizard.WizardState
@@ -34,7 +38,10 @@ import java.util.UUID
 sealed interface Screen {
     data object Remote : Screen
     data object RemoteList : Screen
+    /** Start eines neuen Raums: „Fernseher“ oder „Klimaanlage“. */
+    data object DeviceChoice : Screen
     data object Wizard : Screen
+    data object AcWizard : Screen
     data object ExtraKeys : Screen
     data object About : Screen
     data object Language : Screen
@@ -51,6 +58,9 @@ sealed interface Screen {
         val template: AutomationTemplate? = null,
     ) : Screen
 }
+
+/** Gerät eines Raums. */
+enum class DeviceKind { TV, AC }
 
 /** Ungespeicherter Stand im Editor. */
 data class AutomationDraft(val name: String, val steps: List<AutomationStep>)
@@ -76,10 +86,16 @@ data class AppUiState(
     val current: SavedRemote? = null,
     val remotes: List<SavedRemote> = emptyList(),
     val wizard: WizardState = WizardState.PickBrand,
+    val acWizard: AcWizardState = AcWizardState.PickBrand,
+    /** Raum, zu dem der Assistent ein Gerät hinzufügt; null = neuer Raum. */
+    val wizardRoom: String? = null,
     val irAvailable: Boolean = true,
     /** Code-Datenbank nicht ladbar: gespeicherte Fernbedienungen gehen, Assistent und Über zeigen einen Hinweis. */
     val dbError: Boolean = false,
     val brands: List<Brand> = emptyList(),
+    /** Klima-Datenbank nicht ladbar: der Klima-Assistent zeigt nur den Hinweis. */
+    val acDbError: Boolean = false,
+    val acBrands: List<AcBrand> = emptyList(),
     val meta: Map<String, String> = emptyMap(),
     val message: UiMessage? = null,
     /** Zu [UiMessage.KEYS_MISSING]: die übersprungenen Tasten. */
@@ -107,6 +123,8 @@ class AppController(
     private val hold: (IrSignal) -> Job? = { send(it); null },
     /** Monotone Uhr (ms) für die Pausen der Aufnahme; unabhängig von Änderungen der Uhrzeit. */
     recorderClock: () -> Long = { System.nanoTime() / 1_000_000 },
+    /** Klima-Datenbank (eigenes Asset); ohne Angabe nicht vorhanden. */
+    private val openAcCatalog: () -> AcCatalog = { error("Keine Klima-Datenbank") },
 ) {
     private val _state = MutableStateFlow(
         AppUiState(
@@ -120,6 +138,8 @@ class AppController(
     private var catalog: CodeCatalog? = null
     private var machine: WizardMachine? = null
     private var scanRunner: ScanRunner? = null
+    private var acCatalog: AcCatalog? = null
+    private var acMachine: AcWizardMachine? = null
 
     private val automationRunner = AutomationRunner(scope, send, ::automationFinished)
 
@@ -155,7 +175,17 @@ class AppController(
                     null
                 }
             }
+            val acLoaded = withContext(io) {
+                try {
+                    openAcCatalog().let { it to it.brands() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    null
+                }
+            }
             catalog = loaded?.first
+            acCatalog = acLoaded?.first
             _state.update {
                 it.copy(
                     loading = false,
@@ -163,6 +193,8 @@ class AppController(
                     brands = loaded?.second.orEmpty(),
                     meta = loaded?.third.orEmpty(),
                     dbError = loaded == null,
+                    acBrands = acLoaded?.second.orEmpty(),
+                    acDbError = acLoaded == null,
                     message = if (remotes == null) UiMessage.LOAD_FAILED else it.message,
                 )
             }
@@ -406,8 +438,31 @@ class AppController(
 
     // ---- Assistent ----
 
-    /** Öffnet den Assistenten mit frischem Automaten; ohne Code-Datenbank nur den Hinweis. */
+    /** Neuer Raum: zuerst die Wahl „Fernseher“ / „Klimaanlage“ (frische Automaten). */
     fun openWizard() {
+        prepareWizards(room = null)
+        _state.update { s ->
+            s.copy(screen = Screen.DeviceChoice, current = if (s.remotes.isEmpty()) null else s.current)
+        }
+    }
+
+    /** Auswahl auf dem Startschritt eines neuen Raums. */
+    fun chooseDevice(kind: DeviceKind) {
+        if (_state.value.screen != Screen.DeviceChoice) return
+        show(kind.wizardScreen)
+    }
+
+    /** Fügt dem Raum [roomId] ein Gerät hinzu (eine vorhandene Klimaanlage wird erst beim Speichern ersetzt). */
+    fun addDevice(roomId: String, kind: DeviceKind) {
+        if (_state.value.recording != null || _state.value.remotes.none { it.id == roomId }) return
+        prepareWizards(room = roomId)
+        show(kind.wizardScreen)
+    }
+
+    private val DeviceKind.wizardScreen get() = if (this == DeviceKind.TV) Screen.Wizard else Screen.AcWizard
+
+    /** Frische Automaten für TV und Klima; ohne Code-Datenbank nur der Hinweis. */
+    private fun prepareWizards(room: String?) {
         scanRunner?.stop()
         scanRunner = null
         machine = null
@@ -417,11 +472,12 @@ class AppController(
             machine = m
             scanRunner = ScanRunner(m, send, scope, onStateChanged = ::pushWizard)
         }
-        _state.update { s ->
-            s.copy(
-                screen = Screen.Wizard,
+        acMachine = acCatalog?.let(::AcWizardMachine)
+        _state.update {
+            it.copy(
                 wizard = machine?.state ?: WizardState.PickBrand,
-                current = if (s.remotes.isEmpty()) null else s.current,
+                acWizard = AcWizardState.PickBrand,
+                wizardRoom = room,
             )
         }
     }
@@ -458,12 +514,24 @@ class AppController(
         if (scanRunner?.running?.value == true) stopScan()
     }
 
-    /** Zurück im Assistenten; false, wenn die App verlassen werden soll (Markenwahl ohne gespeicherte Fernbedienung). */
+    /**
+     * Zurück im Assistenten (TV, Klima oder Gerätewahl), ein Schritt; von der Markenwahl eines neuen Raums zur
+     * Gerätewahl. false, wenn die App verlassen werden soll (Anfang ohne gespeicherten Raum).
+     */
     fun wizardBack(): Boolean {
-        val m = machine
-        if (scanRunner?.running?.value == true) scanRunner?.stop()
-        if (m != null && m.back()) {
-            pushWizard()
+        when (_state.value.screen) {
+            Screen.Wizard -> {
+                if (scanRunner?.running?.value == true) scanRunner?.stop()
+                if (machine?.back() == true) {
+                    pushWizard()
+                    return true
+                }
+            }
+            Screen.AcWizard -> if (acWizard { it.back() } == true) return true
+            else -> return closeWizard()
+        }
+        if (_state.value.wizardRoom == null) {
+            show(Screen.DeviceChoice)
             return true
         }
         return closeWizard()
@@ -476,23 +544,88 @@ class AppController(
         return true
     }
 
-    /** Speichert den Fund; scheitert das Schreiben, bleibt er für diese Sitzung nutzbar. */
+    /**
+     * Speichert den Fund als neuen Raum bzw. als Fernseher von [AppUiState.wizardRoom] (dann ohne [name]);
+     * scheitert das Schreiben, bleibt er für diese Sitzung nutzbar.
+     */
     fun saveWizard(name: String?, brandName: String) {
         val s = machine?.state as? WizardState.Save ?: return
         scanRunner?.stop()
-        val remote = SavedRemote(
-            id = UUID.randomUUID().toString(),
-            name = name,
-            brand = brandName.trim().ifBlank { s.brandName },
-            codeLabel = s.codeLabel,
-            keys = s.keys,
-            lastUsed = clock(),
-        )
+        val brand = brandName.trim().ifBlank { s.brandName }
+        saveRoom(RoomPage.TV, name, { it.copy(brand = brand, codeLabel = s.codeLabel, keys = s.keys) }) { id ->
+            store.setTv(id, brand, s.codeLabel, s.keys)
+        }
+    }
+
+    // ---- Klima-Assistent ----
+
+    private inline fun <T> acWizard(action: (AcWizardMachine) -> T): T? {
+        val m = acMachine ?: return null
+        return action(m).also { _state.update { it.copy(acWizard = m.state) } }
+    }
+
+    /** [brandId] null = Marke unbekannt (alle Geräte). */
+    fun acPickBrand(brandId: Long?) {
+        acWizard { it.pickBrand(brandId) }
+    }
+
+    fun acAnswer(yes: Boolean) {
+        acWizard { it.answer(yes) }
+    }
+
+    /** Sendet (nochmal) das Signal des aktuellen Schritts: Test-Zustand bzw. „Aus“. */
+    fun acTestSignal() {
+        acMachine?.testSignal()?.let(send)
+    }
+
+    /** Speichert die gefundene Klimaanlage als neuen Raum bzw. in [AppUiState.wizardRoom]; danach die Klima-Seite. */
+    fun saveAcWizard(name: String?) {
+        val ac = (acMachine?.state as? AcWizardState.Save)?.ac ?: return
+        saveRoom(RoomPage.AC, name, { it.copy(ac = ac) }) { id -> store.setAc(id, ac) }
+    }
+
+    /**
+     * Neuer Raum ([change] auf einen leeren Raum) oder Gerät im Raum des Assistenten ([write]); zeigt danach
+     * [page] des Raums. Scheitert das Schreiben, gilt der Stand für diese Sitzung.
+     */
+    private fun saveRoom(page: RoomPage, name: String?, change: (SavedRemote) -> SavedRemote, write: (String) -> Unit) {
+        val room = _state.value.wizardRoom?.let { id -> _state.value.remotes.firstOrNull { it.id == id } }
+        val now = clock()
+        val saved: SavedRemote
+        val remotes = if (room == null) {
+            saved = change(SavedRemote(id = UUID.randomUUID().toString(), name = name, lastUsed = now))
+            storing {
+                store.add(saved)
+                store.all()
+            }
+        } else {
+            saved = change(room).copy(lastUsed = now, lastPage = page)
+            storing {
+                write(room.id)
+                store.setLastPage(room.id, page)
+                store.markUsed(room.id, now)
+                store.all()
+            }
+        } ?: (listOf(saved) + _state.value.remotes.filterNot { it.id == saved.id })
+        val current = remotes.firstOrNull { it.id == saved.id } ?: saved
+        _state.update { it.copy(current = current, remotes = remotes, screen = Screen.Remote, wizardRoom = null) }
+    }
+
+    // ---- Geräte eines Raums ----
+
+    /** Entfernt Fernseher bzw. Klimaanlage aus dem Raum; ist es das letzte Gerät, wird der Raum gelöscht. */
+    fun removeDevice(roomId: String, kind: DeviceKind) {
+        val room = _state.value.remotes.firstOrNull { it.id == roomId } ?: return
+        val hasOther = if (kind == DeviceKind.TV) room.ac != null else room.hasTv
+        if (!hasOther) {
+            delete(roomId)
+            return
+        }
         val remotes = storing {
-            store.add(remote)
+            if (kind == DeviceKind.TV) store.setTv(roomId, "", "", emptyMap()) else store.setAc(roomId, null)
             store.all()
-        } ?: (listOf(remote) + _state.value.remotes)
-        _state.update { it.copy(current = remote, remotes = remotes, screen = Screen.Remote) }
+        } ?: return
+        _state.update { s -> s.copy(remotes = remotes, current = s.current?.let { c -> remotes.firstOrNull { it.id == c.id } }) }
     }
 
     fun close() {

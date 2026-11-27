@@ -51,11 +51,14 @@ import de.hotelremote.ui.remote.QuickSheet
 import de.hotelremote.ui.remote.RemoteMenu
 import de.hotelremote.ui.remote.RemoteScreen
 import de.hotelremote.ui.remotes.RemoteListScreen
+import de.hotelremote.ui.remotes.ReplaceAcDialog
 import de.hotelremote.ui.sleeptimer.SleepTimerDialog
 import de.hotelremote.ui.sleeptimer.SleepTimerStartFlow
 import de.hotelremote.ui.sleeptimer.TimerRequest
 import de.hotelremote.ui.sleeptimer.TimerRequestSaver
 import de.hotelremote.ui.theme.RemoteColors
+import de.hotelremote.ui.wizard.AcWizardScreen
+import de.hotelremote.ui.wizard.DeviceChoiceScreen
 import de.hotelremote.ui.wizard.WizardDbError
 import de.hotelremote.ui.wizard.WizardScreen
 
@@ -71,6 +74,9 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
     val quickWidgets by vm.quickWidgets.collectAsStateWithLifecycle()
     val recordedSteps by c.recordedSteps.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    // ⋮ „Klimaanlage ersetzen“: Rückfrage für diesen Raum.
+    var replaceAcFor by rememberSaveable { mutableStateOf<String?>(null) }
+    val addingTo = state.wizardRoom?.let { id -> state.remotes.firstOrNull { it.id == id }?.title }
     val recording = state.recording?.let { r ->
         val count = recordedSteps.size - r.existingCount
         RecordingBarState(
@@ -125,6 +131,23 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                     .fillMaxSize()
                     .background(Brush.verticalGradient(listOf(RemoteColors.BackgroundTop, RemoteColors.BackgroundBottom))),
             )
+            state.screen == Screen.DeviceChoice -> DeviceChoiceScreen(
+                onChoose = c::chooseDevice,
+                onBack = wizardBack,
+                onLanguage = c::openLanguage,
+            )
+            state.screen == Screen.AcWizard && state.acDbError -> WizardDbError(onBack = wizardBack)
+            state.screen == Screen.AcWizard -> AcWizardScreen(
+                state = state.acWizard,
+                brands = state.acBrands,
+                irAvailable = state.irAvailable,
+                onPickBrand = c::acPickBrand,
+                onTest = c::acTestSignal,
+                onAnswer = c::acAnswer,
+                onSave = c::saveAcWizard,
+                onBack = wizardBack,
+                addingTo = addingTo,
+            )
             state.screen == Screen.Wizard && state.dbError -> WizardDbError(onBack = wizardBack)
             state.screen == Screen.Wizard -> WizardScreen(
                 state = state.wizard,
@@ -141,6 +164,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onSave = c::saveWizard,
                 onBack = wizardBack,
                 onLanguage = c::openLanguage,
+                addingTo = addingTo,
             )
             state.screen == Screen.RemoteList -> RemoteListScreen(
                 remotes = state.remotes,
@@ -150,6 +174,8 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onDelete = c::delete,
                 onNew = c::openWizard,
                 onBack = { c.show(Screen.Remote) },
+                onAddDevice = c::addDevice,
+                onRemoveDevice = c::removeDevice,
             )
             state.screen == Screen.About -> AboutScreen(meta = state.meta, dbError = state.dbError, onBack = { c.show(Screen.Remote) })
             current == null -> Unit
@@ -208,6 +234,9 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                         RemoteMenu.AUTOMATIONS -> c.show(Screen.Automations)
                         RemoteMenu.QUICK_CONTROLS -> c.show(Screen.QuickControls)
                         RemoteMenu.WIZARD -> c.openWizard()
+                        RemoteMenu.ADD_AC ->
+                            if (current.ac != null) replaceAcFor = current.id else c.addDevice(current.id, DeviceKind.AC)
+                        RemoteMenu.ADD_TV -> c.addDevice(current.id, DeviceKind.TV)
                         RemoteMenu.LANGUAGE -> c.openLanguage()
                         RemoteMenu.ABOUT -> c.show(Screen.About)
                     }
@@ -286,6 +315,16 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 dismissButton = {
                     TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(R.string.rec_continue)) }
                 },
+            )
+        }
+        state.remotes.firstOrNull { it.id == replaceAcFor }?.takeIf { state.screen == Screen.Remote }?.let { r ->
+            ReplaceAcDialog(
+                r.title,
+                onConfirm = {
+                    replaceAcFor = null
+                    c.addDevice(r.id, DeviceKind.AC)
+                },
+                onDismiss = { replaceAcFor = null },
             )
         }
         timerRequest?.let { request ->

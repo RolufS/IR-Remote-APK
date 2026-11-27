@@ -2,7 +2,11 @@ package de.hotelremote.ui
 
 import de.hotelremote.Keys
 import de.hotelremote.automation.SleepTemplates
+import de.hotelremote.data.AcBrand
+import de.hotelremote.data.AcCatalog
+import de.hotelremote.data.AcDevice
 import de.hotelremote.data.AcState
+import de.hotelremote.data.acBlob
 import de.hotelremote.data.Automation
 import de.hotelremote.data.PLAIN_PATHS
 import de.hotelremote.data.pulsesOf
@@ -16,6 +20,7 @@ import de.hotelremote.data.SavedAc
 import de.hotelremote.data.SavedRemote
 import de.hotelremote.data.ScanEntry
 import de.hotelremote.ir.IrSignal
+import de.hotelremote.wizard.AcWizardState
 import de.hotelremote.wizard.WizardState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -28,6 +33,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -66,6 +72,9 @@ private class FakeStorage(initial: List<SavedRemote> = emptyList()) : RemoteStor
     override fun updateAutomations(id: String, automations: List<Automation>) = write {
         list.replaceAll { if (it.id == id) it.copy(automations = automations) else it }
     }
+    override fun setTv(id: String, brand: String, codeLabel: String, keys: Map<String, IrSignal>) = write {
+        list.replaceAll { if (it.id == id) it.copy(brand = brand, codeLabel = codeLabel, keys = keys) else it }
+    }
     override fun setAc(id: String, ac: SavedAc?) = write {
         list.replaceAll { if (it.id == id) it.copy(ac = ac) else it }
     }
@@ -91,6 +100,17 @@ private class FakeCatalog : CodeCatalog {
     override fun topBrand(codeSetId: Long): Long? = null
 }
 
+/** Eine Klima-Marke mit zwei Geräten (beide [PLAIN_PATHS]). */
+private class FakeAcCatalog : AcCatalog {
+    override fun brands() = listOf(AcBrand(1, "Daikin", 2, commonRank = 0))
+    override fun deviceIds(brandId: Long?) = listOf(31L, 32L)
+    override fun device(id: Long) = AcDevice(
+        id = id, brandId = 1, brandName = "Daikin", models = listOf("FTX$id"), source = "$id.json",
+        minTemp = 16.0, maxTemp = 30.0, precision = 1.0, modes = listOf("cool", "heat"), fanModes = listOf("auto"),
+        swingModes = emptyList(), commands = acBlob(PLAIN_PATHS),
+    )
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppControllerTest {
     private val sent = mutableListOf<IrSignal>()
@@ -101,6 +121,7 @@ class AppControllerTest {
         hold: ((IrSignal) -> Job?)? = null,
         recorderClock: () -> Long = { 0L },
         catalog: () -> CodeCatalog = { FakeCatalog() },
+        acCatalog: () -> AcCatalog = { FakeAcCatalog() },
     ): AppController {
         val d = StandardTestDispatcher(testScheduler)
         return AppController(
@@ -114,6 +135,7 @@ class AppControllerTest {
             languageChosen = languageChosen,
             hold = hold ?: { sent += it; null },
             recorderClock = recorderClock,
+            openAcCatalog = acCatalog,
         ).also { runCurrent() }
     }
 
@@ -129,34 +151,43 @@ class AppControllerTest {
 
     @Test fun startsWizardWithoutSavedRemote() = runTest {
         val c = controller(FakeStorage())
-        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
         assertEquals(WizardState.PickBrand, c.state.value.wizard)
+        c.chooseDevice(DeviceKind.TV)
+        assertEquals(Screen.Wizard, c.state.value.screen)
     }
 
     @Test fun dbErrorKeepsSavedRemotesUsable() = runTest {
-        val c = controller(FakeStorage(listOf(remote("a", 1)))) { throw IllegalStateException("kein Platz") }
+        val c = controller(FakeStorage(listOf(remote("a", 1))), catalog = { throw IllegalStateException("kein Platz") })
         val s = c.state.value
         assertFalse(s.loading)
         assertTrue(s.dbError)
         assertEquals("a", s.current?.id)
         assertEquals(Screen.Remote, s.screen)
         c.openWizard()
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
+        c.chooseDevice(DeviceKind.TV)
         assertEquals(Screen.Wizard, c.state.value.screen)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
         assertTrue(c.wizardBack())
         assertEquals(Screen.Remote, c.state.value.screen)
     }
 
     @Test fun dbErrorWithoutRemotesShowsWizardErrorAndBackExits() = runTest {
-        val c = controller(FakeStorage()) { throw RuntimeException("defekt") }
+        val c = controller(FakeStorage(), catalog = { throw RuntimeException("defekt") })
         assertTrue(c.state.value.dbError)
+        c.chooseDevice(DeviceKind.TV)
         assertEquals(Screen.Wizard, c.state.value.screen)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
         assertFalse(c.wizardBack())
     }
 
     @Test fun storeLoadFailureShowsMessageAndOpensWizard() = runTest {
         val c = controller(FakeStorage().apply { failLoad = true })
         assertEquals(UiMessage.LOAD_FAILED, c.state.value.message)
-        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
         assertFalse(c.state.value.dbError)
     }
 
@@ -261,7 +292,7 @@ class AppControllerTest {
         val c = controller(FakeStorage(), languageChosen = false)
         assertEquals(Screen.Language, c.state.value.screen)
         c.languageChosen()
-        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
         assertEquals(WizardState.PickBrand, c.state.value.wizard)
     }
 
@@ -301,6 +332,7 @@ class AppControllerTest {
 
     @Test fun languageFromWizardKeepsWizardState() = runTest {
         val c = controller(FakeStorage())
+        c.chooseDevice(DeviceKind.TV)
         c.pickBrand(1)
         val wizard = c.state.value.wizard
         c.openLanguage()
@@ -621,5 +653,237 @@ class AppControllerTest {
         assertTrue(sent.isEmpty())
         c.ac(AcAction.Power)
         assertEquals(listOf(pulsesOf(PLAIN_PATHS, "off")), sent.map { it.frame })
+    }
+
+    // ---- Klima-Assistent und Geräte eines Raums ----
+
+    private fun tvAcRoom(id: String, lastUsed: Long = 1) = remote(id, lastUsed).copy(ac = testAc())
+
+    private fun pureAcRoom(id: String) = SavedRemote(id = id, lastUsed = 1, ac = testAc())
+
+    /** Erstes Gerät bestätigen (Test-Zustand und „Aus“), dann speichern. */
+    private fun AppController.findAc(name: String? = null) {
+        acPickBrand(1)
+        acAnswer(true)
+        acAnswer(true)
+        assertTrue(state.value.acWizard is AcWizardState.Save)
+        saveAcWizard(name)
+    }
+
+    @Test fun newRoomWithAirConditioner() = runTest {
+        val store = FakeStorage()
+        val c = controller(store)
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
+        assertFalse(c.state.value.acDbError)
+        assertEquals(listOf("Daikin"), c.state.value.acBrands.map { it.name })
+        c.chooseDevice(DeviceKind.AC)
+        assertEquals(Screen.AcWizard, c.state.value.screen)
+        assertEquals(AcWizardState.PickBrand, c.state.value.acWizard)
+        c.acPickBrand(1)
+        val test = c.state.value.acWizard as AcWizardState.TestCode
+        assertEquals(0, test.index)
+        assertEquals(2, test.total)
+        c.acTestSignal()
+        c.acTestSignal() // Nochmal senden
+        assertEquals(List(2) { pulsesOf(PLAIN_PATHS, "cool/auto/24") }, sent.map { it.frame })
+        c.acAnswer(true)
+        assertTrue(c.state.value.acWizard is AcWizardState.ConfirmOff)
+        c.acTestSignal()
+        assertEquals(pulsesOf(PLAIN_PATHS, "off"), sent.last().frame)
+        c.acAnswer(true)
+        c.saveAcWizard("Zimmer 5")
+        val room = store.list.single()
+        assertEquals("Zimmer 5", room.name)
+        assertFalse(room.hasTv)
+        assertEquals("Daikin", room.ac?.brand)
+        assertEquals("FTX31", room.ac?.deviceLabel)
+        assertEquals(AcState(power = false, mode = "cool", temp = 24.0, fan = "auto"), room.ac?.state)
+        assertEquals(room, c.state.value.current)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertNotNull(c.acView(room))
+    }
+
+    @Test fun acWizardNoGoesToNextDeviceAndBackGoesOneStep() = runTest {
+        val c = controller(FakeStorage())
+        c.chooseDevice(DeviceKind.AC)
+        c.acPickBrand(1)
+        c.acAnswer(false)
+        assertEquals(32L, (c.state.value.acWizard as AcWizardState.TestCode).deviceId)
+        c.acAnswer(false)
+        assertEquals(AcWizardState.NoMatch(1), c.state.value.acWizard)
+        assertTrue(c.wizardBack())
+        assertEquals(AcWizardState.PickBrand, c.state.value.acWizard)
+        c.acPickBrand(1)
+        c.acAnswer(false)
+        assertTrue(c.wizardBack())
+        assertEquals(31L, (c.state.value.acWizard as AcWizardState.TestCode).deviceId)
+        assertTrue(c.wizardBack())
+        assertEquals(AcWizardState.PickBrand, c.state.value.acWizard)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
+        assertFalse(c.wizardBack()) // kein Raum: App verlassen
+    }
+
+    @Test fun tvWizardBackFromBrandPickReturnsToDeviceChoice() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.openWizard()
+        c.chooseDevice(DeviceKind.TV)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
+        c.chooseDevice(DeviceKind.AC)
+        assertEquals(Screen.AcWizard, c.state.value.screen)
+        assertTrue(c.wizardBack())
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.Remote, c.state.value.screen)
+    }
+
+    @Test fun chooseDeviceOnlyOnDeviceChoice() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.chooseDevice(DeviceKind.AC)
+        assertEquals(Screen.Remote, c.state.value.screen)
+    }
+
+    @Test fun addAcToExistingRoomKeepsTvAndShowsAcPage() = runTest {
+        val store = FakeStorage(listOf(remote("a", 1), remote("b", 2)))
+        val c = controller(store)
+        c.addDevice("a", DeviceKind.AC)
+        assertEquals(Screen.AcWizard, c.state.value.screen)
+        assertEquals("a", c.state.value.wizardRoom)
+        c.findAc(name = "ignoriert")
+        val a = store.list.first { it.id == "a" }
+        assertEquals("Daikin", a.ac?.brand)
+        assertEquals(remote("a", 1).keys, a.keys)
+        assertNull(a.name)
+        assertEquals(RoomPage.AC, a.lastPage)
+        assertEquals(1000L, a.lastUsed)
+        assertEquals(2, store.list.size)
+        assertEquals(a, c.state.value.current)
+        assertEquals(listOf("a", "b"), c.state.value.remotes.map { it.id })
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertNull(c.state.value.wizardRoom)
+    }
+
+    @Test fun addingToRoomBackFromBrandPickClosesWizard() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.addDevice("a", DeviceKind.AC)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.Remote, c.state.value.screen)
+        c.addDevice("a", DeviceKind.TV)
+        assertEquals(Screen.Wizard, c.state.value.screen)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.Remote, c.state.value.screen)
+    }
+
+    @Test fun replacingAcHappensOnlyOnSave() = runTest {
+        val store = FakeStorage(listOf(tvAcRoom("a")))
+        val c = controller(store)
+        c.addDevice("a", DeviceKind.AC)
+        c.acPickBrand(1)
+        c.wizardBack()
+        c.wizardBack()
+        assertEquals("Acme", store.list.single().ac?.brand)
+        c.addDevice("a", DeviceKind.AC)
+        c.findAc()
+        assertEquals("Daikin", store.list.single().ac?.brand)
+        assertEquals("Daikin", c.state.value.current?.ac?.brand)
+    }
+
+    @Test fun addTvToPureAcRoomSavesIntoSameRoom() = runTest {
+        val store = FakeStorage(listOf(pureAcRoom("k")))
+        val c = controller(store)
+        c.addDevice("k", DeviceKind.TV)
+        c.pickBrand(1)
+        c.answer(true)
+        c.saveWizard("ignoriert", "Samsung")
+        val k = store.list.single()
+        assertTrue(k.hasTv)
+        assertEquals("Samsung", k.brand)
+        assertEquals("Code 1", k.codeLabel)
+        assertNull(k.name)
+        assertEquals("Acme", k.ac?.brand)
+        assertEquals(RoomPage.TV, k.lastPage)
+        assertEquals(k, c.state.value.current)
+        assertEquals(Screen.Remote, c.state.value.screen)
+    }
+
+    @Test fun saveAcFailureKeepsRoomForSession() = runTest {
+        val store = FakeStorage().apply { failWrite = true }
+        val c = controller(store)
+        c.chooseDevice(DeviceKind.AC)
+        c.findAc()
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        assertEquals("Daikin", c.state.value.current?.ac?.brand)
+        assertEquals(listOf(c.state.value.current), c.state.value.remotes)
+        assertEquals(Screen.Remote, c.state.value.screen)
+    }
+
+    @Test fun saveIntoRoomFailureStillShowsDeviceForSession() = runTest {
+        val store = FakeStorage(listOf(remote("a", 1)))
+        val c = controller(store)
+        c.addDevice("a", DeviceKind.AC)
+        store.failWrite = true
+        c.findAc()
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        assertEquals("Daikin", c.state.value.current?.ac?.brand)
+        assertEquals(RoomPage.AC, c.state.value.current?.lastPage)
+        assertEquals(1, c.state.value.remotes.size)
+    }
+
+    @Test fun removeOneDeviceKeepsRoom() = runTest {
+        val store = FakeStorage(listOf(tvAcRoom("a"), tvAcRoom("b", lastUsed = 2)))
+        val c = controller(store)
+        c.removeDevice("a", DeviceKind.AC)
+        assertNull(store.list.first { it.id == "a" }.ac)
+        assertTrue(store.list.first { it.id == "a" }.hasTv)
+        c.removeDevice("b", DeviceKind.TV)
+        val b = store.list.first { it.id == "b" }
+        assertFalse(b.hasTv)
+        assertEquals("", b.brand)
+        assertEquals("Acme", b.ac?.brand)
+        assertEquals(b, c.state.value.current)
+        assertEquals("Acme · AC-1", c.state.value.current?.title)
+    }
+
+    @Test fun removingLastDeviceDeletesRoom() = runTest {
+        val store = FakeStorage(listOf(pureAcRoom("k"), remote("t", 2)))
+        val c = controller(store)
+        c.removeDevice("k", DeviceKind.AC)
+        assertEquals(listOf("t"), store.list.map { it.id })
+        c.removeDevice("t", DeviceKind.TV)
+        assertTrue(store.list.isEmpty())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
+        assertNull(c.state.value.current)
+    }
+
+    @Test fun removeFailureShowsMessage() = runTest {
+        val store = FakeStorage(listOf(tvAcRoom("a")))
+        val c = controller(store)
+        store.failWrite = true
+        c.removeDevice("a", DeviceKind.AC)
+        assertEquals(UiMessage.SAVE_FAILED, c.state.value.message)
+        assertNotNull(c.state.value.current?.ac)
+    }
+
+    @Test fun addDeviceIgnoredForUnknownRoomAndWhileRecording() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.addDevice("x", DeviceKind.AC)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        c.recordNew(returnTo = Screen.Remote)
+        c.addDevice("a", DeviceKind.AC)
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertNull(c.state.value.wizardRoom)
+    }
+
+    @Test fun acDbErrorShowsHintOnlyInAcWizard() = runTest {
+        val c = controller(FakeStorage(), acCatalog = { throw IllegalStateException("defekt") })
+        assertTrue(c.state.value.acDbError)
+        assertFalse(c.state.value.dbError)
+        c.chooseDevice(DeviceKind.AC)
+        assertEquals(Screen.AcWizard, c.state.value.screen)
+        c.acPickBrand(1)
+        c.acTestSignal()
+        assertTrue(sent.isEmpty())
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.DeviceChoice, c.state.value.screen)
     }
 }
