@@ -724,6 +724,57 @@ class AppControllerTest {
         assertFalse(c.wizardBack()) // kein Raum: App verlassen
     }
 
+    @Test fun acNoAfterFirstSendSendsNextDeviceAtOnce() = runTest {
+        val c = controller(FakeStorage())
+        c.chooseDevice(DeviceKind.AC)
+        c.acPickBrand(1)
+        // Noch nie gesendet: Nein wechselt nur das Gerät.
+        c.acAnswer(false)
+        assertEquals(32L, (c.state.value.acWizard as AcWizardState.TestCode).deviceId)
+        assertTrue(sent.isEmpty())
+        assertFalse(c.state.value.acStepSent)
+        c.wizardBack()
+        c.acTestSignal()
+        assertEquals(1, sent.size)
+        // Ab jetzt sendet Nein das nächste Gerät sofort (ein Tipp je Gerät).
+        c.acAnswer(false)
+        assertEquals(32L, (c.state.value.acWizard as AcWizardState.TestCode).deviceId)
+        assertEquals(2, sent.size)
+        assertEquals(pulsesOf(PLAIN_PATHS, "cool/auto/24"), sent.last().frame)
+        assertTrue(c.state.value.acStepSent)
+        // Ja führt zur Aus-Bestätigung: dort wird nichts automatisch gesendet.
+        c.acAnswer(true)
+        assertTrue(c.state.value.acWizard is AcWizardState.ConfirmOff)
+        assertEquals(2, sent.size)
+        assertFalse(c.state.value.acStepSent)
+        // Am Ende der Liste (NoMatch) gibt es nichts zu senden.
+        c.acAnswer(false)
+        assertEquals(AcWizardState.NoMatch(1), c.state.value.acWizard)
+        assertEquals(2, sent.size)
+    }
+
+    @Test fun freshWizardDoesNotAutoSend() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.addDevice("a", DeviceKind.AC)
+        c.acPickBrand(1)
+        c.acTestSignal()
+        c.wizardBack()
+        c.wizardBack()
+        c.addDevice("a", DeviceKind.AC)
+        c.acPickBrand(1)
+        c.acAnswer(false)
+        assertEquals(1, sent.size)
+    }
+
+    @Test fun closingWizardForgetsTargetRoom() = runTest {
+        val c = controller(FakeStorage(listOf(remote("a", 1))))
+        c.addDevice("a", DeviceKind.AC)
+        assertEquals("a", c.state.value.wizardRoom)
+        assertTrue(c.wizardBack())
+        assertEquals(Screen.Remote, c.state.value.screen)
+        assertNull(c.state.value.wizardRoom)
+    }
+
     @Test fun tvWizardBackFromBrandPickReturnsToDeviceChoice() = runTest {
         val c = controller(FakeStorage(listOf(remote("a", 1))))
         c.openWizard()

@@ -113,12 +113,14 @@ fun AcWizardScreen(
     onSave: (name: String?) -> Unit,
     onBack: () -> Unit,
     addingTo: String? = null,
+    /** Das Signal des Code-Tests wurde schon automatisch gesendet (nach „Nein, nächster“). */
+    stepSent: Boolean = false,
 ) {
     BackHandler(onBack = onBack)
     WizardFrame(irAvailable) {
         when (state) {
             AcWizardState.PickBrand -> PickAcBrand(brands, onPickBrand)
-            is AcWizardState.TestCode -> AcTestCode(state, onTest, onAnswer)
+            is AcWizardState.TestCode -> AcTestCode(state, stepSent, onTest, onAnswer)
             is AcWizardState.ConfirmOff -> AcConfirmOff(state, onTest, onAnswer)
             is AcWizardState.Save -> AcSave(state, addingTo, onSave)
             is AcWizardState.NoMatch -> Column(
@@ -188,7 +190,7 @@ private fun AcBrandRow(brand: AcBrand, onPick: (Long?) -> Unit) {
 }
 
 @Composable
-private fun AcTestCode(s: AcWizardState.TestCode, onTest: () -> Unit, onAnswer: (Boolean) -> Unit) {
+private fun AcTestCode(s: AcWizardState.TestCode, sent: Boolean, onTest: () -> Unit, onAnswer: (Boolean) -> Unit) {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Header(
             stringResource(R.string.wiz_test_header, s.brandName, s.index + 1, s.total),
@@ -204,7 +206,7 @@ private fun AcTestCode(s: AcWizardState.TestCode, onTest: () -> Unit, onAnswer: 
             ),
             Modifier.testTag("ac_test_state"),
         )
-        AcSendButton("test${s.deviceId}", onTest)
+        AcSendButton("test${s.deviceId}", onTest, initiallySent = sent)
         Question(stringResource(R.string.acwiz_q_reacted))
         NoYes(onAnswer, stringResource(R.string.wiz_no_next))
     }
@@ -220,10 +222,13 @@ private fun AcConfirmOff(s: AcWizardState.ConfirmOff, onTest: () -> Unit, onAnsw
     }
 }
 
-/** Großer Sendeknopf in der Mitte; nach dem ersten Senden darunter „Nochmal senden“ (je [step] neu). */
+/**
+ * Großer Sendeknopf in der Mitte; nach dem ersten Senden darunter „Nochmal senden“ (je [step] neu).
+ * [initiallySent]: die App hat das Signal dieses Schritts schon gesendet.
+ */
 @Composable
-private fun ColumnScope.AcSendButton(step: String, onTest: () -> Unit) {
-    var sent by rememberSaveable(step) { mutableStateOf(false) }
+private fun ColumnScope.AcSendButton(step: String, onTest: () -> Unit, initiallySent: Boolean = false) {
+    var sent by rememberSaveable(step) { mutableStateOf(initiallySent) }
     val send = {
         sent = true
         onTest()

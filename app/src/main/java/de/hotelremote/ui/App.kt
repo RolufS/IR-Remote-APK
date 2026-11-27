@@ -147,6 +147,7 @@ fun App(vm: AppViewModel, onExit: () -> Unit) {
                 onSave = c::saveAcWizard,
                 onBack = wizardBack,
                 addingTo = addingTo,
+                stepSent = state.acStepSent,
             )
             state.screen == Screen.Wizard && state.dbError -> WizardDbError(onBack = wizardBack)
             state.screen == Screen.Wizard -> WizardScreen(

@@ -42,7 +42,7 @@ class AcWizardScreenTest {
     private var tests = 0
     private var backs = 0
 
-    private fun show(state: AcWizardState, addingTo: String? = null, irAvailable: Boolean = true) {
+    private fun show(state: AcWizardState, addingTo: String? = null, irAvailable: Boolean = true, stepSent: Boolean = false) {
         rule.setContent {
             HotelRemoteTheme {
                 AcWizardScreen(
@@ -55,6 +55,7 @@ class AcWizardScreenTest {
                     onSave = { saved += it },
                     onBack = { backs++ },
                     addingTo = addingTo,
+                    stepSent = stepSent,
                 )
             }
         }
@@ -116,6 +117,12 @@ class AcWizardScreenTest {
         rule.onNodeWithText("Nein, nächster").performClick()
         rule.onNodeWithText("Ja").performClick()
         assertEquals(listOf(false, true), answers)
+    }
+
+    @Test fun autoSentStepOffersSendAgainAtOnce() {
+        show(test, stepSent = true)
+        rule.onNodeWithTag("ac_send_again").assertTextEquals("Nochmal senden").performClick()
+        assertEquals(1, tests)
     }
 
     @Test fun fahrenheitTestState() {

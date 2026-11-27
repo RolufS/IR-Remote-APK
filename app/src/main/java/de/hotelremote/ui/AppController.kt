@@ -26,6 +26,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,6 +97,8 @@ data class AppUiState(
     /** Klima-Datenbank nicht ladbar: der Klima-Assistent zeigt nur den Hinweis. */
     val acDbError: Boolean = false,
     val acBrands: List<AcBrand> = emptyList(),
+    /** Das Signal des aktuellen Klima-Code-Tests wurde schon automatisch gesendet. */
+    val acStepSent: Boolean = false,
     val meta: Map<String, String> = emptyMap(),
     val message: UiMessage? = null,
     /** Zu [UiMessage.KEYS_MISSING]: die übersprungenen Tasten. */
@@ -165,25 +168,16 @@ class AppController(
                     null
                 }
             }
-            val loaded = withContext(io) {
-                try {
+            // TV- und Klima-Datenbank parallel (beim ersten Start werden beide aus den Assets kopiert).
+            val tvJob = async(io) {
+                loadOrNull {
                     val c = openCatalog()
                     Triple(c, c.brands(), c.meta())
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    null
                 }
             }
-            val acLoaded = withContext(io) {
-                try {
-                    openAcCatalog().let { it to it.brands() }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    null
-                }
-            }
+            val acJob = async(io) { loadOrNull { openAcCatalog().let { it to it.brands() } } }
+            val loaded = tvJob.await()
+            val acLoaded = acJob.await()
             catalog = loaded?.first
             acCatalog = acLoaded?.first
             _state.update {
@@ -211,6 +205,15 @@ class AppController(
             }
         }
     }
+
+    private inline fun <T> loadOrNull(load: () -> T): T? =
+        try {
+            load()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
+        }
 
     // ---- Tasten ----
 
@@ -473,11 +476,13 @@ class AppController(
             scanRunner = ScanRunner(m, send, scope, onStateChanged = ::pushWizard)
         }
         acMachine = acCatalog?.let(::AcWizardMachine)
+        acTestSent = false
         _state.update {
             it.copy(
                 wizard = machine?.state ?: WizardState.PickBrand,
                 acWizard = AcWizardState.PickBrand,
                 wizardRoom = room,
+                acStepSent = false,
             )
         }
     }
@@ -540,7 +545,7 @@ class AppController(
     private fun closeWizard(): Boolean {
         scanRunner?.stop()
         if (_state.value.current == null) return false
-        show(Screen.Remote)
+        _state.update { it.copy(screen = Screen.Remote, wizardRoom = null) }
         return true
     }
 
@@ -559,9 +564,12 @@ class AppController(
 
     // ---- Klima-Assistent ----
 
+    /** Der Nutzer hat im Code-Test schon gesendet: ab dann sendet „Nein, nächster“ das nächste Gerät sofort. */
+    private var acTestSent = false
+
     private inline fun <T> acWizard(action: (AcWizardMachine) -> T): T? {
         val m = acMachine ?: return null
-        return action(m).also { _state.update { it.copy(acWizard = m.state) } }
+        return action(m).also { _state.update { it.copy(acWizard = m.state, acStepSent = false) } }
     }
 
     /** [brandId] null = Marke unbekannt (alle Geräte). */
@@ -569,13 +577,20 @@ class AppController(
         acWizard { it.pickBrand(brandId) }
     }
 
+    /** Nein führt zum nächsten Gerät; hat der Nutzer schon einmal getestet, wird dessen Signal gleich gesendet. */
     fun acAnswer(yes: Boolean) {
         acWizard { it.answer(yes) }
+        if (!yes && acTestSent && _state.value.acWizard is AcWizardState.TestCode) {
+            acMachine?.testSignal()?.let(send)
+            _state.update { it.copy(acStepSent = true) }
+        }
     }
 
     /** Sendet (nochmal) das Signal des aktuellen Schritts: Test-Zustand bzw. „Aus“. */
     fun acTestSignal() {
-        acMachine?.testSignal()?.let(send)
+        val signal = acMachine?.testSignal() ?: return
+        if (_state.value.acWizard is AcWizardState.TestCode) acTestSent = true
+        send(signal)
     }
 
     /** Speichert die gefundene Klimaanlage als neuen Raum bzw. in [AppUiState.wizardRoom]; danach die Klima-Seite. */
