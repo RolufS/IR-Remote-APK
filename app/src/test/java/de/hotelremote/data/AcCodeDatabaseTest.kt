@@ -85,6 +85,28 @@ class AcCodeDatabaseTest {
         }
     }
 
+    @Test fun deviceIdsInTestOrderWithoutBlobs() {
+        val acme = brandId("Acme")
+        assertEquals(db.devices(acme).map { it.id }, db.deviceIds(acme))
+        val all = db.brands().flatMap { b -> db.devices(b.id).map { it.id } }
+        assertEquals(all, db.deviceIds(null))
+    }
+
+    @Test fun shippedAssetPutsCommonBrandsFirstForUnknownBrand() {
+        AcCodeDatabase.open(ctx, stamp = 4).use { real ->
+            val brands = real.brands()
+            assertEquals(0, brands.single { it.name == "Daikin" }.commonRank)
+            assertEquals(1, brands.single { it.name == "Mitsubishi Electric" }.commonRank)
+            assertNull(brands.single { it.name == "Akai" }.commonRank)
+            val ids = real.deviceIds(null)
+            assertEquals(real.meta().getValue("devices").toInt(), ids.size)
+            assertEquals(ids.size, ids.toSet().size)
+            val daikin = real.deviceIds(brands.single { it.name == "Daikin" }.id)
+            assertEquals(daikin, ids.take(daikin.size))
+            assertEquals("Mitsubishi Electric", real.device(ids[daikin.size])!!.brandName)
+        }
+    }
+
     @Test fun metaNamesSourceAndLicense() {
         val meta = db.meta()
         assertTrue(meta.getValue("source").startsWith("SmartIR"))
